@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theridactle</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="nav-left">
+      <div class="logo">THE<span class="logo-red">R</span>IDACTLE</div>
+      <a href="#" id="nav-new-game">Nouveau jeu</a>
+      <a href="#" id="nav-create-room">Créer salon</a>
+      <a href="#" id="nav-join-room">Rejoindre</a>
+      <span id="room-display" style="display:none; color:#a78bfa; margin-left:1rem; font-weight:600;">Salon: <strong id="room-code"></strong></span>
+    </div>
+    <div class="nav-right">
+      <span>A propos</span>
+    </div>
+  </nav>
+
+  <!-- Menu Modal Overlay -->
+  <div id="menu-overlay" class="menu-overlay">
+    <div class="menu-modal">
+      <h2>Theridactle</h2>
+      <p>Trouvez le dinosaure caché !</p>
+      
+      <div class="menu-actions">
+        <button id="btn-solo" class="btn primary-btn">Partie Solo</button>
+        <button id="btn-create-room" class="btn secondary-btn">Créer un Salon</button>
+        
+        <div class="join-box">
+          <input type="text" id="join-room-input" placeholder="Code (ex: ABCD)">
+          <button id="btn-join-room" class="btn secondary-btn">Rejoindre</button>
+        </div>
+      </div>
+      
+      <div id="menu-error" class="error-msg" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Main Application -->
+  <main class="app-container" id="game-view" style="display:none;">
+    
+    <!-- Left: Article Area -->
+    <section class="article-section">
+      <div class="article-header">
+        <div class="subtitle">▶ À propos du dinosaure mystère</div>
+        <div class="puzzle-id">« DINOSAURE »</div>
+        <div class="clover">1 🍀</div>
+      </div>
+      
+      <div id="loading" class="loading" style="display:none;">Recherche des fossiles...</div>
+      
+      <div id="win-message" class="win-message" style="display:none;">
+        <h2>🏆 Félicitations !</h2>
+        <p>L'espèce a été identifiée !</p>
+      </div>
+
+      <div id="article-content" class="article-content">
+        <h1 id="main-title" class="main-title"></h1>
+        <div id="wiki-text" class="wiki-text"></div>
+      </div>
+    </section>
+
+    <!-- Right: Sidebar Area -->
+    <aside class="sidebar-section" id="sidebar">
+      
+      <!-- Mobile Handle -->
+      <div class="mobile-handle" id="mobile-handle">
+        <span class="handle-bar"></span>
+      </div>
+
+      <div class="sidebar-top">
+        <div class="sidebar-actions">
+          <div class="hint-dropdown-container">
+            <button class="btn-action" id="btn-hint">💡 INDICE (<span id="hint-count-total">3</span>)</button>
+            <div class="hint-dropdown" id="hint-dropdown" style="display:none;">
+              <div class="hint-option" id="hint-reveal-word">
+                <div class="hint-icon">👆</div>
+                <div class="hint-text">
+                  <strong>RÉVÉLER UN MOT (<span id="hint-count-word">3</span>)</strong>
+                  <span>CLIQUEZ SUR UN MOT CENSURÉ POUR LE DÉCOUVRIR.</span>
+                </div>
+              </div>
+              <div class="hint-option" id="hint-phrase">
+                <div class="hint-icon">💬</div>
+                <div class="hint-text">
+                  <strong>PHRASE INDICE (1)</strong>
+                  <span>OBTENEZ UN INDICE PHYSIQUE.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-action" id="btn-give-up">ABANDONNER</button>
+          <button class="btn-action" id="leave-btn">FAIRE ÉQUIPE</button>
+        </div>
+        
+        <!-- Desktop form (inside sidebar) -->
+        <form id="guess-form-desktop" class="guess-form guess-form-desktop">
+          <input type="text" id="guess-input-desktop" placeholder="Saisir un mot" autocomplete="off">
+          <button type="submit" class="btn-submit">
+            🔍 (<span id="guess-total-desktop">0</span>)
+          </button>
+        </form>
+      </div>
+
+      <!-- Phrase Hint Container -->
+      <div id="phrase-hint-container" class="phrase-hint-container" style="display:none;">
+        <div class="phrase-hint-title">💡 Indice Physique</div>
+        <div id="phrase-hint-text" class="phrase-hint-text"></div>
+      </div>
+
+      <div class="sidebar-list-header">
+        <span class="col-rank">#</span>
+        <span class="col-word">Mot</span>
+        <span class="col-hits">Hits</span>
+      </div>
+      
+      <ul id="guess-list" class="guess-list">
+        <!-- Guesses inserted here via JS -->
+      </ul>
+      
+    </aside>
+
+    <!-- Mobile form: outside sidebar so position:fixed always works on mobile -->
+    <form id="guess-form-mobile" class="guess-form guess-form-mobile">
+      <button type="button" id="btn-scroll-top" class="btn-scroll-top">▲ HAUT</button>
+      <input type="text" id="guess-input" placeholder="Saisir un mot" autocomplete="off">
+      <button type="submit" class="btn-submit">
+        🔍 (<span id="guess-total">0</span>)
+      </button>
+    </form>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,544 @@
+:root {
+  --bg-main: #171a21;
+  --bg-sidebar: #1e222b;
+  --bg-nav: #12141a;
+  
+  --text-main: #d1d5db;
+  --text-muted: #9ca3af;
+  
+  --block-bg: #b4bbc6;
+  --block-text: #171a21;
+  --block-hover: #e5e7eb;
+  
+  --highlight-bg: #d946ef;
+  --highlight-text: #ffffff;
+  
+  --accent: #a78bfa;
+  --btn-bg: #2d3748;
+  --btn-hover: #4a5568;
+  
+  --font: 'Inter', -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: radial-gradient(circle at top left, #232736 0%, #171a21 100%);
+  color: var(--text-main);
+  font-family: var(--font);
+  font-size: 15px;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP NAV */
+.top-nav {
+  background: rgba(18, 20, 26, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+.nav-left { display: flex; align-items: center; gap: 2rem; }
+.logo { font-weight: 800; font-size: 18px; letter-spacing: 1.5px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+.logo-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; padding: 0 6px; border-radius: 4px; margin: 0 2px; box-shadow: 0 2px 10px rgba(239,68,68,0.4); }
+.top-nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; transition: all 0.3s ease; }
+.top-nav a:hover { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+
+/* MENU OVERLAY */
+.menu-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(18, 20, 26, 0.9);
+  z-index: 100;
+  display: flex; justify-content: center; align-items: center;
+}
+.menu-modal {
+  background: var(--bg-sidebar); padding: 3rem; border-radius: 12px;
+  text-align: center; max-width: 450px; width: 90%;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.menu-modal h2 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
+.menu-modal p { color: var(--text-muted); margin-bottom: 2rem; }
+.menu-actions { display: flex; flex-direction: column; gap: 1rem; }
+.btn {
+  padding: 0.75rem 1.5rem; border: none; border-radius: 6px;
+  font-family: var(--font); font-weight: 600; font-size: 14px;
+  cursor: pointer; transition: all 0.2s;
+}
+.primary-btn { background: var(--accent); color: #fff; }
+.primary-btn:hover { background: #8b5cf6; }
+.secondary-btn { background: var(--btn-bg); color: #fff; }
+.secondary-btn:hover { background: var(--btn-hover); }
+.join-box { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.join-box input {
+  flex: 1; background: var(--bg-main); border: 1px solid var(--btn-bg);
+  color: #fff; padding: 0.75rem; border-radius: 6px;
+  text-align: center; font-weight: 600; text-transform: uppercase;
+}
+.error-msg { color: #f87171; margin-top: 1rem; font-size: 13px; }
+
+/* MAIN LAYOUT */
+.app-container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 50px);
+}
+
+/* LEFT: ARTICLE */
+.article-section {
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+  position: relative;
+}
+
+.article-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.subtitle { flex: 1; }
+.puzzle-id {
+  border: 1px solid var(--btn-bg); padding: 2px 10px;
+  border-radius: 4px; margin-right: 1rem;
+}
+.clover { color: #10b981; }
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  line-height: 1.2;
+}
+
+.wiki-text {
+  font-size: 16px;
+  line-height: 2.2;
+  text-align: justify;
+}
+.wiki-text h2, .wiki-text h3 {
+  margin-top: 2rem; margin-bottom: 1rem; color: #fff;
+  font-size: 1.25em;
+}
+.wiki-text p {
+  margin-bottom: 1.25rem;
+}
+
+/* REDACTED BLOCKS */
+.redacted {
+  position: relative;
+  background-color: var(--block-bg);
+  color: transparent; /* Makes the original word invisible but keeps its exact width */
+  display: inline-block;
+  padding: 2px 0;
+  margin: 2px 2px;
+  border-radius: 2px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1; /* Forces the background block to be short, preventing vertical overlap */
+  transition: background-color 0.1s;
+}
+.redacted.show-length::after {
+  content: attr(data-length);
+  position: absolute;
+  left: 2px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  color: var(--block-text);
+  font-size: 0.9em;
+}
+.redacted:hover { background-color: var(--block-hover); }
+
+/* Main title needs bigger blocks */
+.main-title .redacted {
+  border-radius: 4px;
+}
+
+.revealed {
+  display: inline-block;
+  margin: 0 0.1em;
+}
+.revealed.highlight {
+  background-color: var(--highlight-bg);
+  color: var(--highlight-text);
+  padding: 0 0.2em;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+/* RIGHT: SIDEBAR */
+.sidebar-section {
+  width: 360px;
+  background: rgba(30, 34, 43, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.05);
+  box-shadow: -5px 0 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-top {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.sidebar-actions {
+  display: flex; gap: 0.5rem; margin-bottom: 1rem;
+}
+.btn-action {
+  flex: 1; background: var(--btn-bg); border: none; color: var(--text-muted);
+  padding: 0.5rem; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;
+  white-space: nowrap; transition: all 0.2s;
+}
+.btn-action:hover { background: var(--btn-hover); color: #fff; }
+
+.hint-dropdown-container { position: relative; flex: 1.5; display: flex; }
+.hint-dropdown-container .btn-action { width: 100%; color: #fff; }
+.hint-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: var(--bg-nav);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  width: 300px;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  padding: 0.5rem 0;
+}
+.hint-option {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  cursor: pointer;
+}
+.hint-option:hover { background: rgba(255,255,255,0.03); }
+.hint-icon { font-size: 1.25rem; }
+.hint-text { display: flex; flex-direction: column; }
+.hint-text strong { font-size: 12px; color: var(--text-main); margin-bottom: 0.25rem; }
+.hint-text span { font-size: 11px; color: var(--text-muted); }
+
+/* Desktop form: visible. Mobile form MUST be hidden (it's in the flex layout and would show as 3rd column) */
+.guess-form-mobile { display: none !important; }
+.guess-form { display: flex; }
+.guess-form input {
+  flex: 1; background: var(--bg-main); border: 1px solid var(--btn-bg);
+  color: #fff; padding: 0.5rem 1rem; border-radius: 4px 0 0 4px; outline: none;
+}
+.btn-submit {
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  border: none; color: #fff;
+  padding: 0 1rem; border-radius: 0 6px 6px 0; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 15px rgba(167,139,250,0.3);
+}
+.btn-submit:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(167,139,250,0.5); }
+
+/* Phrase Hint UI */
+.phrase-hint-container {
+  margin: 0 1.5rem 1rem 1.5rem;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+.phrase-hint-title {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.phrase-hint-text {
+  font-size: 13px;
+  color: #fff;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+.sidebar-list-header {
+  display: flex; padding: 1rem 1.5rem;
+  font-size: 12px; color: var(--text-muted); font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.col-rank { width: 40px; }
+.col-word { flex: 1; }
+.col-hits { width: 40px; text-align: right; }
+
+.guess-list {
+  flex: 1; overflow-y: auto; list-style: none;
+}
+.guess-list li {
+  display: flex; padding: 0.75rem 1.5rem;
+  font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.guess-list li:hover { background: rgba(255,255,255,0.02); }
+.guess-list li.selected { background: rgba(255,255,255,0.05); box-shadow: inset 3px 0 0 var(--highlight-bg); }
+.guess-list li.hit .col-word { color: #fff; font-weight: 600; }
+.guess-list li.hit .col-hits { color: #fff; font-weight: 600; }
+
+.loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+.win-message { background: rgba(16,185,129,0.1); border: 1px solid #10b981; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; }
+
+/* Images - Hidden initially, shown on win */
+.wiki-text img, .wiki-text .thumb {
+  display: none;
+}
+.is-won .wiki-text img, .is-won .wiki-text .thumb {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}
+
+
+/* ─── MOBILE SCROLL TOP BTN (hidden on desktop) ─── */
+.btn-scroll-top { display: none; }
+
+/* ─── MOBILE LAYOUT ─── */
+@media (max-width: 800px) {
+
+  /* On mobile: show the mobile form, hide the desktop one */
+  .guess-form-desktop { display: none !important; }
+  .guess-form-mobile {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 400;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    background: rgb(14, 16, 22);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+    margin: 0;
+  }
+
+  /* Body: scrollable */
+  body {
+    overflow: auto;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  /* Nav: sticky compact bar */
+  .top-nav {
+    height: 50px;
+    padding: 0 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 500;
+  }
+  .nav-left { gap: 0.5rem; }
+  .top-nav a { display: none; }
+  #room-display { margin-left: 0.5rem; font-size: 12px; }
+
+  /* App: column layout */
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Article: leaves room for the two fixed panels at bottom
+     56px input bar + 240px sidebar panel = 296px + some margin */
+  .article-section {
+    flex: none;
+    width: 100%;
+    padding: 1rem 1rem 310px 1rem;
+    overflow: visible;
+  }
+
+  .main-title { font-size: 1.5rem; }
+  .article-header { font-size: 11px; margin-bottom: 0.75rem; }
+  .wiki-text { font-size: 15px; line-height: 2; }
+
+  /* ══════════════════════════════════════════
+     SIDEBAR → Fixed panel just above input bar
+     ══════════════════════════════════════════ */
+  .sidebar-section {
+    position: fixed;
+    bottom: 57px;
+    left: 0;
+    width: 100vw;
+    height: 240px;
+    z-index: 300;
+    /* IMPORTANT: No backdrop-filter here! It creates a new containing block
+       which breaks position:fixed on child elements (the input form) */
+    background: rgb(20, 23, 31);
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* Must be visible so hint dropdown is not clipped */
+  }
+
+  /* Clip only the list, not the whole panel (so dropdown can overflow) */
+  .sidebar-section > :not(.hint-dropdown) {
+    min-width: 0;
+  }
+
+  /* Thin drag-handle visual at top of panel */
+  .sidebar-section::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 6px auto 0 auto;
+    flex-shrink: 0;
+  }
+
+  /* Actions row: always visible at top of panel */
+  .sidebar-top {
+    padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    position: static;
+  }
+  .sidebar-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0;
+  }
+  .btn-action {
+    flex: 1;
+    font-size: 10px;
+    padding: 0.55rem 0.25rem;
+    white-space: nowrap;
+  }
+
+  /* Hide the input form from inside sidebar-top on mobile
+     (it's rendered as a separate fixed bar below) */
+  .sidebar-top > .guess-form {
+    display: none;
+  }
+
+  /* Hint dropdown opens UPWARD with z-index above the sidebar panel */
+  .hint-dropdown {
+    top: auto;
+    bottom: 110%;
+    left: 0;
+    width: calc(100vw - 1.5rem);
+    max-width: 320px;
+    z-index: 1000;
+    border-radius: 10px;
+  }
+
+  /* Phrase hint: compact inside panel */
+  .phrase-hint-container {
+    margin: 0.4rem 0.75rem;
+    padding: 0.6rem 0.75rem;
+    flex-shrink: 0;
+  }
+  .phrase-hint-title { font-size: 11px; margin-bottom: 0.2rem; }
+  .phrase-hint-text { font-size: 12px; }
+
+  /* List header */
+  .sidebar-list-header {
+    padding: 0.4rem 0.75rem;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  /* ─ Scrollable word list ─ */
+  .guess-list {
+    flex: 1;
+    overflow-y: auto;
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+  }
+  .guess-list::-webkit-scrollbar { width: 4px; }
+  .guess-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  .guess-list li {
+    padding: 0.5rem 0.75rem;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  /* No mobile handle needed */
+  .mobile-handle { display: none; }
+
+  /* ▲ HAUT button */
+  .btn-scroll-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 0 10px;
+    height: 40px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .btn-scroll-top:active { background: rgba(255,255,255,0.15); }
+
+  .guess-form-mobile input {
+    flex: 1;
+    height: 40px;
+    border-radius: 6px 0 0 6px;
+    font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+    padding: 0 0.75rem;
+    background: var(--bg-main);
+    border: 1px solid var(--btn-bg);
+    color: #fff;
+    outline: none;
+  }
+
+  .guess-form-mobile .btn-submit {
+    height: 40px;
+    border-radius: 0 6px 6px 0;
+    padding: 0 1rem;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Menu modal: full width */
+  .menu-modal {
+    padding: 2rem 1.5rem;
+    width: 95%;
+    max-width: 400px;
+  }
+}
+
