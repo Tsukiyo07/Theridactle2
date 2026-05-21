@@ -3,49 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Theridactle</title>
+  <title>Theridactle & Jeux - L'Arcade Premium</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dark-theme">
   
+  <!-- Backdrop Animated Glows -->
+  <div class="glow-bg">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
   <!-- Top Navigation -->
   <nav class="top-nav">
     <div class="nav-left">
-      <div class="logo">THE<span class="logo-red">R</span>IDACTLE</div>
-      <a href="#" id="nav-new-game">Nouveau jeu</a>
-      <a href="#" id="nav-create-room">Créer salon</a>
-      <a href="#" id="nav-join-room">Rejoindre</a>
-      <span id="room-display" style="display:none; color:#a78bfa; margin-left:1rem; font-weight:600;">Salon: <strong id="room-code"></strong></span>
+      <div class="logo" id="nav-logo">THERI<span class="logo-red">A</span>RCADE</div>
+      <a href="#" id="nav-home" class="nav-link active">🏠 Accueil</a>
+      <span id="room-display" style="display:none;" class="nav-room-badge">
+        🎮 Salon: <strong id="room-code"></strong>
+      </span>
     </div>
     <div class="nav-right">
-      <span>A propos</span>
+      <button id="btn-leave-nav" style="display:none;" class="btn btn-quit">Quitter la partie</button>
     </div>
   </nav>
 
-  <!-- Menu Modal Overlay -->
-  <div id="menu-overlay" class="menu-overlay">
-    <div class="menu-modal">
-      <h2>Theridactle</h2>
-      <p>Trouvez le dinosaure caché !</p>
-      
-      <div class="menu-actions">
-        <button id="btn-solo" class="btn primary-btn">Partie Solo</button>
-        <button id="btn-create-room" class="btn secondary-btn">Créer un Salon</button>
-        
-        <div class="join-box">
-          <input type="text" id="join-room-input" placeholder="Code (ex: ABCD)">
-          <button id="btn-join-room" class="btn secondary-btn">Rejoindre</button>
+  <!-- 1. MAIN PORTAL VIEW -->
+  <section id="portal-view" class="portal-container active-view">
+    <div class="portal-hero">
+      <h1 class="hero-title">Prêt pour le <span class="text-gradient">Défi</span> ?</h1>
+      <p class="hero-subtitle">Choisissez votre quiz ou jeu multijoueur en temps réel et défiez vos amis.</p>
+    </div>
+
+    <div class="portal-grid">
+      <!-- Game Card 1: Theridactle -->
+      <div class="game-card card-theridactle" id="card-theridactle">
+        <div class="card-glow"></div>
+        <div class="card-content">
+          <div class="card-icon">🦖</div>
+          <h2 class="card-title">Theridactle</h2>
+          <p class="card-desc">Le Redactle des dinosaures. Déchiffrez un article Wikipédia censuré en trouvant les mots cachés. Jouable en solo ou en coopération locale !</p>
+          <button class="btn btn-primary btn-card">Explorer les Fossiles</button>
         </div>
       </div>
-      
-      <div id="menu-error" class="error-msg" style="display: none;"></div>
-    </div>
-  </div>
 
-  <!-- Main Application -->
-  <main class="app-container" id="game-view" style="display:none;">
-    
+      <!-- Game Card 2: L'Imposteur -->
+      <div class="game-card card-imposteur" id="card-imposteur">
+        <div class="card-glow"></div>
+        <div class="card-content">
+          <div class="card-icon">🕵️‍♂️</div>
+          <h2 class="card-title">L'Imposteur</h2>
+          <p class="card-desc">Le jeu du quiproquo et du bluff. Tout le monde reçoit le même mot secret, sauf un : l'Imposteur. Décrivez, débattez et démasquez-le !</p>
+          <button class="btn btn-accent btn-card">Détecter l'Imposteur</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. THERIDACTLE MENU VIEW -->
+  <section id="theridactle-menu-view" class="menu-container view-hidden">
+    <div class="glass-panel menu-panel">
+      <button class="btn-back" id="btn-back-theridactle">← Retour</button>
+      <div class="menu-header">
+        <span class="badge badge-primary">Dinosaures</span>
+        <h2>Theridactle</h2>
+        <p>Identifiez l'espèce préhistorique cachée sous les blocs.</p>
+      </div>
+
+      <div class="menu-actions">
+        <button id="btn-solo" class="btn btn-primary btn-block">Partie Solo</button>
+        
+        <div class="divider"><span>OU MULTIJOUEUR</span></div>
+        
+        <button id="btn-create-room" class="btn btn-secondary btn-block">Créer un Salon Coopératif</button>
+        
+        <div class="join-box">
+          <input type="text" id="join-room-input" placeholder="Code de salon (ex: ABCD)" autocomplete="off">
+          <button id="btn-join-room" class="btn btn-primary">Rejoindre</button>
+        </div>
+      </div>
+      <div id="theridactle-menu-error" class="error-msg" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- 3. IMPOSTEUR MENU VIEW -->
+  <section id="imposteur-menu-view" class="menu-container view-hidden">
+    <div class="glass-panel menu-panel">
+      <button class="btn-back" id="btn-back-imposteur">← Retour</button>
+      <div class="menu-header">
+        <span class="badge badge-accent">Bluff & Quiproquo</span>
+        <h2>L'Imposteur</h2>
+        <p>Entrez votre pseudo pour créer ou rejoindre un salon.</p>
+      </div>
+
+      <div class="menu-inputs">
+        <div class="input-group">
+          <label for="imposteur-nickname">Votre Pseudo</label>
+          <input type="text" id="imposteur-nickname" placeholder="Entrez un pseudo stylé" max-length="15" autocomplete="off">
+        </div>
+
+        <div class="menu-actions" style="margin-top: 1.5rem;">
+          <button id="btn-imposteur-create" class="btn btn-accent btn-block">Créer un Salon de Bluff</button>
+          
+          <div class="divider"><span>OU REJOINDRE</span></div>
+          
+          <div class="join-box">
+            <input type="text" id="imposteur-join-code" placeholder="Code (ex: WXYZ)" autocomplete="off">
+            <button id="btn-imposteur-join" class="btn btn-accent">Rejoindre</button>
+          </div>
+        </div>
+      </div>
+      <div id="imposteur-menu-error" class="error-msg" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- 4. THERIDACTLE GAME VIEW -->
+  <main class="app-container view-hidden" id="game-view">
     <!-- Left: Article Area -->
     <section class="article-section">
       <div class="article-header">
@@ -56,10 +131,7 @@
       
       <div id="loading" class="loading" style="display:none;">Recherche des fossiles...</div>
       
-      <div id="win-message" class="win-message" style="display:none;">
-        <h2>🏆 Félicitations !</h2>
-        <p>L'espèce a été identifiée !</p>
-      </div>
+      <div id="win-message" class="win-message" style="display:none;"></div>
 
       <div id="article-content" class="article-content">
         <h1 id="main-title" class="main-title"></h1>
@@ -97,7 +169,7 @@
             </div>
           </div>
           <button class="btn-action" id="btn-give-up">ABANDONNER</button>
-          <button class="btn-action" id="leave-btn">FAIRE ÉQUIPE</button>
+          <button class="btn-action" id="leave-btn">QUITTER</button>
         </div>
         
         <!-- Desktop form (inside sidebar) -->
@@ -127,7 +199,7 @@
       
     </aside>
 
-    <!-- Mobile form: outside sidebar so position:fixed always works on mobile -->
+    <!-- Mobile form -->
     <form id="guess-form-mobile" class="guess-form guess-form-mobile">
       <button type="button" id="btn-scroll-top" class="btn-scroll-top">▲ HAUT</button>
       <input type="text" id="guess-input" placeholder="Saisir un mot" autocomplete="off">
@@ -135,7 +207,134 @@
         🔍 (<span id="guess-total">0</span>)
       </button>
     </form>
+  </main>
 
+  <!-- 5. IMPOSTEUR GAME VIEW -->
+  <main class="app-container view-hidden" id="imposteur-game-view">
+    <div class="imposteur-layout">
+      
+      <!-- Left: Game Actions / Lobbies / Turn displays -->
+      <section class="imposteur-main-section">
+        
+        <!-- LOBBY STATE PANEL -->
+        <div id="imposteur-lobby-panel" class="glass-panel imposteur-panel">
+          <div class="panel-header">
+            <h3>🏠 Salon d'Attente</h3>
+            <span class="badge badge-accent">En attente des joueurs</span>
+          </div>
+          <div class="lobby-content">
+            <div class="lobby-settings-box">
+              <h4>Thème de la Partie</h4>
+              <div class="theme-select-wrapper">
+                <select id="imposteur-theme-select" class="theme-select">
+                  <option value="general">🌍 Général (Chien/Chat, Café/Thé...)</option>
+                  <option value="anime">💮 Mangas & Animes (Naruto/Sasuke, Pikachu/Raichu...)</option>
+                  <option value="jeux_video">🎮 Jeux Vidéo (Mario/Luigi, Zelda/Link...)</option>
+                  <option value="films_series">🎬 Films & Séries (Harry Potter/Voldemort, Star Wars/Star Trek...)</option>
+                </select>
+              </div>
+              <p class="theme-helper">Seul le créateur du salon peut changer le thème et lancer la partie.</p>
+            </div>
+            
+            <div class="lobby-start-box">
+              <button id="btn-imposteur-start" class="btn btn-accent btn-large" style="display:none;">Lancer la partie !</button>
+              <div id="imposteur-start-helper" class="helper-text">Le salon doit contenir au moins 3 joueurs pour démarrer.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAYING GAME PANEL (Secret Word & Descriptions) -->
+        <div id="imposteur-play-panel" class="view-hidden">
+          
+          <!-- Secret Word Card -->
+          <div class="secret-word-card glass-panel">
+            <div class="secret-card-header">🔑 VOTRE MOT SECRET</div>
+            <div class="secret-word-value" id="imposteur-my-word-display">------</div>
+            <div class="secret-card-footer">Ne révélez ce mot à personne ! Décrivez-le subtilement pour que vos alliés vous comprennent, mais sans donner trop d'indices à l'imposteur.</div>
+          </div>
+
+          <!-- Description Turn Manager -->
+          <div class="glass-panel imposteur-panel mt-15">
+            <div class="turn-indicator-bar" id="imposteur-turn-bar">
+              <div class="turn-status-icon">📢</div>
+              <div class="turn-status-text" id="imposteur-turn-status-text">Attente...</div>
+            </div>
+
+            <!-- Description Form -->
+            <form id="imposteur-desc-form" class="desc-submission-form view-hidden">
+              <input type="text" id="imposteur-desc-input" placeholder="Décrivez votre mot en 1-3 mots max..." autocomplete="off">
+              <button type="submit" class="btn btn-accent">Envoyer</button>
+            </form>
+          </div>
+
+          <!-- Descriptions Feed -->
+          <div class="glass-panel imposteur-panel mt-15">
+            <div class="panel-header">
+              <h4>💬 Descriptions du Tour</h4>
+            </div>
+            <div class="descriptions-container" id="imposteur-descriptions-list">
+              <!-- Inserted dynamically -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- DEBATE & VOTING PANEL -->
+        <div id="imposteur-vote-panel" class="view-hidden">
+          <div class="glass-panel imposteur-panel">
+            <div class="panel-header">
+              <h3>🗳️ Phase de Vote</h3>
+              <p>Débattez (oralement ou par chat) puis votez pour le joueur que vous suspectez d'être l'imposteur !</p>
+            </div>
+            
+            <div class="voting-grid" id="imposteur-voting-grid">
+              <!-- Voting cards inserted dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- GAME OVER RESULTS PANEL -->
+        <div id="imposteur-results-panel" class="view-hidden">
+          <div class="glass-panel imposteur-panel text-center">
+            <div class="results-emoji" id="imposteur-results-emoji">🏆</div>
+            <h2 id="imposteur-results-title" class="text-gradient">Victoire des Citoyens !</h2>
+            <p id="imposteur-results-subtitle" class="results-subtext">L'imposteur a été démasqué.</p>
+
+            <div class="words-reveal-box">
+              <div class="word-reveal-row">
+                <span class="reveal-label">Mot des Citoyens :</span>
+                <strong class="reveal-value text-green" id="imposteur-reveal-civil">------</strong>
+              </div>
+              <div class="word-reveal-row">
+                <span class="reveal-label">Mot de l'Imposteur :</span>
+                <strong class="reveal-value text-red" id="imposteur-reveal-impostor">------</strong>
+              </div>
+              <div class="word-reveal-row mt-15">
+                <span class="reveal-label">L'Imposteur était :</span>
+                <strong class="reveal-name" id="imposteur-reveal-name">------</strong>
+              </div>
+            </div>
+
+            <button id="btn-imposteur-restart" class="btn btn-accent btn-large mt-20" style="display:none;">Relancer une partie dans ce salon</button>
+            <p id="imposteur-restart-helper" class="helper-text" style="display:none;">Seul l'hôte peut relancer la partie.</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right: Players List (Lobby & Game) -->
+      <aside class="imposteur-sidebar">
+        <div class="glass-panel imposteur-sidebar-panel">
+          <div class="sidebar-header">
+            <h4>👥 Joueurs (<span id="imposteur-players-count">0</span>)</h4>
+          </div>
+          <ul class="imposteur-players-list" id="imposteur-players-list">
+            <!-- Dynamic player list -->
+          </ul>
+        </div>
+      </aside>
+
+    </div>
   </main>
 
   <script src="app.js"></script>
