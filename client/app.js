@@ -1082,6 +1082,62 @@ function updateGeographieUI(state) {
   const previousStatus = geographieState.status;
   const previousIndex = geographieState.currentQuestionIndex;
 
+  const fallbackCountryNames = {
+    // North America / Central America
+    ca: "Canada", us: "États-Unis", mx: "Mexique", gl: "Groenland",
+    gt: "Guatemala", bz: "Belize", hn: "Honduras", sv: "Salvador",
+    ni: "Nicaragua", cr: "Costa Rica", pa: "Panama", cu: "Cuba",
+    jm: "Jamaïque", ht: "Haïti", do: "République Dominicaine",
+    pr: "Porto Rico", bs: "Bahamas",
+    // South America
+    co: "Colombie", ve: "Venezuela", gy: "Guyana", sr: "Suriname",
+    gf: "Guyane Française", ec: "Équateur", pe: "Pérou", br: "Brésil",
+    bo: "Bolivie", py: "Paraguay", cl: "Chili", ar: "Argentine",
+    uy: "Uruguay", fk: "Îles Malouines",
+    // Europe
+    is: "Islande", gb: "Royaume-Uni", ie: "Irlande", pt: "Portugal",
+    es: "Espagne", fr: "France", be: "Belgique", nl: "Pays-Bas",
+    lu: "Luxembourg", ch: "Suisse", it: "Italie", de: "Allemagne",
+    dk: "Danemark", no: "Norvège", se: "Suède", fi: "Finlande",
+    ee: "Estonie", lv: "Lettonie", lt: "Lituanie", by: "Biélorussie",
+    ua: "Ukraine", pl: "Pologne", cz: "République Tchèque", sk: "Slovaquie",
+    at: "Autriche", hu: "Hongrie", si: "Slovénie", hr: "Croatie",
+    ba: "Bosnie-Herzégovine", rs: "Serbie", me: "Monténégro", al: "Albanie",
+    mk: "Macédoine du Nord", gr: "Grèce", bg: "Bulgarie", ro: "Roumanie",
+    md: "Moldavie", tr: "Turquie", cy: "Chypre", ge: "Géorgie",
+    am: "Arménie", az: "Azerbaïdjan", _kosovo: "Kosovo",
+    // Asia
+    ru: "Russie", kz: "Kazakhstan", uz: "Ouzbékistan", tm: "Turkménistan",
+    kg: "Kirghizistan", tj: "Tadjikistan", ir: "Iran", iq: "Irak",
+    sy: "Syrie", jo: "Jordanie", lb: "Liban", il: "Israël",
+    ps: "Palestine", sa: "Arabie Saoudite", ye: "Yémen", om: "Oman",
+    ae: "Émirats Arabes Unis", qa: "Qatar", kw: "Koweït", af: "Afghanistan",
+    pk: "Pakistan", in: "Inde", np: "Népal", npl: "Népal",
+    btn: "Bhoutan", bd: "Bangladesh", lk: "Sri Lanka", mv: "Maldives",
+    mn: "Mongolie", cn: "Chine", tw: "Taïwan", jp: "Japon",
+    kp: "Corée du Nord", kr: "Corée du Sud", mm: "Myanmar", th: "Thaïlande",
+    la: "Laos", kh: "Cambodge", vn: "Vietnam", my: "Malaisie",
+    sg: "Singapour", id: "Indonésie", ph: "Philippines", tl: "Timor oriental",
+    // Africa
+    ma: "Maroc", dz: "Algérie", tn: "Tunisie", ly: "Libye",
+    eg: "Égypte", eh: "Sahara Occidental", mr: "Mauritanie", ml: "Mali",
+    ne: "Niger", td: "Tchad", sd: "Soudan", ss: "Soudan du Sud",
+    er: "Érythrée", dj: "Djibouti", so: "Somalie", et: "Éthiopie",
+    sn: "Sénégal", gm: "Gambie", gw: "Guinée-Bissau", gn: "Guinée",
+    sl: "Sierra Leone", lr: "Libéria", ci: "Côte d'Ivoire", gh: "Ghana",
+    tg: "Togo", bj: "Bénin", ng: "Nigeria", cm: "Cameroun",
+    cf: "République Centrafricaine", gq: "Guinée Équatoriale", ga: "Gabon",
+    cg: "Congo", cd: "République Démocratique du Congo", crd: "République Démocratique du Congo",
+    ao: "Angola", na: "Namibie", za: "Afrique du Sud", ls: "Lesotho",
+    sz: "Eswatini", bw: "Botswana", zw: "Zimbabwe", mz: "Mozambique",
+    mw: "Malawi", zm: "Zambie", tz: "Tanzanie", bi: "Burundi",
+    rw: "Rwanda", ug: "Ouganda", ke: "Kenya", mg: "Madagascar",
+    _somaliland: "Somaliland",
+    // Oceania
+    au: "Australie", nz: "Nouvelle-Zélande", pg: "Papouasie-Nouvelle-Guinée",
+    fj: "Fidji", sb: "Îles Salomon", vu: "Vanuatu", nc: "Nouvelle-Calédonie"
+  };
+
   geographieState.status = state.status;
   geographieState.mode = state.mode;
   geographieState.scope = state.scope;
@@ -1316,40 +1372,17 @@ function updateGeographieUI(state) {
         return;
       }
 
-      // 2. We have the map SVG! Let's render the radar container
-      let clueHtml = '';
-      if (state.question.media) {
-        clueHtml = `
-          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.2rem; background: rgba(0, 242, 254, 0.04); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 12px; padding: 0.6rem 1.25rem; width: fit-content; margin-left: auto; margin-right: auto; backdrop-filter: blur(5px);">
-            <span style="font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.6); font-family: monospace; letter-spacing: 0.5px;">INDICE SHAPE :</span>
-            <svg viewBox="0 0 100 100" style="width: 48px; height: 48px; filter: drop-shadow(0 0 8px var(--neon-cyan));">
-              <path d="${state.question.media}" fill="rgba(0, 242, 254, 0.15)" stroke="var(--neon-cyan)" stroke-width="4" stroke-linejoin="round" />
-            </svg>
-          </div>
-        `;
-      }
-
       mediaContainer.innerHTML = `
         <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; user-select: none;">
-          ${clueHtml}
-          <div style="position: absolute; top: ${state.question.media ? '76px' : '12px'}; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-cyan); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+          <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-cyan); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
             SYS_MAP // WORLD_RADAR
           </div>
-          <div style="position: absolute; top: ${state.question.media ? '76px' : '12px'}; right: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: #fff; background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+          <div style="position: absolute; top: 12px; right: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: #fff; background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
             ${hasAnswered ? '✅ ENREGISTRÉ' : '📡 SÉLECTIONNEZ LE PAYS SUR LA CARTE'}
           </div>
           
           <svg id="geographie-interactive-map" viewBox="${window.worldMapSvgViewBox}" style="width: 100%; height: 420px; background: #07090e; border: 2px solid rgba(0, 242, 254, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(0, 242, 254, 0.05); outline: none;">
-            <defs>
-              <pattern id="radar-grid-pattern" width="50" height="50" patternUnits="userSpaceOnUse">
-                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(0, 242, 254, 0.03)" stroke-width="1"/>
-              </pattern>
-            </defs>
-            
             <g id="map-pannable-group" transform="translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})">
-              <!-- grid background -->
-              <rect x="-2000" y="-2000" width="5000" height="5000" fill="url(#radar-grid-pattern)" pointer-events="none" />
-              
               <!-- injected world map -->
               ${window.worldMapSvgContent}
             </g>
@@ -1361,29 +1394,29 @@ function updateGeographieUI(state) {
         </div>
       `;
 
-      // 3. Now let's apply visual styles statefully to the DOM nodes inside injected SVG!
+      // 3. Apply visual styles statefully to ALL country DOM nodes inside injected SVG!
       const svgEl = document.getElementById('geographie-interactive-map');
       const gEl = document.getElementById('map-pannable-group');
 
       if (svgEl && gEl) {
-        // First, apply baseline "background country" styles to ALL paths and groups
+        // Set all paths and groups inside the SVG to default background first
         const allPaths = svgEl.querySelectorAll('#map-pannable-group path, #map-pannable-group g');
         allPaths.forEach(item => {
-          // Clean existing classes
           item.className.baseVal = 'world-map-country';
         });
 
-        // Loop through interactive countries to set their appropriate visual class
-        silhouettes.forEach(sil => {
-          const code = sil.code ? sil.code.toLowerCase() : '';
-          if (!code) return;
+        // Find all interactive countries (elements with an ID) and style them
+        const countryEls = svgEl.querySelectorAll('#map-pannable-group [id]');
+        countryEls.forEach(countryEl => {
+          const code = countryEl.id.toLowerCase();
+          
+          // Get the country name (either from silhouettes list or fallback dictionary)
+          let countryName = fallbackCountryNames[code] || code.toUpperCase();
+          const sil = silhouettes.find(s => s.code && s.code.toLowerCase() === code);
+          if (sil) countryName = sil.name;
 
-          const countryEl = svgEl.querySelector('#' + code);
-          if (!countryEl) return;
-
-          // Figure out which class to add based on game status
           let targetClass = 'world-map-interactive';
-          const isSelected = (myAnswerVal === sil.name);
+          const isSelected = (myAnswerVal === countryName);
 
           if (state.status === 'question') {
             if (isSelected) {
@@ -1392,7 +1425,7 @@ function updateGeographieUI(state) {
               targetClass = 'world-map-interactive';
             }
           } else if (state.status === 'correction') {
-            const isCorrect = (state.question.correctAnswer === sil.name);
+            const isCorrect = (state.question.correctAnswer === countryName);
             if (isCorrect) {
               targetClass = 'world-map-correct';
             } else if (isSelected) {
@@ -1402,13 +1435,12 @@ function updateGeographieUI(state) {
             }
           }
 
-          // Apply class to the parent country element and all child paths directly to override background defaults
           countryEl.className.baseVal = targetClass;
           countryEl.querySelectorAll('path').forEach(p => {
             p.className.baseVal = targetClass;
           });
 
-          // Also set cursor pointer style for interactive items
+          // Set pointer style for guessing phase
           if (state.status === 'question' && !hasAnswered) {
             countryEl.style.cursor = 'pointer';
             countryEl.querySelectorAll('path').forEach(p => p.style.cursor = 'pointer');
@@ -1418,9 +1450,7 @@ function updateGeographieUI(state) {
           }
         });
 
-        // If in correction phase, also make all other non-relevant countries explicitly muted
         if (state.status === 'correction') {
-          // Any country paths that are still 'world-map-country' should become 'world-map-muted'
           allPaths.forEach(item => {
             if (item.className.baseVal === 'world-map-country') {
               item.className.baseVal = 'world-map-muted';
@@ -1428,7 +1458,7 @@ function updateGeographieUI(state) {
           });
         }
 
-        // 4. Bind SVG mouse/touch dragging and zooming events
+        // 4. Bind dragging and zooming
         const startDrag = (clientX, clientY) => {
           window.mapIsDragging = true;
           svgEl.style.cursor = 'grabbing';
@@ -1460,6 +1490,10 @@ function updateGeographieUI(state) {
           }
         });
         
+        if (window.previousStopDrag) {
+          window.removeEventListener('mouseup', window.previousStopDrag);
+        }
+        window.previousStopDrag = stopDrag;
         window.addEventListener('mouseup', stopDrag);
         
         svgEl.addEventListener('touchstart', (e) => {
@@ -1484,20 +1518,21 @@ function updateGeographieUI(state) {
           const newZoom = e.deltaY < 0 ? window.mapZoom * zoomFactor : window.mapZoom / zoomFactor;
           window.mapZoom = Math.max(0.5, Math.min(4.0, newZoom));
           gEl.setAttribute('transform', `translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})`);
-        }, { passive: false }); // crucial to allow e.preventDefault() for scrolling zoom
+        }, { passive: false });
 
-        // 5. Click handler for guessing the country
+        // 5. Click handler for guessing any country on the map
         if (!hasAnswered && state.status === 'question') {
-          silhouettes.forEach(sil => {
-            const code = sil.code ? sil.code.toLowerCase() : '';
-            if (!code) return;
-            const countryEl = svgEl.querySelector('#' + code);
-            if (countryEl) {
-              countryEl.addEventListener('click', (e) => {
-                if (svgEl.dataset.dragged === "true") return;
-                submitGeoAnswer(sil.name);
-              });
-            }
+          countryEls.forEach(countryEl => {
+            const code = countryEl.id.toLowerCase();
+            
+            let countryName = fallbackCountryNames[code] || code.toUpperCase();
+            const sil = silhouettes.find(s => s.code && s.code.toLowerCase() === code);
+            if (sil) countryName = sil.name;
+
+            countryEl.addEventListener('click', (e) => {
+              if (svgEl.dataset.dragged === "true") return;
+              submitGeoAnswer(countryName);
+            });
           });
         }
       }
@@ -1522,12 +1557,163 @@ function updateGeographieUI(state) {
       miniMedia.innerHTML = `
         <img src="https://flagcdn.com/w320/${code}.png" alt="Drapeau" style="max-height: 80px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
       `;
-    } else if (state.mode === 'localisation' && targetPath) {
-      miniMedia.innerHTML = `
-        <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; filter: drop-shadow(0 0 6px var(--neon-emerald));">
-          <path d="${targetPath}" fill="rgba(16, 185, 129, 0.2)" stroke="var(--neon-emerald)" stroke-width="3" />
-        </svg>
-      `;
+    } else if (state.mode === 'localisation') {
+      const silhouettes = state.question.silhouettes || [];
+      const correctCountryName = state.question.correctAnswer;
+      const myPlayerObj = state.players[myName];
+      const myAnswerVal = myPlayerObj ? myPlayerObj.currentAnswer : null;
+
+      // 1. If map SVG is not fetched yet, fetch it and show loader
+      if (!window.worldMapSvgContent) {
+        if (!window.worldMapSvgLoading) {
+          window.worldMapSvgLoading = true;
+          fetch('/world.svg')
+            .then(res => {
+              if (!res.ok) throw new Error("Could not fetch world.svg");
+              return res.text();
+            })
+            .then(svgText => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(svgText, 'image/svg+xml');
+              const svgNode = doc.querySelector('svg');
+              if (svgNode) {
+                window.worldMapSvgContent = svgNode.innerHTML;
+                window.worldMapSvgViewBox = svgNode.getAttribute('viewBox') || "30.767 241.591 784.077 458.627";
+              }
+              window.worldMapSvgLoading = false;
+              updateGeographieUI(state);
+            })
+            .catch(err => {
+              console.error(err);
+              window.worldMapSvgLoading = false;
+            });
+        }
+        
+        miniMedia.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 380px; background: #07090e; border: 2px solid rgba(16, 185, 129, 0.25); border-radius: 16px;">
+            <div class="loader" style="width: 48px; height: 48px; border: 4px solid rgba(16, 185, 129, 0.1); border-top: 4px solid var(--neon-emerald); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <span style="margin-top: 1rem; font-family: monospace; font-size: 0.85rem; color: var(--neon-emerald); letter-spacing: 1px;">CHARGEMENT DE LA CARTE...</span>
+          </div>
+        `;
+      } else {
+        // We have the map SVG! Render full world map for correction
+        miniMedia.innerHTML = `
+          <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; user-select: none;">
+            <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-emerald); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+              SYS_MAP // CORRECTION_RADAR
+            </div>
+            
+            <svg id="geographie-correction-map" viewBox="${window.worldMapSvgViewBox}" style="width: 100%; height: 380px; background: #07090e; border: 2px solid rgba(16, 185, 129, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(16, 185, 129, 0.05); outline: none;">
+              <g id="correction-map-pannable-group" transform="translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})">
+                <!-- injected world map -->
+                ${window.worldMapSvgContent}
+              </g>
+            </svg>
+            
+            <div style="margin-top: 0.6rem; text-align: center; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; font-family: sans-serif; letter-spacing: 0.5px;">
+              🖱️ Glissez pour déplacer • 🔍 Molette pour zoomer
+            </div>
+          </div>
+        `;
+
+        const svgEl = document.getElementById('geographie-correction-map');
+        const gEl = document.getElementById('correction-map-pannable-group');
+
+        if (svgEl && gEl) {
+          // First, apply baseline "muted" styles to ALL paths and groups
+          const allPaths = svgEl.querySelectorAll('#correction-map-pannable-group path, #correction-map-pannable-group g');
+          allPaths.forEach(item => {
+            item.className.baseVal = 'world-map-muted';
+          });
+
+          // Find country elements (elements with an ID) and style them
+          const countryEls = svgEl.querySelectorAll('#correction-map-pannable-group [id]');
+          countryEls.forEach(countryEl => {
+            const code = countryEl.id.toLowerCase();
+            
+            // Get corresponding country name
+            let countryName = fallbackCountryNames[code] || code.toUpperCase();
+            const sil = silhouettes.find(s => s.code && s.code.toLowerCase() === code);
+            if (sil) countryName = sil.name;
+
+            const isCorrect = (correctCountryName === countryName);
+            const isWrongSelection = (myAnswerVal && myAnswerVal === countryName && myAnswerVal !== correctCountryName);
+
+            let targetClass = 'world-map-muted';
+            if (isCorrect) {
+              targetClass = 'world-map-correct';
+            } else if (isWrongSelection) {
+              targetClass = 'world-map-wrong';
+            }
+
+            countryEl.className.baseVal = targetClass;
+            countryEl.querySelectorAll('path').forEach(p => {
+              p.className.baseVal = targetClass;
+            });
+
+            countryEl.style.cursor = 'default';
+            countryEl.querySelectorAll('path').forEach(p => p.style.cursor = 'default');
+          });
+
+          // Bind pan and zoom events
+          const startDrag = (clientX, clientY) => {
+            window.mapIsDragging = true;
+            svgEl.style.cursor = 'grabbing';
+            window.mapStartX = clientX - window.mapPanX;
+            window.mapStartY = clientY - window.mapPanY;
+          };
+          
+          const moveDrag = (clientX, clientY) => {
+            if (!window.mapIsDragging) return;
+            window.mapPanX = clientX - window.mapStartX;
+            window.mapPanY = clientY - window.mapStartY;
+            gEl.setAttribute('transform', `translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})`);
+          };
+          
+          const stopDrag = () => {
+            window.mapIsDragging = false;
+            svgEl.style.cursor = 'grab';
+          };
+          
+          svgEl.addEventListener('mousedown', (e) => {
+            startDrag(e.clientX, e.clientY);
+          });
+          
+          svgEl.addEventListener('mousemove', (e) => {
+            if (window.mapIsDragging) {
+              moveDrag(e.clientX, e.clientY);
+            }
+          });
+          
+          if (window.previousStopDrag) {
+            window.removeEventListener('mouseup', window.previousStopDrag);
+          }
+          window.previousStopDrag = stopDrag;
+          window.addEventListener('mouseup', stopDrag);
+          
+          svgEl.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+              startDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }
+          });
+          
+          svgEl.addEventListener('touchmove', (e) => {
+            if (window.mapIsDragging && e.touches.length === 1) {
+              moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }
+          });
+          
+          svgEl.addEventListener('touchend', stopDrag);
+          
+          svgEl.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = 1.1;
+            const newZoom = e.deltaY < 0 ? window.mapZoom * zoomFactor : window.mapZoom / zoomFactor;
+            window.mapZoom = Math.max(0.5, Math.min(4.0, newZoom));
+            gEl.setAttribute('transform', `translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})`);
+          }, { passive: false });
+        }
+      }
     } else {
       miniMedia.innerHTML = '';
     }
