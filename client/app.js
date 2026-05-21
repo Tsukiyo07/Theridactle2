@@ -563,6 +563,29 @@ function init() {
       });
     });
   }
+
+  const btnGeoSubmitText = document.getElementById('btn-geographie-submit-text');
+  const inputGeoText = document.getElementById('geographie-text-answer');
+  
+  const submitTextAnswer = () => {
+    if (!inputGeoText) return;
+    const answer = inputGeoText.value.trim();
+    submitGeoAnswer(answer);
+    
+    inputGeoText.disabled = true;
+    if (btnGeoSubmitText) btnGeoSubmitText.disabled = true;
+  };
+  
+  if (btnGeoSubmitText) {
+    btnGeoSubmitText.addEventListener('click', submitTextAnswer);
+  }
+  if (inputGeoText) {
+    inputGeoText.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        submitTextAnswer();
+      }
+    });
+  }
 }
 
 // --- Theridactle APIs ---
@@ -754,17 +777,17 @@ function updateImposteurUI(state) {
     const isPlayerHost = playerNames[0] === name;
     
     let badgeHtml = '';
-    if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host">⭐ Hôte</span>`;
+    if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host"><span class="badge-emoji">⭐</span><span class="badge-text"> Hôte</span></span>`;
     
     if (state.status === 'playing' || state.status === 'discussing') {
       const activePlayer = state.turnOrder[state.currentTurnIndex];
       if (name === activePlayer) {
-        badgeHtml += `<span class="badge-item badge-thinking">💭 Décrit...</span>`;
+        badgeHtml += `<span class="badge-item badge-thinking"><span class="badge-emoji">💭</span><span class="badge-text"> Décrit...</span></span>`;
       }
     }
     
-    if (p.hasVoted) badgeHtml += `<span class="badge-item badge-voted">✅ Voté</span>`;
-    if (p.isEliminated) badgeHtml += `<span class="badge-item badge-dead">💀 Éliminé</span>`;
+    if (p.hasVoted) badgeHtml += `<span class="badge-item badge-voted"><span class="badge-emoji">✅</span><span class="badge-text"> Voté</span></span>`;
+    if (p.isEliminated) badgeHtml += `<span class="badge-item badge-dead"><span class="badge-emoji">💀</span><span class="badge-text"> Éliminé</span></span>`;
     
     li.innerHTML = `
       <div class="player-info-left">
@@ -1089,12 +1112,12 @@ function updateGeographieUI(state) {
       
       const isPlayerHost = playerNames[0] === name;
       let badgeHtml = '';
-      if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host">⭐ Hôte</span>`;
+      if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host"><span class="badge-emoji">⭐</span><span class="badge-text"> Hôte</span></span>`;
       
       if (p.hasAnswered) {
-        badgeHtml += `<span class="badge-item badge-voted">✅ Répondu</span>`;
+        badgeHtml += `<span class="badge-item badge-voted"><span class="badge-emoji">✅</span><span class="badge-text"> Répondu</span></span>`;
       } else if (state.status === 'question') {
-        badgeHtml += `<span class="badge-item badge-thinking">💭 Réfléchit...</span>`;
+        badgeHtml += `<span class="badge-item badge-thinking"><span class="badge-emoji">💭</span><span class="badge-text"> Réfléchit...</span></span>`;
       }
       
       li.innerHTML = `
@@ -1158,6 +1181,30 @@ function updateGeographieUI(state) {
     correctionPanel.classList.add('view-hidden');
     resultsPanel.classList.add('view-hidden');
     
+    // Clear inputs and reset map on new question
+    if (window.geographieLastQuestionIndex !== state.currentQuestionIndex) {
+      window.geographieLastQuestionIndex = state.currentQuestionIndex;
+      window.mapPanX = 0;
+      window.mapPanY = 0;
+      window.mapZoom = 1.0;
+      const textInput = document.getElementById('geographie-text-answer');
+      if (textInput) {
+        textInput.value = '';
+        textInput.disabled = false;
+      }
+      const textBtn = document.getElementById('btn-geographie-submit-text');
+      if (textBtn) {
+        textBtn.disabled = false;
+      }
+    }
+
+    if (window.mapPanX === undefined) window.mapPanX = 0;
+    if (window.mapPanY === undefined) window.mapPanY = 0;
+    if (window.mapZoom === undefined) window.mapZoom = 1.0;
+    if (window.mapIsDragging === undefined) window.mapIsDragging = false;
+    if (window.mapStartX === undefined) window.mapStartX = 0;
+    if (window.mapStartY === undefined) window.mapStartY = 0;
+
     document.getElementById('geographie-question-number').textContent = `Question ${state.currentQuestionIndex + 1}/${state.questionCount}`;
     document.getElementById('geographie-question-prompt').textContent = state.question.prompt;
     
@@ -1183,6 +1230,36 @@ function updateGeographieUI(state) {
         document.getElementById('geographie-progress-fill').style.width = `${progressPercent}%`;
       }, 1000);
     }
+
+    const grid = document.getElementById('geographie-choices-grid');
+    const textInputContainer = document.getElementById('geographie-text-input-container');
+    const myPlayerObj = state.players[myName];
+    const hasAnswered = myPlayerObj ? myPlayerObj.hasAnswered : false;
+    const myAnswerVal = myPlayerObj ? myPlayerObj.currentAnswer : null;
+    
+    // Toggle UI grids depending on mode
+    if (state.mode === 'capitales') {
+      grid.classList.add('view-hidden');
+      textInputContainer.classList.remove('view-hidden');
+      
+      const textInput = document.getElementById('geographie-text-answer');
+      const textBtn = document.getElementById('btn-geographie-submit-text');
+      if (textInput) {
+        textInput.disabled = hasAnswered;
+        if (hasAnswered && myAnswerVal !== null) {
+          textInput.value = myAnswerVal;
+        }
+      }
+      if (textBtn) {
+        textBtn.disabled = hasAnswered;
+      }
+    } else if (state.mode === 'localisation') {
+      grid.classList.add('view-hidden');
+      textInputContainer.classList.add('view-hidden');
+    } else { // drapeaux
+      grid.classList.remove('view-hidden');
+      textInputContainer.classList.add('view-hidden');
+    }
     
     // Render media content
     const mediaContainer = document.getElementById('geographie-media-container');
@@ -1191,68 +1268,227 @@ function updateGeographieUI(state) {
       mediaContainer.innerHTML = `
         <img src="https://flagcdn.com/w320/${code}.png" alt="Drapeau" style="max-height: 180px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
       `;
-    } else if (state.mode === 'localisation') {
-      const path = state.question.media;
-      mediaContainer.innerHTML = `
-        <svg viewBox="0 0 1000 1000" style="width: 100%; max-height: 220px; filter: drop-shadow(0 0 12px var(--neon-cyan));">
-          <path d="${path}" fill="rgba(0, 242, 254, 0.2)" stroke="var(--neon-cyan)" stroke-width="8" stroke-linejoin="round" />
-        </svg>
-      `;
     } else if (state.mode === 'capitales') {
       const name = state.question.media;
       mediaContainer.innerHTML = `
         <div style="font-size: 2.2rem; font-weight: 800; text-transform: uppercase; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.4); text-align: center;">${name}</div>
       `;
+    } else if (state.mode === 'localisation') {
+      const silhouettes = state.question.silhouettes || [];
+      
+      let sectorsHtml = '';
+      const sectorConfig = [
+        { id: 'ALPHA', name: 'SECTEUR ALPHA', tx: 40, ty: 40, color: 'var(--neon-cyan)' },
+        { id: 'BETA', name: 'SECTEUR BETA', tx: 260, ty: 40, color: '#f43f5e' }, // rose/rouge
+        { id: 'GAMMA', name: 'SECTEUR GAMMA', tx: 40, ty: 260, color: 'var(--neon-emerald)' },
+        { id: 'DELTA', name: 'SECTEUR DELTA', tx: 260, ty: 260, color: '#fbbf24' } // or/jaune
+      ];
+      
+      silhouettes.forEach((sil, idx) => {
+        const conf = sectorConfig[idx];
+        if (!conf) return;
+        
+        const isSelected = myAnswerVal === sil.name;
+        
+        let pathFill = 'rgba(0, 242, 254, 0.06)';
+        let pathStroke = 'rgba(0, 242, 254, 0.35)';
+        let strokeWidth = '3';
+        let filterEffect = '';
+        
+        if (hasAnswered) {
+          if (isSelected) {
+            pathFill = 'rgba(0, 242, 254, 0.25)';
+            pathStroke = 'var(--neon-cyan)';
+            strokeWidth = '5';
+            filterEffect = 'filter: drop-shadow(0 0 12px var(--neon-cyan));';
+          } else {
+            pathFill = 'rgba(255, 255, 255, 0.01)';
+            pathStroke = 'rgba(255, 255, 255, 0.12)';
+            strokeWidth = '2';
+          }
+        }
+        
+        sectorsHtml += `
+          <g class="radar-sector-group" data-choice="${sil.name}" style="cursor: ${hasAnswered ? 'default' : 'pointer'};" transform="translate(${conf.tx}, ${conf.ty})">
+            <rect x="0" y="0" width="100" height="100" fill="rgba(0,0,0,0.55)" stroke="${conf.color}" stroke-width="1.5" stroke-dasharray="4 4" rx="10" style="transition: all 0.3s ease;" />
+            <text x="50" y="16" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="${conf.color}">${conf.name}</text>
+            <g transform="translate(10, 15) scale(0.8)">
+              <path d="${sil.path}" fill="${pathFill}" stroke="${pathStroke}" stroke-width="${strokeWidth}" stroke-linejoin="round" style="transition: all 0.3s ease; ${filterEffect}" />
+            </g>
+          </g>
+        `;
+      });
+      
+      mediaContainer.innerHTML = `
+        <div style="position: relative; width: 100%; max-width: 480px; margin: 0 auto; user-select: none;">
+          <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-cyan); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+            SYS_RADAR // ACTIVE_GRID
+          </div>
+          <div style="position: absolute; top: 12px; right: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: #fff; background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+            ${hasAnswered ? '✅ ENREGISTRÉ' : '📡 SÉLECTIONNEZ UN SECTEUR'}
+          </div>
+          
+          <svg id="geographie-interactive-map" viewBox="0 0 400 400" style="width: 100%; height: 350px; background: #07090e; border: 2px solid rgba(0, 242, 254, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(0, 242, 254, 0.05); outline: none;">
+            <defs>
+              <pattern id="radar-grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0, 242, 254, 0.04)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            
+            <g id="map-pannable-group" transform="translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})">
+              <rect x="-1000" y="-1000" width="3000" height="3000" fill="url(#radar-grid-pattern)" />
+              
+              <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
+              <circle cx="200" cy="200" r="100" fill="none" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
+              <line x1="200" y1="0" x2="200" y2="400" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
+              <line x1="0" y1="200" x2="400" y2="200" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
+              
+              ${sectorsHtml}
+            </g>
+          </svg>
+          
+          <div style="margin-top: 0.6rem; text-align: center; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; font-family: sans-serif; letter-spacing: 0.5px;">
+            🖱️ Glissez pour déplacer • 🔍 Molette pour zoomer
+          </div>
+        </div>
+      `;
+      
+      const svgEl = document.getElementById('geographie-interactive-map');
+      const gEl = document.getElementById('map-pannable-group');
+      
+      if (svgEl && gEl) {
+        const startDrag = (clientX, clientY) => {
+          window.mapIsDragging = true;
+          svgEl.style.cursor = 'grabbing';
+          window.mapStartX = clientX - window.mapPanX;
+          window.mapStartY = clientY - window.mapPanY;
+        };
+        
+        const moveDrag = (clientX, clientY) => {
+          if (!window.mapIsDragging) return;
+          window.mapPanX = clientX - window.mapStartX;
+          window.mapPanY = clientY - window.mapStartY;
+          gEl.setAttribute('transform', `translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})`);
+        };
+        
+        const stopDrag = () => {
+          window.mapIsDragging = false;
+          svgEl.style.cursor = 'grab';
+        };
+        
+        svgEl.addEventListener('mousedown', (e) => {
+          startDrag(e.clientX, e.clientY);
+          svgEl.dataset.dragged = "false";
+        });
+        
+        svgEl.addEventListener('mousemove', (e) => {
+          if (window.mapIsDragging) {
+            svgEl.dataset.dragged = "true";
+            moveDrag(e.clientX, e.clientY);
+          }
+        });
+        
+        window.addEventListener('mouseup', stopDrag);
+        
+        svgEl.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 1) {
+            startDrag(e.touches[0].clientX, e.touches[0].clientY);
+            svgEl.dataset.dragged = "false";
+          }
+        });
+        
+        svgEl.addEventListener('touchmove', (e) => {
+          if (window.mapIsDragging && e.touches.length === 1) {
+            svgEl.dataset.dragged = "true";
+            moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        });
+        
+        svgEl.addEventListener('touchend', stopDrag);
+        
+        svgEl.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const zoomFactor = 1.1;
+          const newZoom = e.deltaY < 0 ? window.mapZoom * zoomFactor : window.mapZoom / zoomFactor;
+          window.mapZoom = Math.max(0.5, Math.min(4.0, newZoom));
+          gEl.setAttribute('transform', `translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})`);
+        });
+        
+        if (!hasAnswered) {
+          const sectorGroups = svgEl.querySelectorAll('.radar-sector-group');
+          sectorGroups.forEach(grp => {
+            grp.addEventListener('click', (e) => {
+              if (svgEl.dataset.dragged === "true") return;
+              const choiceName = grp.getAttribute('data-choice');
+              submitGeoAnswer(choiceName);
+            });
+            const rect = grp.querySelector('rect');
+            const path = grp.querySelector('path');
+            grp.addEventListener('mouseenter', () => {
+              if (hasAnswered) return;
+              rect.style.strokeWidth = '2.5px';
+              rect.style.fill = 'rgba(0, 242, 254, 0.05)';
+              path.setAttribute('fill', 'rgba(0, 242, 254, 0.15)');
+              path.setAttribute('stroke', 'var(--neon-cyan)');
+              path.setAttribute('stroke-width', '4');
+            });
+            grp.addEventListener('mouseleave', () => {
+              if (hasAnswered) return;
+              rect.style.strokeWidth = '1.5px';
+              rect.style.fill = 'rgba(0,0,0,0.55)';
+              path.setAttribute('fill', 'rgba(0, 242, 254, 0.06)');
+              path.setAttribute('stroke', 'rgba(0, 242, 254, 0.35)');
+              path.setAttribute('stroke-width', '3');
+            });
+          });
+        }
+      }
     }
     
-    // Render choices buttons grid
-    const grid = document.getElementById('geographie-choices-grid');
-    grid.innerHTML = '';
-    const myPlayerObj = state.players[myName];
-    const hasAnswered = myPlayerObj ? myPlayerObj.hasAnswered : false;
-    const myAnswerVal = myPlayerObj ? myPlayerObj.currentAnswer : null;
-    
-    state.question.choices.forEach(choice => {
-      const btn = document.createElement('button');
-      btn.className = 'btn';
-      btn.style.padding = '1.25rem';
-      btn.style.fontSize = '1.1rem';
-      btn.style.fontWeight = '600';
-      btn.style.border = '1px solid rgba(255,255,255,0.08)';
-      btn.style.borderRadius = '12px';
-      btn.style.background = 'rgba(255, 255, 255, 0.03)';
-      btn.style.color = '#fff';
-      btn.style.transition = 'all 0.3s ease';
-      btn.textContent = choice;
-      
-      if (hasAnswered) {
-        btn.disabled = true;
-        if (myAnswerVal === choice) {
-          btn.style.background = 'rgba(0, 242, 254, 0.2)';
-          btn.style.borderColor = 'var(--neon-cyan)';
-          btn.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.3)';
+    // Render choices buttons grid (only if mode is flags)
+    if (state.mode === 'drapeaux') {
+      state.question.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.style.padding = '1.25rem';
+        btn.style.fontSize = '1.1rem';
+        btn.style.fontWeight = '600';
+        btn.style.border = '1px solid rgba(255,255,255,0.08)';
+        btn.style.borderRadius = '12px';
+        btn.style.background = 'rgba(255, 255, 255, 0.03)';
+        btn.style.color = '#fff';
+        btn.style.transition = 'all 0.3s ease';
+        btn.textContent = choice;
+        
+        if (hasAnswered) {
+          btn.disabled = true;
+          if (myAnswerVal === choice) {
+            btn.style.background = 'rgba(0, 242, 254, 0.2)';
+            btn.style.borderColor = 'var(--neon-cyan)';
+            btn.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.3)';
+          } else {
+            btn.style.opacity = '0.5';
+          }
         } else {
-          btn.style.opacity = '0.5';
+          btn.addEventListener('mouseenter', () => {
+            btn.style.background = 'rgba(0, 242, 254, 0.08)';
+            btn.style.borderColor = 'rgba(0, 242, 254, 0.4)';
+            btn.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.15)';
+            btn.style.transform = 'translateY(-2px)';
+          });
+          btn.addEventListener('mouseleave', () => {
+            btn.style.background = 'rgba(255, 255, 255, 0.03)';
+            btn.style.borderColor = 'rgba(255,255,255,0.08)';
+            btn.style.boxShadow = 'none';
+            btn.style.transform = 'none';
+          });
+          btn.addEventListener('click', () => {
+            submitGeoAnswer(choice);
+          });
         }
-      } else {
-        btn.addEventListener('mouseenter', () => {
-          btn.style.background = 'rgba(0, 242, 254, 0.08)';
-          btn.style.borderColor = 'rgba(0, 242, 254, 0.4)';
-          btn.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.15)';
-          btn.style.transform = 'translateY(-2px)';
-        });
-        btn.addEventListener('mouseleave', () => {
-          btn.style.background = 'rgba(255, 255, 255, 0.03)';
-          btn.style.borderColor = 'rgba(255,255,255,0.08)';
-          btn.style.boxShadow = 'none';
-          btn.style.transform = 'none';
-        });
-        btn.addEventListener('click', () => {
-          submitGeoAnswer(choice);
-        });
-      }
-      grid.appendChild(btn);
-    });
+        grid.appendChild(btn);
+      });
+    }
   }
   
   // 3. Correction Phase
@@ -1265,16 +1501,18 @@ function updateGeographieUI(state) {
     
     // Correct Showcase mini-media
     const miniMedia = document.getElementById('geographie-correction-mini-media');
-    if (state.mode === 'drapeaux') {
-      const code = state.question.target.code.toLowerCase();
+    const targetCode = state.question?.target?.code;
+    const targetPath = state.question?.target?.path;
+    
+    if (state.mode === 'drapeaux' && targetCode) {
+      const code = targetCode.toLowerCase();
       miniMedia.innerHTML = `
         <img src="https://flagcdn.com/w320/${code}.png" alt="Drapeau" style="max-height: 80px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
       `;
-    } else if (state.mode === 'localisation') {
-      const path = state.question.target.path;
-      miniMedia.innerHTML = miniMedia.innerHTML = `
+    } else if (state.mode === 'localisation' && targetPath) {
+      miniMedia.innerHTML = `
         <svg viewBox="0 0 1000 1000" style="width: 80px; height: 80px; filter: drop-shadow(0 0 6px var(--neon-emerald));">
-          <path d="${path}" fill="rgba(16, 185, 129, 0.2)" stroke="var(--neon-emerald)" stroke-width="12" />
+          <path d="${targetPath}" fill="rgba(16, 185, 129, 0.2)" stroke="var(--neon-emerald)" stroke-width="12" />
         </svg>
       `;
     } else {
@@ -1282,7 +1520,7 @@ function updateGeographieUI(state) {
     }
     
     // Set correct answer text
-    document.getElementById('geographie-correct-answer-text').textContent = state.question.correctAnswer;
+    document.getElementById('geographie-correct-answer-text').textContent = state.question?.correctAnswer || '...';
     
     // List correct players
     const correctContainer = document.getElementById('geographie-correct-players');

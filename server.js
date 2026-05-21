@@ -957,18 +957,37 @@ const server = http.createServer((req, res) => {
       .sort((a, b) => b.score - a.score);
   }
 
-  function broadcastGeoState(room) {
-    const currentQuestion = room.questions[room.currentQuestionIndex];
-    let sanitizedQuestion = null;
-    if (currentQuestion && (room.status === 'question' || room.status === 'correction' || room.status === 'game_over')) {
-      sanitizedQuestion = {
-        choices: currentQuestion.choices,
-        prompt: currentQuestion.prompt,
-        media: currentQuestion.media,
-        correctAnswer: (room.status === 'correction' || room.status === 'game_over') ? currentQuestion.correctAnswer : null
-      };
-    }
+  function cleanString(str) {
+    if (!str) return '';
+    return str.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, " ");
+  }
 
+  function getSanitizedQuestion(room) {
+    const currentQuestion = room.questions[room.currentQuestionIndex];
+    if (!currentQuestion) return null;
+    if (room.status !== 'question' && room.status !== 'correction' && room.status !== 'game_over') return null;
+
+    const sanitizedQuestion = {
+      choices: currentQuestion.choices,
+      prompt: currentQuestion.prompt,
+      media: currentQuestion.media,
+      correctAnswer: (room.status === 'correction' || room.status === 'game_over') ? currentQuestion.correctAnswer : null,
+      target: (room.status === 'correction' || room.status === 'game_over') ? currentQuestion.target : null
+    };
+
+    if (room.mode === 'localisation') {
+      sanitizedQuestion.silhouettes = currentQuestion.choices.map(name => {
+        const dbItem = GEOGRAPHY_DATABASE.find(c => c.name === name);
+        return {
+          name: name,
+          path: dbItem ? dbItem.path : ''
+        };
+      });
+    }
+    return sanitizedQuestion;
+  }
+
+  function broadcastGeoState(room) {
     broadcast(room, {
       type: 'GEOGRAPHIE_STATE',
       state: {
@@ -978,7 +997,7 @@ const server = http.createServer((req, res) => {
         questionCount: room.questionCount,
         currentQuestionIndex: room.currentQuestionIndex,
         players: getSanitizedGeoPlayers(room),
-        question: sanitizedQuestion,
+        question: getSanitizedQuestion(room),
         leaderboard: getGeoLeaderboard(room)
       }
     });
@@ -1139,7 +1158,7 @@ const server = http.createServer((req, res) => {
           } else if (room.mode === 'localisation') {
             correctAnswer = target.name;
             choices = [target.name, ...distractors.map(c => c.name)];
-            prompt = "Quel pays correspond à cette silhouette ?";
+            prompt = `Où se trouve la silhouette de ce pays : ${target.name} ?`;
             media = target.path;
           }
           
@@ -1210,7 +1229,7 @@ const server = http.createServer((req, res) => {
         if (answeredCount === playersList.length) {
           const currentQuestion = room.questions[room.currentQuestionIndex];
           playersList.forEach(pl => {
-            if (pl.currentAnswer === currentQuestion.correctAnswer) {
+            if (cleanString(pl.currentAnswer) === cleanString(currentQuestion.correctAnswer)) {
               pl.isCorrect = true;
               const timeTaken = Math.max(0, pl.answeredTime - room.questionStartTime);
               const speedBonus = Math.max(0, Math.round((15000 - timeTaken) / 100)); // up to 150 pts bonus
@@ -1348,16 +1367,6 @@ const server = http.createServer((req, res) => {
         }
       })}\n\n`);
     } else if (room.gameType === 'geographie') {
-      const currentQuestion = room.questions[room.currentQuestionIndex];
-      let sanitizedQuestion = null;
-      if (currentQuestion && (room.status === 'question' || room.status === 'correction' || room.status === 'game_over')) {
-        sanitizedQuestion = {
-          choices: currentQuestion.choices,
-          prompt: currentQuestion.prompt,
-          media: currentQuestion.media,
-          correctAnswer: (room.status === 'correction' || room.status === 'game_over') ? currentQuestion.correctAnswer : null
-        };
-      }
       res.write(`data: ${JSON.stringify({ 
         type: 'GEOGRAPHIE_STATE', 
         state: { 
@@ -1367,7 +1376,7 @@ const server = http.createServer((req, res) => {
           questionCount: room.questionCount,
           currentQuestionIndex: room.currentQuestionIndex,
           players: getSanitizedGeoPlayers(room),
-          question: sanitizedQuestion,
+          question: getSanitizedQuestion(room),
           leaderboard: getGeoLeaderboard(room)
         }
       })}\n\n`);
