@@ -810,6 +810,12 @@ function updateImposteurUI(state) {
     dom.impVotePanel.classList.add('view-hidden');
     dom.impResultsPanel.classList.add('view-hidden');
     
+    // Clear my word for round restart bug
+    imposteurState.myWord = '';
+    if (dom.impMyWordDisplay) {
+      dom.impMyWordDisplay.textContent = '---';
+    }
+    
     dom.impThemeSelect.value = state.theme;
     
     if (isHost) {
@@ -1198,6 +1204,7 @@ function updateGeographieUI(state) {
   // 1. Lobby Phase
   if (state.status === 'lobby') {
     clearInterval(geoCountdownInterval);
+    window.geographieLastQuestionIndex = -1; // Reset to ensure first question loads properly
     lobbyPanel.classList.remove('view-hidden');
     playPanel.classList.add('view-hidden');
     correctionPanel.classList.add('view-hidden');

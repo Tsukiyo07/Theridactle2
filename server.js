@@ -34,36 +34,188 @@ const stopWords = new Set([
 
 const IMPOSTEUR_WORDS = {
   anime: [
-    { civil: 'Pikachu', impostor: 'Évoli' },
-    { civil: 'Naruto Uzumaki', impostor: 'Sasuke Uchiha' },
-    { civil: 'Monkey D. Luffy', impostor: 'Roronoa Zoro' },
+    // Dragon Ball
     { civil: 'Son Goku', impostor: 'Végéta' },
-    { civil: 'Light Yagami', impostor: 'L (Ryuzaki)' },
-    { civil: 'Totoro', impostor: 'Calcifer' },
-    { civil: 'Sanji', impostor: 'Nami' },
-    { civil: 'Eren Jäger', impostor: 'Levi Ackerman' },
-    { civil: 'Saitama', impostor: 'Genos' },
-    { civil: 'Tanjiro Kamado', impostor: 'Nezuko Kamado' },
-    { civil: 'Ryuk', impostor: 'Rem' },
-    { civil: 'Edward Elric', impostor: 'Alphonse Elric' },
-    { civil: 'Gon Freecss', impostor: 'Killua Zoldyck' },
-    { civil: 'Izuku Midoriya', impostor: 'Katsuki Bakugo' },
-    { civil: 'Kakashi Hatake', impostor: 'Jiraiya' },
+    { civil: 'Son Gohan', impostor: 'Trunks' },
+    { civil: 'Piccolo', impostor: 'Kamé Sennin' },
+    { civil: 'Freezer', impostor: 'Cell' },
+    { civil: 'Krilin', impostor: 'Yamcha' },
+    { civil: 'Majin Bou', impostor: 'Kid Bou' },
+    { civil: 'Bardock', impostor: 'Broly' },
+
+    // Naruto
+    { civil: 'Naruto Uzumaki', impostor: 'Sasuke Uchiha' },
+    { civil: 'Kakashi Hatake', impostor: 'Obito Uchiha' },
+    { civil: 'Itachi Uchiha', impostor: 'Sasuke Uchiha' },
+    { civil: 'Jiraiya', impostor: 'Orochimaru' },
+    { civil: 'Gaara', impostor: 'Kankurô' },
+    { civil: 'Minato Namikaze', impostor: 'Tobirama Senju' },
+    { civil: 'Hinata Hyûga', impostor: 'Sakura Haruno' },
+    { civil: 'Shikamaru Nara', impostor: 'Chôji Akimichi' },
+
+    // One Piece
+    { civil: 'Monkey D. Luffy', impostor: 'Roronoa Zoro' },
+    { civil: 'Sanji Vinsmoke', impostor: 'Roronoa Zoro' },
+    { civil: 'Portgas D. Ace', impostor: 'Sabo' },
+    { civil: 'Shanks le Roux', impostor: 'Dracule Mihawk' },
+    { civil: 'Nami', impostor: 'Nico Robin' },
+    { civil: 'Tony-Tony Chopper', impostor: 'Usopp' },
+    { civil: 'Brook', impostor: 'Franky' },
+    { civil: 'Kaido', impostor: 'Big Mom' },
     { civil: 'Gold Roger', impostor: 'Barbe Blanche' },
-    { civil: 'Yuji Itadori', impostor: 'Denji (Chainsaw Man)' },
-    { civil: 'Shinji Ikari', impostor: 'Rei Ayanami' },
-    { civil: 'Sailor Moon', impostor: 'Sakura Kinomoto' },
-    { civil: 'Hisoka', impostor: 'Illumi Zoldyck' },
-    { civil: 'Koro-sensei', impostor: 'Nagisa Shiota' },
-    { civil: 'Ken Kaneki', impostor: 'Touka Kirishima' },
-    { civil: 'Guts', impostor: 'Griffith' },
-    { civil: 'Madara Uchiha', impostor: 'Hashirama Senju' },
-    { civil: 'Rimuru Tempest', impostor: 'Ainz Ooal Gown' },
-    { civil: 'Sacha Ketchum', impostor: 'Ondine' },
-    { civil: 'Ichigo Kurosaki', impostor: 'Rukia Kuchiki' },
+
+    // Death Note
+    { civil: 'Light Yagami', impostor: 'L (Ryuzaki)' },
+    { civil: 'Near', impostor: 'Mello' },
+    { civil: 'Misa Amane', impostor: 'Kiyomi Takada' },
+    { civil: 'Ryuk', impostor: 'Rem' },
+
+    // Hunter x Hunter
+    { civil: 'Gon Freecss', impostor: 'Killua Zoldyck' },
     { civil: 'Kurapika', impostor: 'Leorio Paradinight' },
-    { civil: 'Spike Spiegel', impostor: 'Jet Black' },
-    { civil: 'Zero Two', impostor: 'Hiro' }
+    { civil: 'Hisoka Morow', impostor: 'Illumi Zoldyck' },
+    { civil: 'Netero', impostor: 'Meruem' },
+    { civil: 'Chrollo Lucilfer', impostor: 'Feitan Portor' },
+
+    // My Hero Academia
+    { civil: 'Izuku Midoriya', impostor: 'Katsuki Bakugo' },
+    { civil: 'Shoto Todoroki', impostor: 'Eijiro Kirishima' },
+    { civil: 'All Might', impostor: 'Endeavor' },
+    { civil: 'Tomura Shigaraki', impostor: 'Dabi' },
+    { civil: 'Ochaco Uraraka', impostor: 'Tsuyu Asui' },
+
+    // Jujutsu Kaisen
+    { civil: 'Yuji Itadori', impostor: 'Megumi Fushiguro' },
+    { civil: 'Satoru Gojo', impostor: 'Suguru Geto' },
+    { civil: 'Ryomen Sukuna', impostor: 'Mahito' },
+    { civil: 'Nobara Kugisaki', impostor: 'Maki Zen\'in' },
+    { civil: 'Kento Nanami', impostor: 'Aoi Todo' },
+    { civil: 'Yuta Okkotsu', impostor: 'Toge Inumaki' },
+
+    // Demon Slayer
+    { civil: 'Tanjiro Kamado', impostor: 'Zenitsu Agatsuma' },
+    { civil: 'Inosuke Hashibira', impostor: 'Zenitsu Agatsuma' },
+    { civil: 'Nezuko Kamado', impostor: 'Kanao Tsuyuri' },
+    { civil: 'Kyojuro Rengoku', impostor: 'Giyu Tomioka' },
+    { civil: 'Muzan Kibutsuji', impostor: 'Kokushibo' },
+    { civil: 'Shinobu Kocho', impostor: 'Mitsuri Kanroji' },
+
+    // Attack on Titan
+    { civil: 'Eren Jäger', impostor: 'Armin Arlert' },
+    { civil: 'Levi Ackerman', impostor: 'Erwin Smith' },
+    { civil: 'Mikasa Ackerman', impostor: 'Annie Leonhart' },
+    { civil: 'Reiner Braun', impostor: 'Bertholdt Hoover' },
+    { civil: 'Sasha Blouse', impostor: 'Conny Springer' },
+
+    // Bleach
+    { civil: 'Ichigo Kurosaki', impostor: 'Uryu Ishida' },
+    { civil: 'Rukia Kuchiki', impostor: 'Orihime Inoue' },
+    { civil: 'Sousuke Aizen', impostor: 'Kisuke Urahara' },
+    { civil: 'Toshiro Hitsugaya', impostor: 'Byakuya Kuchiki' },
+    { civil: 'Kenpachi Zaraki', impostor: 'Renji Abarai' },
+
+    // Fullmetal Alchemist
+    { civil: 'Edward Elric', impostor: 'Alphonse Elric' },
+    { civil: 'Roy Mustang', impostor: 'Riza Hawkeye' },
+    { civil: 'Scar', impostor: 'King Bradley' },
+
+    // Chainsaw Man
+    { civil: 'Denji', impostor: 'Aki Hayakawa' },
+    { civil: 'Power', impostor: 'Makima' },
+    { civil: 'Reze', impostor: 'Himeno' },
+
+    // Fairy Tail
+    { civil: 'Natsu Dragneel', impostor: 'Gray Fullbuster' },
+    { civil: 'Lucy Heartfilia', impostor: 'Erza Scarlet' },
+    { civil: 'Happy', impostor: 'Carla' },
+    { civil: 'Gajeel Redfox', impostor: 'Laxus Dreyar' },
+
+    // Neon Genesis Evangelion
+    { civil: 'Shinji Ikari', impostor: 'Asuka Langley Soryu' },
+    { civil: 'Rei Ayanami', impostor: 'Mari Makinami' },
+    { civil: 'Misato Katsuragi', impostor: 'Ritsuko Akagi' },
+
+    // Solo Leveling
+    { civil: 'Sung Jinwoo', impostor: 'Cha Hae-in' },
+    { civil: 'Yoo Jinho', impostor: 'Woo Jinchul' },
+
+    // One Punch Man
+    { civil: 'Saitama', impostor: 'Genos' },
+    { civil: 'Tatsumaki', impostor: 'Fubuki' },
+    { civil: 'Garou', impostor: 'Bang' },
+    { civil: 'King', impostor: 'Mumen Rider' },
+
+    // Tokyo Ghoul
+    { civil: 'Ken Kaneki', impostor: 'Touka Kirishima' },
+    { civil: 'Shu Tsukiyama', impostor: 'Koutarou Amon' },
+
+    // Black Clover
+    { civil: 'Asta', impostor: 'Yuno' },
+    { civil: 'Noelle Silva', impostor: 'Yami Sukehiro' },
+
+    // Code Geass
+    { civil: 'Lelouch vi Britannia', impostor: 'Suzaku Kururugi' },
+    { civil: 'C.C.', impostor: 'Kallen Stadtfeld' },
+
+    // Sword Art Online
+    { civil: 'Kirito (Kazuto Kirigaya)', impostor: 'Asuna Yuuki' },
+    { civil: 'Sinon (Shino Asada)', impostor: 'Leafa (Suguha Kirigaya)' },
+
+    // Steins;Gate
+    { civil: 'Okabe Rintarou', impostor: 'Makise Kurisu' },
+    { civil: 'Hashida Itaru', impostor: 'Shiina Mayuri' },
+
+    // Assassination Classroom
+    { civil: 'Koro-sensei', impostor: 'Nagisa Shiota' },
+    { civil: 'Karma Akabane', impostor: 'Nagisa Shiota' },
+
+    // Mob Psycho 100
+    { civil: 'Shigeo Kageyama (Mob)', impostor: 'Arataka Reigen' },
+    { civil: 'Ritsu Kageyama', impostor: 'Teruki Hanazawa' },
+
+    // Vinland Saga
+    { civil: 'Thorfinn', impostor: 'Askeladd' },
+    { civil: 'Canute', impostor: 'Thorkell' },
+
+    // JoJo's Bizarre Adventure
+    { civil: 'Jotaro Kujo', impostor: 'Dio Brando' },
+    { civil: 'Jonathan Joestar', impostor: 'Joseph Joestar' },
+    { civil: 'Josuke Higashikata', impostor: 'Giorno Giovanna' },
+    { civil: 'Kakyoin Noriaki', impostor: 'Polnareff' },
+
+    // Cyberpunk Edgerunners
+    { civil: 'David Martinez', impostor: 'Lucy' },
+    { civil: 'Rebecca', impostor: 'Maine' },
+
+    // Seven Deadly Sins
+    { civil: 'Meliodas', impostor: 'Zeldris' },
+    { civil: 'Ban', impostor: 'King' },
+    { civil: 'Escanor', impostor: 'Merlin' },
+
+    // Blue Lock
+    { civil: 'Yoichi Isagi', impostor: 'Meguru Bachira' },
+    { civil: 'Rin Itoshi', impostor: 'Sae Itoshi' },
+    { civil: 'Seishiro Nagi', impostor: 'Reo Mikage' },
+
+    // Haikyu!!
+    { civil: 'Shoyo Hinata', impostor: 'Tobio Kageyama' },
+    { civil: 'Kei Tsukishima', impostor: 'Tadashi Yamaguchi' },
+    { civil: 'Kenma Kozume', impostor: 'Tetsuro Kuroo' },
+
+    // Spy x Family
+    { civil: 'Loid Forger', impostor: 'Yor Forger' },
+    { civil: 'Anya Forger', impostor: 'Bond Forger' },
+
+    // Monster
+    { civil: 'Kenzo Tenma', impostor: 'Johan Liebert' },
+
+    // Studio Ghibli
+    { civil: 'Totoro', impostor: 'Calcifer' },
+    { civil: 'Chihiro', impostor: 'Haku' },
+
+    // Pokémon
+    { civil: 'Pikachu', impostor: 'Évoli' },
+    { civil: 'Sacha Ketchum', impostor: 'Ondine' }
   ],
   jeux_video: [
     { civil: 'Mario', impostor: 'Luigi' },
@@ -687,6 +839,11 @@ const server = http.createServer((req, res) => {
         const pair = pairs[Math.floor(Math.random() * pairs.length)];
         const impostorName = playersList[Math.floor(Math.random() * playersList.length)];
         
+        // Randomly swap civil and impostor roles
+        const shouldSwap = Math.random() < 0.5;
+        const civilWord = shouldSwap ? pair.impostor : pair.civil;
+        const impostorWord = shouldSwap ? pair.civil : pair.impostor;
+
         playersList.forEach(name => {
           const p = room.players[name];
           p.isEliminated = false;
@@ -694,15 +851,15 @@ const server = http.createServer((req, res) => {
           p.description = '';
           if (name === impostorName) {
             p.isImpostor = true;
-            p.word = pair.impostor;
+            p.word = impostorWord;
           } else {
             p.isImpostor = false;
-            p.word = pair.civil;
+            p.word = civilWord;
           }
         });
         
-        room.civilWord = pair.civil;
-        room.impostorWord = pair.impostor;
+        room.civilWord = civilWord;
+        room.impostorWord = impostorWord;
         room.impostorNickname = impostorName;
         room.status = 'playing';
         room.theme = theme;
