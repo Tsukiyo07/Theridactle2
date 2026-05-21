@@ -22,6 +22,14 @@
   --imp-secondary: #8b5cf6;
   --imp-gradient: linear-gradient(135deg, #ec4899, #8b5cf6);
   
+  /* Game 3: Quiz Géographie (Neon Cyan/Emerald Theme) */
+  --geo-primary: #00f2fe;
+  --geo-primary-glow: rgba(0, 242, 254, 0.35);
+  --geo-secondary: #10b981;
+  --geo-gradient: linear-gradient(135deg, #00f2fe, #10b981);
+  --neon-cyan: #00f2fe;
+  --neon-emerald: #10b981;
+  
   /* Universal Accent (Glass & Shadows) */
   --accent: #a78bfa;
   --accent-glow: rgba(167, 139, 250, 0.4);
@@ -1642,6 +1650,113 @@ h1, h2, h3, h4, .logo {
   to { opacity: 1; transform: scale(1); }
 }
 
+/* 🗺️ QUIZ GEOGRAPHIE PREMIUM STYLES */
+.card-geographie {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.card-geographie:hover {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.25) !important;
+  transform: translateY(-5px) scale(1.02);
+}
+
+.geo-choices-grid button {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.geo-choices-grid button::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 120%; height: 120%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.geo-choices-grid button:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0s;
+}
+
+.podium-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1.5rem;
+  height: 240px;
+  margin: 2rem auto;
+  max-width: 400px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.podium-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 95px;
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.podium-column:nth-child(1) { animation-delay: 0.25s; } /* 2nd place */
+.podium-column:nth-child(2) { animation-delay: 0.1s; }  /* 1st place */
+.podium-column:nth-child(3) { animation-delay: 0.4s; }  /* 3rd place */
+
+.podium-bar {
+  transition: height 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.podium-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%);
+  transform: translateX(-100%);
+  animation: shineBar 2.5s infinite linear;
+}
+
+@keyframes shineBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes shakeRed {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* SVG Country Silhouette glow-ups */
+#geographie-media-container svg {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#geographie-media-container svg path {
+  transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
+}
+
+#geographie-media-container svg:hover {
+  transform: scale(1.03);
+}
+
+#geographie-media-container svg:hover path {
+  fill: rgba(0, 242, 254, 0.3) !important;
+  stroke: #00f2fe !important;
+  filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6));
+}
+
+/* Correct Answer Showcase Cards */
+.correct-answer-showcase {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* ────────────────────────────────────────────────────────
    RESPONSIVENESS & MOBILE LAYOUT OVERRIDES (preserving details)
    ──────────────────────────────────────────────────────── */
@@ -1834,13 +1949,13 @@ h1, h2, h3, h4, .logo {
 
   /* IMPOSTEUR MOBILE OVERRIDES */
   .imposteur-layout {
-    flex-direction: column-reverse; /* Put player list below or above, or handle neatly */
+    flex-direction: column;
     height: auto;
     overflow: visible;
   }
 
   .imposteur-main-section {
-    padding: 2rem 1.25rem 4rem 1.25rem;
+    padding: 1.5rem 1rem 3rem 1rem;
     overflow: visible;
     width: 100%;
   }
@@ -1849,11 +1964,92 @@ h1, h2, h3, h4, .logo {
     width: 100%;
     border-left: none;
     border-bottom: 1px solid var(--border-glass);
-    background: rgba(14, 18, 28, 0.4);
+    background: rgba(14, 18, 28, 0.5);
+    order: -1; /* Place at the top */
+    overflow-y: visible;
   }
 
   .imposteur-sidebar-panel {
-    padding: 1.5rem 1.25rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .imposteur-sidebar-panel .sidebar-header {
+    display: none; /* Hide Joueurs text on mobile to save space */
+  }
+
+  .imposteur-players-list {
+    display: flex;
+    flex-direction: row;
+    gap: 0.65rem;
+    overflow-x: auto;
+    padding: 0.25rem 0;
+    scrollbar-width: none;
+  }
+
+  .imposteur-players-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .player-item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    width: 78px;
+    flex-shrink: 0;
+    text-align: center;
+    position: relative;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .player-info-left {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .player-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 68px;
+  }
+
+  .player-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .player-badges {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .badge-item {
+    font-size: 7.5px;
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+
+  .desc-item {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .desc-player-bubble {
+    font-size: 13px;
   }
 
   .voting-grid {
@@ -1864,4 +2060,5 @@ h1, h2, h3, h4, .logo {
   .secret-word-value {
     font-size: 2.25rem;
   }
+
 }

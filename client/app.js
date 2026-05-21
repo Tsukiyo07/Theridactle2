@@ -33,6 +33,23 @@ let imposteurState = {
   currentTurnIndex: 0
 };
 
+// Geographie State
+let geographieState = {
+  nickname: '',
+  roomId: '',
+  isHost: false,
+  status: 'lobby',
+  mode: 'drapeaux',
+  scope: 'monde',
+  questionCount: 10,
+  currentQuestionIndex: 0,
+  players: {},
+  question: null,
+  leaderboard: []
+};
+let geoCountdownInterval = null;
+let geoTimeRemaining = 15;
+
 // DOM Cache
 const dom = {
   // Navigation & Core Views
@@ -45,14 +62,18 @@ const dom = {
   portalView: document.getElementById('portal-view'),
   theriMenuView: document.getElementById('theridactle-menu-view'),
   impMenuView: document.getElementById('imposteur-menu-view'),
+  geoMenuView: document.getElementById('geographie-menu-view'),
   theriGameView: document.getElementById('game-view'),
   impGameView: document.getElementById('imposteur-game-view'),
+  geoGameView: document.getElementById('geographie-game-view'),
   
   // Portal Cards
   cardTheridactle: document.getElementById('card-theridactle'),
   cardImposteur: document.getElementById('card-imposteur'),
+  cardGeographie: document.getElementById('card-geographie'),
   btnBackTheri: document.getElementById('btn-back-theridactle'),
   btnBackImp: document.getElementById('btn-back-imposteur'),
+  btnBackGeo: document.getElementById('btn-back-geographie'),
 
   // Theridactle Menu Controls
   btnSolo: document.getElementById('btn-solo'),
@@ -125,8 +146,10 @@ const views = {
   portal: dom.portalView,
   theriMenu: dom.theriMenuView,
   impMenu: dom.impMenuView,
+  geoMenu: dom.geoMenuView,
   theriGame: dom.theriGameView,
-  impGame: dom.impGameView
+  impGame: dom.impGameView,
+  geoGame: dom.geoGameView
 };
 
 // --- View Router ---
@@ -142,7 +165,7 @@ function showView(viewName) {
   });
 
   // Top Nav updates
-  if (viewName === 'portal' || viewName === 'theriMenu' || viewName === 'impMenu') {
+  if (viewName === 'portal' || viewName === 'theriMenu' || viewName === 'impMenu' || viewName === 'geoMenu') {
     dom.navHome.classList.add('active');
     dom.roomDisplay.style.display = 'none';
     dom.btnLeaveNav.style.display = 'none';
@@ -156,6 +179,7 @@ function showView(viewName) {
 function confirmLeave() {
   const isTheriActive = views.theriGame && !views.theriGame.classList.contains('view-hidden');
   const isImpActive = views.impGame && !views.impGame.classList.contains('view-hidden');
+  const isGeoActive = views.geoGame && !views.geoGame.classList.contains('view-hidden');
 
   if (isTheriActive) {
     if (confirm("Voulez-vous quitter la partie coopérative de Theridactle en cours ?")) {
@@ -164,6 +188,10 @@ function confirmLeave() {
   } else if (isImpActive) {
     if (confirm("Voulez-vous quitter le salon ou la partie en cours de L'Imposteur ?")) {
       leaveImposteurRoom();
+    }
+  } else if (isGeoActive) {
+    if (confirm("Voulez-vous quitter le salon ou la partie en cours du Quiz Géographie ?")) {
+      leaveGeographieRoom();
     }
   } else {
     showView('portal');
@@ -182,6 +210,7 @@ function init() {
   // Back Buttons
   if (dom.btnBackTheri) dom.btnBackTheri.addEventListener('click', () => showView('portal'));
   if (dom.btnBackImp) dom.btnBackImp.addEventListener('click', () => showView('portal'));
+  if (dom.btnBackGeo) dom.btnBackGeo.addEventListener('click', () => showView('portal'));
 
   // Nav clicks
   if (dom.navLogo) dom.navLogo.addEventListener('click', confirmLeave);
@@ -191,6 +220,7 @@ function init() {
   // Portal routing
   if (dom.cardTheridactle) dom.cardTheridactle.addEventListener('click', () => showView('theriMenu'));
   if (dom.cardImposteur) dom.cardImposteur.addEventListener('click', () => showView('impMenu'));
+  if (dom.cardGeographie) dom.cardGeographie.addEventListener('click', () => showView('geoMenu'));
 
   // --- Theridactle Menu Actions ---
   if (dom.btnSolo) dom.btnSolo.addEventListener('click', () => createTheridactleRoom(true));
@@ -355,6 +385,18 @@ function init() {
   }
 
   // --- L'Imposteur Game Actions ---
+  if (dom.impThemeSelect) {
+    dom.impThemeSelect.addEventListener('change', () => {
+      if (imposteurState.isHost) {
+        fetch('/api/imposteur/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: imposteurState.roomId, theme: dom.impThemeSelect.value })
+        });
+      }
+    });
+  }
+
   if (dom.btnImpStart) {
     dom.btnImpStart.addEventListener('click', () => {
       const theme = dom.impThemeSelect.value;
@@ -394,6 +436,130 @@ function init() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomId: imposteurState.roomId })
+      });
+    });
+  }
+
+  // --- Geographie Menu Actions ---
+  const savedGeoNickname = localStorage.getItem('geographie-nickname');
+  const geoNicknameInput = document.getElementById('geographie-nickname');
+  if (savedGeoNickname && geoNicknameInput) {
+    geoNicknameInput.value = savedGeoNickname;
+  }
+
+  const btnGeoCreate = document.getElementById('btn-geographie-create');
+  if (btnGeoCreate) {
+    btnGeoCreate.addEventListener('click', () => {
+      const nickname = geoNicknameInput.value.trim();
+      if (!nickname) {
+        showGeoMenuError('Veuillez saisir un pseudo pour créer un salon !');
+        return;
+      }
+      showGeoMenuError('');
+      fetch('/api/geographie/room/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.roomId) {
+          localStorage.setItem('geographie-nickname', nickname);
+          startPlayingGeographie(data.roomId, nickname);
+        } else {
+          showGeoMenuError(data.error || 'Erreur lors de la création du salon.');
+        }
+      })
+      .catch(() => showGeoMenuError('Impossible de joindre le serveur.'));
+    });
+  }
+
+  const btnGeoJoin = document.getElementById('btn-geographie-join');
+  const geoJoinCodeInput = document.getElementById('geographie-join-code');
+  if (btnGeoJoin) {
+    btnGeoJoin.addEventListener('click', () => {
+      const nickname = geoNicknameInput.value.trim();
+      const code = geoJoinCodeInput.value.trim().toUpperCase();
+      if (!nickname) {
+        showGeoMenuError('Veuillez saisir un pseudo pour rejoindre un salon !');
+        return;
+      }
+      if (!code || code.length < 4) {
+        showGeoMenuError('Veuillez entrer un code de salon valide (ex: ABCD).');
+        return;
+      }
+      showGeoMenuError('');
+      fetch('/api/geographie/room/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: code, nickname })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem('geographie-nickname', nickname);
+          startPlayingGeographie(data.roomId, nickname);
+        } else {
+          showGeoMenuError(data.error || 'Salon introuvable ou déjà complet.');
+        }
+      })
+      .catch(() => showGeoMenuError('Impossible de joindre le serveur.'));
+    });
+  }
+
+  // Lobby change listeners
+  const geoModeSelect = document.getElementById('geographie-mode-select');
+  const geoScopeSelect = document.getElementById('geographie-scope-select');
+  const geoCountSelect = document.getElementById('geographie-count-select');
+
+  const onGeoSettingChange = () => {
+    if (geographieState.isHost) {
+      fetch('/api/geographie/theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: geographieState.roomId,
+          mode: geoModeSelect.value,
+          scope: geoScopeSelect.value,
+          questionCount: parseInt(geoCountSelect.value)
+        })
+      });
+    }
+  };
+
+  if (geoModeSelect) geoModeSelect.addEventListener('change', onGeoSettingChange);
+  if (geoScopeSelect) geoScopeSelect.addEventListener('change', onGeoSettingChange);
+  if (geoCountSelect) geoCountSelect.addEventListener('change', onGeoSettingChange);
+
+  const btnGeoStart = document.getElementById('btn-geographie-start');
+  if (btnGeoStart) {
+    btnGeoStart.addEventListener('click', () => {
+      fetch('/api/geographie/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: geographieState.roomId })
+      });
+    });
+  }
+
+  const btnGeoNext = document.getElementById('btn-geographie-next');
+  if (btnGeoNext) {
+    btnGeoNext.addEventListener('click', () => {
+      fetch('/api/geographie/next', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: geographieState.roomId })
+      });
+    });
+  }
+
+  const btnGeoRestart = document.getElementById('btn-geographie-restart');
+  if (btnGeoRestart) {
+    btnGeoRestart.addEventListener('click', () => {
+      fetch('/api/geographie/restart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: geographieState.roomId })
       });
     });
   }
@@ -815,6 +981,461 @@ function renderVotingGrid(state) {
   });
 }
 
+// --- Quiz Géographie Client Logic ---
+
+function showGeoMenuError(msg) {
+  const errDiv = document.getElementById('geographie-menu-error');
+  if (errDiv) {
+    errDiv.textContent = msg;
+    errDiv.style.display = msg ? 'block' : 'none';
+  }
+}
+
+function startPlayingGeographie(roomId, nickname) {
+  showView('geoGame');
+  dom.roomDisplay.style.display = 'inline-block';
+  dom.roomCodeSpan.textContent = roomId;
+  
+  geographieState.roomId = roomId;
+  geographieState.nickname = nickname;
+  
+  connectGeographieSSE(roomId, nickname);
+}
+
+function leaveGeographieRoom() {
+  if (evtSource) evtSource.close();
+  clearInterval(geoCountdownInterval);
+  
+  geographieState = {
+    nickname: '',
+    roomId: '',
+    isHost: false,
+    status: 'lobby',
+    mode: 'drapeaux',
+    scope: 'monde',
+    questionCount: 10,
+    currentQuestionIndex: 0,
+    players: {},
+    question: null,
+    leaderboard: []
+  };
+  
+  showView('portal');
+  const codeInput = document.getElementById('geographie-join-code');
+  if (codeInput) codeInput.value = '';
+  
+  // Reset panels visibility
+  document.getElementById('geographie-lobby-panel').classList.remove('view-hidden');
+  document.getElementById('geographie-play-panel').classList.add('view-hidden');
+  document.getElementById('geographie-correction-panel').classList.add('view-hidden');
+  document.getElementById('geographie-results-panel').classList.add('view-hidden');
+}
+
+function connectGeographieSSE(roomId, nickname) {
+  if (evtSource) evtSource.close();
+  evtSource = new EventSource(`/api/events?roomId=${roomId}&nickname=${encodeURIComponent(nickname)}`);
+  
+  evtSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === 'GEOGRAPHIE_STATE') {
+      updateGeographieUI(data.state);
+    }
+  };
+}
+
+function submitGeoAnswer(choice) {
+  fetch('/api/geographie/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomId: geographieState.roomId,
+      nickname: geographieState.nickname,
+      choice
+    })
+  });
+}
+
+function updateGeographieUI(state) {
+  const previousStatus = geographieState.status;
+  const previousIndex = geographieState.currentQuestionIndex;
+
+  geographieState.status = state.status;
+  geographieState.mode = state.mode;
+  geographieState.scope = state.scope;
+  geographieState.questionCount = state.questionCount;
+  geographieState.currentQuestionIndex = state.currentQuestionIndex;
+  geographieState.players = state.players;
+  geographieState.question = state.question;
+  geographieState.leaderboard = state.leaderboard;
+  
+  const playerNames = Object.keys(state.players);
+  const myName = geographieState.nickname;
+  
+  // Host detection
+  const isHost = playerNames.length > 0 && playerNames[0] === myName;
+  geographieState.isHost = isHost;
+  
+  // Sidebar player list rendering
+  const countSpan = document.getElementById('geographie-players-count');
+  if (countSpan) countSpan.textContent = playerNames.length;
+  
+  const listUl = document.getElementById('geographie-players-list');
+  if (listUl) {
+    listUl.innerHTML = '';
+    playerNames.forEach(name => {
+      const p = state.players[name];
+      const li = document.createElement('li');
+      li.className = 'player-item';
+      
+      const isPlayerHost = playerNames[0] === name;
+      let badgeHtml = '';
+      if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host">⭐ Hôte</span>`;
+      
+      if (p.hasAnswered) {
+        badgeHtml += `<span class="badge-item badge-voted">✅ Répondu</span>`;
+      } else if (state.status === 'question') {
+        badgeHtml += `<span class="badge-item badge-thinking">💭 Réfléchit...</span>`;
+      }
+      
+      li.innerHTML = `
+        <div class="player-info-left">
+          <span class="player-avatar" style="background: var(--geo-primary);">${name.charAt(0)}</span>
+          <span class="player-name">${name} ${name === myName ? '(Vous)' : ''}</span>
+        </div>
+        <div class="player-badges">
+          ${badgeHtml}
+        </div>
+      `;
+      listUl.appendChild(li);
+    });
+  }
+  
+  // Views panels toggles
+  const lobbyPanel = document.getElementById('geographie-lobby-panel');
+  const playPanel = document.getElementById('geographie-play-panel');
+  const correctionPanel = document.getElementById('geographie-correction-panel');
+  const resultsPanel = document.getElementById('geographie-results-panel');
+  
+  // 1. Lobby Phase
+  if (state.status === 'lobby') {
+    clearInterval(geoCountdownInterval);
+    lobbyPanel.classList.remove('view-hidden');
+    playPanel.classList.add('view-hidden');
+    correctionPanel.classList.add('view-hidden');
+    resultsPanel.classList.add('view-hidden');
+    
+    document.getElementById('geographie-mode-select').value = state.mode;
+    document.getElementById('geographie-scope-select').value = state.scope;
+    document.getElementById('geographie-count-select').value = state.questionCount;
+    
+    const btnStart = document.getElementById('btn-geographie-start');
+    const helper = document.getElementById('geographie-start-helper');
+    
+    if (isHost) {
+      document.getElementById('geographie-mode-select').disabled = false;
+      document.getElementById('geographie-scope-select').disabled = false;
+      document.getElementById('geographie-count-select').disabled = false;
+      
+      btnStart.style.display = 'block';
+      btnStart.removeAttribute('disabled');
+      helper.textContent = 'Configurez les options et lancez la partie quand vous le souhaitez.';
+      helper.style.color = '#34d399';
+    } else {
+      document.getElementById('geographie-mode-select').disabled = true;
+      document.getElementById('geographie-scope-select').disabled = true;
+      document.getElementById('geographie-count-select').disabled = true;
+      
+      btnStart.style.display = 'none';
+      helper.textContent = "Attente que l'organisateur configure les options et lance la partie...";
+      helper.style.color = 'var(--text-muted)';
+    }
+  }
+  
+  // 2. Playing Question Phase
+  else if (state.status === 'question') {
+    lobbyPanel.classList.add('view-hidden');
+    playPanel.classList.remove('view-hidden');
+    correctionPanel.classList.add('view-hidden');
+    resultsPanel.classList.add('view-hidden');
+    
+    document.getElementById('geographie-question-number').textContent = `Question ${state.currentQuestionIndex + 1}/${state.questionCount}`;
+    document.getElementById('geographie-question-prompt').textContent = state.question.prompt;
+    
+    // Countdown Timer logic
+    if (previousStatus !== 'question' || previousIndex !== state.currentQuestionIndex) {
+      clearInterval(geoCountdownInterval);
+      geoTimeRemaining = 15;
+      document.getElementById('geographie-timer-text').textContent = geoTimeRemaining;
+      document.getElementById('geographie-progress-fill').style.width = '100%';
+      
+      geoCountdownInterval = setInterval(() => {
+        geoTimeRemaining--;
+        if (geoTimeRemaining <= 0) {
+          clearInterval(geoCountdownInterval);
+          geoTimeRemaining = 0;
+          const myPlayerObj = state.players[myName];
+          if (myPlayerObj && !myPlayerObj.hasAnswered) {
+            submitGeoAnswer("");
+          }
+        }
+        document.getElementById('geographie-timer-text').textContent = geoTimeRemaining;
+        const progressPercent = (geoTimeRemaining / 15) * 100;
+        document.getElementById('geographie-progress-fill').style.width = `${progressPercent}%`;
+      }, 1000);
+    }
+    
+    // Render media content
+    const mediaContainer = document.getElementById('geographie-media-container');
+    if (state.mode === 'drapeaux') {
+      const code = state.question.media.toLowerCase();
+      mediaContainer.innerHTML = `
+        <img src="https://flagcdn.com/w320/${code}.png" alt="Drapeau" style="max-height: 180px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+      `;
+    } else if (state.mode === 'localisation') {
+      const path = state.question.media;
+      mediaContainer.innerHTML = `
+        <svg viewBox="0 0 1000 1000" style="width: 100%; max-height: 220px; filter: drop-shadow(0 0 12px var(--neon-cyan));">
+          <path d="${path}" fill="rgba(0, 242, 254, 0.2)" stroke="var(--neon-cyan)" stroke-width="8" stroke-linejoin="round" />
+        </svg>
+      `;
+    } else if (state.mode === 'capitales') {
+      const name = state.question.media;
+      mediaContainer.innerHTML = `
+        <div style="font-size: 2.2rem; font-weight: 800; text-transform: uppercase; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.4); text-align: center;">${name}</div>
+      `;
+    }
+    
+    // Render choices buttons grid
+    const grid = document.getElementById('geographie-choices-grid');
+    grid.innerHTML = '';
+    const myPlayerObj = state.players[myName];
+    const hasAnswered = myPlayerObj ? myPlayerObj.hasAnswered : false;
+    const myAnswerVal = myPlayerObj ? myPlayerObj.currentAnswer : null;
+    
+    state.question.choices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.style.padding = '1.25rem';
+      btn.style.fontSize = '1.1rem';
+      btn.style.fontWeight = '600';
+      btn.style.border = '1px solid rgba(255,255,255,0.08)';
+      btn.style.borderRadius = '12px';
+      btn.style.background = 'rgba(255, 255, 255, 0.03)';
+      btn.style.color = '#fff';
+      btn.style.transition = 'all 0.3s ease';
+      btn.textContent = choice;
+      
+      if (hasAnswered) {
+        btn.disabled = true;
+        if (myAnswerVal === choice) {
+          btn.style.background = 'rgba(0, 242, 254, 0.2)';
+          btn.style.borderColor = 'var(--neon-cyan)';
+          btn.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.3)';
+        } else {
+          btn.style.opacity = '0.5';
+        }
+      } else {
+        btn.addEventListener('mouseenter', () => {
+          btn.style.background = 'rgba(0, 242, 254, 0.08)';
+          btn.style.borderColor = 'rgba(0, 242, 254, 0.4)';
+          btn.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.15)';
+          btn.style.transform = 'translateY(-2px)';
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.background = 'rgba(255, 255, 255, 0.03)';
+          btn.style.borderColor = 'rgba(255,255,255,0.08)';
+          btn.style.boxShadow = 'none';
+          btn.style.transform = 'none';
+        });
+        btn.addEventListener('click', () => {
+          submitGeoAnswer(choice);
+        });
+      }
+      grid.appendChild(btn);
+    });
+  }
+  
+  // 3. Correction Phase
+  else if (state.status === 'correction') {
+    clearInterval(geoCountdownInterval);
+    lobbyPanel.classList.add('view-hidden');
+    playPanel.classList.add('view-hidden');
+    correctionPanel.classList.remove('view-hidden');
+    resultsPanel.classList.add('view-hidden');
+    
+    // Correct Showcase mini-media
+    const miniMedia = document.getElementById('geographie-correction-mini-media');
+    if (state.mode === 'drapeaux') {
+      const code = state.question.target.code.toLowerCase();
+      miniMedia.innerHTML = `
+        <img src="https://flagcdn.com/w320/${code}.png" alt="Drapeau" style="max-height: 80px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+      `;
+    } else if (state.mode === 'localisation') {
+      const path = state.question.target.path;
+      miniMedia.innerHTML = miniMedia.innerHTML = `
+        <svg viewBox="0 0 1000 1000" style="width: 80px; height: 80px; filter: drop-shadow(0 0 6px var(--neon-emerald));">
+          <path d="${path}" fill="rgba(16, 185, 129, 0.2)" stroke="var(--neon-emerald)" stroke-width="12" />
+        </svg>
+      `;
+    } else {
+      miniMedia.innerHTML = '';
+    }
+    
+    // Set correct answer text
+    document.getElementById('geographie-correct-answer-text').textContent = state.question.correctAnswer;
+    
+    // List correct players
+    const correctContainer = document.getElementById('geographie-correct-players');
+    correctContainer.innerHTML = '';
+    
+    const correctPlayers = Object.values(state.players).filter(p => p.isCorrect);
+    if (correctPlayers.length > 0) {
+      correctPlayers.forEach(p => {
+        const span = document.createElement('span');
+        span.style.padding = '0.35rem 0.75rem';
+        span.style.fontSize = '0.85rem';
+        span.style.fontWeight = '700';
+        span.style.borderRadius = '20px';
+        span.style.background = 'rgba(16, 185, 129, 0.2)';
+        span.style.border = '1px solid var(--neon-emerald)';
+        span.style.color = '#fff';
+        span.textContent = `✨ ${p.nickname} (+${p.pointsEarned})`;
+        correctContainer.appendChild(span);
+      });
+    } else {
+      correctContainer.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-style: italic;">Personne n\'a trouvé ! 😢</span>';
+    }
+    
+    // Run sequential correction reveal animation
+    if (previousStatus !== 'correction') {
+      const incorrectList = document.getElementById('geographie-incorrect-reveals-list');
+      incorrectList.innerHTML = '';
+      
+      const correctCard = document.getElementById('geographie-correct-card');
+      correctCard.style.opacity = '0';
+      correctCard.style.transform = 'scale(0.9)';
+      
+      setTimeout(() => {
+        correctCard.style.opacity = '1';
+        correctCard.style.transform = 'none';
+        correctCard.style.borderColor = 'var(--neon-emerald)';
+        correctCard.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.4)';
+      }, 300);
+      
+      const incorrectChoicesWithVotes = {};
+      Object.values(state.players).forEach(p => {
+        if (p.currentAnswer && !p.isCorrect) {
+          if (!incorrectChoicesWithVotes[p.currentAnswer]) {
+            incorrectChoicesWithVotes[p.currentAnswer] = [];
+          }
+          incorrectChoicesWithVotes[p.currentAnswer].push(p.nickname);
+        }
+      });
+      
+      const badChoicesKeys = Object.keys(incorrectChoicesWithVotes);
+      badChoicesKeys.forEach((choice, index) => {
+        setTimeout(() => {
+          const playersListStr = incorrectChoicesWithVotes[choice].join(', ');
+          const div = document.createElement('div');
+          div.style.padding = '0.85rem 1.25rem';
+          div.style.borderRadius = '10px';
+          div.style.background = 'rgba(239, 68, 68, 0.08)';
+          div.style.border = '1px solid rgba(239, 68, 68, 0.25)';
+          div.style.display = 'flex';
+          div.style.justifyContent = 'space-between';
+          div.style.alignItems = 'center';
+          div.style.animation = 'shakeRed 0.5s ease, slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+          div.innerHTML = `
+            <span style="font-weight: 700; color: #fca5a5;">❌ ${choice || "(Sans réponse)"}</span>
+            <span style="font-size: 0.85rem; color: #fca5a5;">choisi par : <strong style="color: #fff;">${playersListStr}</strong></span>
+          `;
+          incorrectList.appendChild(div);
+        }, 1200 + (index * 800));
+      });
+    }
+    
+    // Host buttons
+    const btnNext = document.getElementById('btn-geographie-next');
+    const helper = document.getElementById('geographie-next-helper');
+    if (isHost) {
+      btnNext.style.display = 'inline-block';
+      helper.style.display = 'none';
+    } else {
+      btnNext.style.display = 'none';
+      helper.style.display = 'block';
+      helper.textContent = "Attente que l'hôte passe à la question suivante...";
+    }
+  }
+  
+  // 4. Game Over (Results / Podium)
+  else if (state.status === 'game_over') {
+    clearInterval(geoCountdownInterval);
+    lobbyPanel.classList.add('view-hidden');
+    playPanel.classList.add('view-hidden');
+    correctionPanel.classList.add('view-hidden');
+    resultsPanel.classList.remove('view-hidden');
+    
+    // Render custom 3D neon podium
+    const podiumContainer = document.getElementById('geographie-podium-container');
+    podiumContainer.innerHTML = '';
+    
+    const topPlayers = [...state.leaderboard].slice(0, 3);
+    const displayOrder = [];
+    if (topPlayers[1]) displayOrder.push({ player: topPlayers[1], rank: 2, height: '120px', color: 'rgba(255,255,255,0.4)', text: '🥈' });
+    if (topPlayers[0]) displayOrder.push({ player: topPlayers[0], rank: 1, height: '170px', color: 'var(--neon-cyan)', text: '👑' });
+    if (topPlayers[2]) displayOrder.push({ player: topPlayers[2], rank: 3, height: '90px', color: 'rgba(180, 83, 9, 0.6)', text: '🥉' });
+    
+    displayOrder.forEach(item => {
+      const col = document.createElement('div');
+      col.className = 'podium-column';
+      col.style.display = 'flex';
+      col.style.flexDirection = 'column';
+      col.style.alignItems = 'center';
+      col.style.width = '90px';
+      col.style.transition = 'all 1s cubic-bezier(0.16, 1, 0.3, 1)';
+      
+      col.innerHTML = `
+        <span style="font-size: 1.5rem; margin-bottom: 0.25rem;">${item.text}</span>
+        <strong style="font-size: 0.95rem; margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85px;">${item.player.nickname}</strong>
+        <div class="podium-bar" style="width: 100%; height: ${item.height}; background: linear-gradient(180deg, ${item.color}, rgba(0,0,0,0.4)); border-radius: 8px 8px 0 0; border: 1px solid ${item.color}; box-shadow: 0 0 15px ${item.color === 'var(--neon-cyan)' ? 'rgba(0, 242, 254, 0.2)' : 'none'}; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 1rem; align-items: center;">
+          <span style="font-size: 1.1rem; font-weight: 800; color: #fff;">${item.player.score}</span>
+          <span style="font-size: 0.75rem; color: rgba(255,255,255,0.6);">pts</span>
+        </div>
+      `;
+      podiumContainer.appendChild(col);
+    });
+    
+    // Render full leaderboard
+    const fullLeaderboard = document.getElementById('geographie-full-leaderboard');
+    fullLeaderboard.innerHTML = '';
+    state.leaderboard.forEach((p, idx) => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.padding = '0.65rem 0';
+      row.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+      row.style.fontSize = '0.95rem';
+      
+      row.innerHTML = `
+        <span><strong>#${idx + 1}</strong> ${p.nickname}</span>
+        <span style="font-weight: 700; color: var(--neon-cyan);">${p.score} pts</span>
+      `;
+      fullLeaderboard.appendChild(row);
+    });
+    
+    // Restart controls
+    const btnRestart = document.getElementById('btn-geographie-restart');
+    const helper = document.getElementById('geographie-restart-helper');
+    if (isHost) {
+      btnRestart.style.display = 'block';
+      helper.style.display = 'none';
+    } else {
+      btnRestart.style.display = 'none';
+      helper.style.display = 'block';
+      helper.textContent = "Attente que l'hôte relance une nouvelle partie...";
+    }
+  }
+}
 
 // --- Theridactle Redaction Engine ---
 function normalize(str) {

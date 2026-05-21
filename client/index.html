@@ -59,6 +59,17 @@
           <button class="btn btn-accent btn-card">Détecter l'Imposteur</button>
         </div>
       </div>
+
+      <!-- Game Card 3: Quiz Géographie -->
+      <div class="game-card card-geographie" id="card-geographie" style="border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);">
+        <div class="card-glow" style="background: radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, transparent 70%);"></div>
+        <div class="card-content">
+          <div class="card-icon">🌍</div>
+          <h2 class="card-title">Quiz Géographie</h2>
+          <p class="card-desc">Drapeaux, capitales ou silhouettes vectorielles mystères. Répondez simultanément et assistez à une phase de correction dramatique Kahoot-style !</p>
+          <button class="btn btn-card" style="background: var(--neon-cyan); border-color: var(--neon-cyan); color: #000; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); text-shadow: none; font-weight: 700;">Rejoindre l'Expédition</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -116,6 +127,37 @@
         </div>
       </div>
       <div id="imposteur-menu-error" class="error-msg" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- 3.5. GEOGRAPHIE MENU VIEW -->
+  <section id="geographie-menu-view" class="menu-container view-hidden">
+    <div class="glass-panel menu-panel" style="border-color: var(--neon-cyan); box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.15);">
+      <button class="btn-back" id="btn-back-geographie">← Retour</button>
+      <div class="menu-header">
+        <span class="badge" style="background: var(--neon-cyan); color: #000; box-shadow: 0 0 10px rgba(0, 242, 254, 0.4); font-weight: 700;">Multijoueur Temps Réel</span>
+        <h2>Quiz Géographie</h2>
+        <p>Testez vos connaissances en cartographie, drapeaux et silhouettes.</p>
+      </div>
+
+      <div class="menu-inputs">
+        <div class="input-group">
+          <label for="geographie-nickname">Votre Pseudo</label>
+          <input type="text" id="geographie-nickname" placeholder="Entrez un pseudo aventurier" max-length="15" autocomplete="off">
+        </div>
+
+        <div class="menu-actions" style="margin-top: 1.5rem;">
+          <button id="btn-geographie-create" class="btn btn-block" style="background: var(--neon-cyan); border-color: var(--neon-cyan); color: #000; font-weight: 700; box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);">Créer un Salon Géographique</button>
+          
+          <div class="divider"><span>OU REJOINDRE</span></div>
+          
+          <div class="join-box">
+            <input type="text" id="geographie-join-code" placeholder="Code (ex: ABCD)" autocomplete="off">
+            <button id="btn-geographie-join" class="btn" style="background: var(--neon-cyan); border-color: var(--neon-cyan); color: #000; font-weight: 700; box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);">Rejoindre</button>
+          </div>
+        </div>
+      </div>
+      <div id="geographie-menu-error" class="error-msg" style="display: none;"></div>
     </div>
   </section>
 
@@ -330,6 +372,175 @@
           </div>
           <ul class="imposteur-players-list" id="imposteur-players-list">
             <!-- Dynamic player list -->
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- 6. GEOGRAPHIE GAME VIEW -->
+  <main class="app-container view-hidden" id="geographie-game-view">
+    <div class="imposteur-layout">
+      
+      <!-- Left: Game Actions / Questions / Correction -->
+      <section class="imposteur-main-section">
+        
+        <!-- LOBBY STATE PANEL -->
+        <div id="geographie-lobby-panel" class="glass-panel imposteur-panel" style="border-color: var(--neon-cyan);">
+          <div class="panel-header">
+            <h3>🏠 Salon Géographique</h3>
+            <span class="badge" style="background: var(--neon-cyan); color: #000; font-weight: 700;">En attente de l'expédition</span>
+          </div>
+          <div class="lobby-content">
+            <div class="lobby-settings-box">
+              <h4>Paramètres du Quiz</h4>
+              
+              <div class="input-group" style="margin-bottom: 1rem;">
+                <label for="geographie-mode-select">Mode de Jeu</label>
+                <select id="geographie-mode-select" class="theme-select">
+                  <option value="drapeaux">🚩 Drapeaux (Identifier le pays)</option>
+                  <option value="capitales">🏛️ Capitales (Trouver la capitale)</option>
+                  <option value="localisation">🗺️ Silhouette du pays (Silhouette vectorielle)</option>
+                </select>
+              </div>
+
+              <div class="input-group" style="margin-bottom: 1rem;">
+                <label for="geographie-scope-select">Portée Géographique</label>
+                <select id="geographie-scope-select" class="theme-select">
+                  <option value="monde">🌍 Monde Entier</option>
+                  <option value="europe">🇪🇺 Europe</option>
+                  <option value="asie">🌏 Asie</option>
+                  <option value="afrique">🌍 Afrique</option>
+                  <option value="amerique">🌎 Amérique</option>
+                  <option value="oceanie">🌏 Océanie</option>
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label for="geographie-count-select">Nombre de Questions</label>
+                <select id="geographie-count-select" class="theme-select">
+                  <option value="5">5 Questions</option>
+                  <option value="10" selected>10 Questions</option>
+                  <option value="15">15 Questions</option>
+                  <option value="20">20 Questions</option>
+                </select>
+              </div>
+              
+              <p class="theme-helper" style="margin-top: 1rem;">Seul l'organisateur peut modifier les paramètres.</p>
+            </div>
+            
+            <div class="lobby-start-box">
+              <button id="btn-geographie-start" class="btn btn-large" style="background: var(--neon-cyan); border-color: var(--neon-cyan); color: #000; box-shadow: 0 0 15px rgba(0,242,254,0.4); font-weight: 700; display:none;">Démarrer le Quiz !</button>
+              <div id="geographie-start-helper" class="helper-text">En attente que l'hôte lance la partie.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAYING QUESTION PANEL -->
+        <div id="geographie-play-panel" class="view-hidden">
+          <div class="glass-panel imposteur-panel" style="border-color: var(--neon-cyan); padding: 1.5rem;">
+            <!-- Question Indicator / Progress -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <span style="font-weight: 600; color: var(--neon-cyan);" id="geographie-question-number">Question 1/10</span>
+              <div class="countdown-circle" id="geographie-timer-container" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center;">
+                <span id="geographie-timer-text" style="font-size: 1.3rem; font-weight: 800; color: #fff;">15</span>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar-container" style="background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem; position: relative;">
+              <div id="geographie-progress-fill" style="height: 100%; width: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-emerald)); transition: width 0.1s linear;"></div>
+            </div>
+
+            <!-- Prompt Title -->
+            <h3 id="geographie-question-prompt" class="text-center" style="font-size: 1.4rem; margin-bottom: 1.5rem;">Quel pays possède ce drapeau ?</h3>
+
+            <!-- Media Container -->
+            <div id="geographie-media-container" class="text-center" style="min-height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+              <!-- Content filled dynamically -->
+            </div>
+
+            <!-- Grille de 4 Boutons de propositions -->
+            <div class="geo-choices-grid" id="geographie-choices-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              <!-- 4 buttons inserted dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAILED SEQUENTIAL CORRECTION PANEL -->
+        <div id="geographie-correction-panel" class="view-hidden">
+          <div class="glass-panel imposteur-panel" style="border-color: var(--neon-emerald); background: rgba(16, 185, 129, 0.05);">
+            <div class="panel-header text-center" style="margin-bottom: 1.5rem;">
+              <span class="badge" style="background: var(--neon-emerald); color: #000; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); font-weight: 700;">Phase de Correction</span>
+              <h2 style="margin-top: 0.5rem; color: #fff;">Résultats de la Question</h2>
+            </div>
+
+            <!-- Media miniature showing correct element -->
+            <div id="geographie-correction-mini-media" class="text-center" style="margin-bottom: 1.5rem;"></div>
+
+            <!-- Correct Answer Showcase -->
+            <div class="correct-answer-showcase text-center" style="margin-bottom: 2rem; padding: 1.5rem; border-radius: 12px; background: rgba(0,0,0,0.3); border: 2px solid transparent; transition: all 0.5s ease;" id="geographie-correct-card">
+              <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Bonne Réponse</div>
+              <div id="geographie-correct-answer-text" style="font-size: 2rem; font-weight: 800; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);">...</div>
+              
+              <!-- Pseudos who answered correctly -->
+              <div id="geographie-correct-players" style="margin-top: 1rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem;">
+                <!-- dynamic correct players capsules -->
+              </div>
+            </div>
+
+            <!-- Sequential incorrect answers list -->
+            <div style="margin-top: 1.5rem;">
+              <h4 style="margin-bottom: 1rem; color: rgba(255,255,255,0.8);">Choix incorrects :</h4>
+              <div id="geographie-incorrect-reveals-list" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <!-- Dynamically populated one by one with delay -->
+              </div>
+            </div>
+
+            <!-- Next button for Host -->
+            <div class="text-center" style="margin-top: 2.5rem;">
+              <button id="btn-geographie-next" class="btn" style="background: var(--neon-emerald); border-color: var(--neon-emerald); color: #000; font-weight: 700; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); display: none;">Question Suivante →</button>
+              <div id="geographie-next-helper" class="helper-text">En attente que l'hôte passe à la question suivante.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PODIUM FINAL PANEL -->
+        <div id="geographie-results-panel" class="view-hidden">
+          <div class="glass-panel imposteur-panel text-center" style="border-color: var(--neon-cyan);">
+            <div class="results-emoji">🏆</div>
+            <h2 class="text-gradient" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Expédition Terminée !</h2>
+            <p class="results-subtext" style="margin-bottom: 2rem;">Voici le podium final des explorateurs.</p>
+
+            <!-- Custom 3D Neon Podium -->
+            <div class="podium-container" id="geographie-podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 1rem; height: 220px; margin-bottom: 3rem; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+              <!-- Filled dynamically by JS -->
+            </div>
+
+            <!-- Full scoreboard -->
+            <div class="glass-panel" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); text-align: left; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
+              <h4 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; color: var(--neon-cyan);">Classement Général</h4>
+              <div id="geographie-full-leaderboard" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- dynamic rankings list -->
+              </div>
+            </div>
+
+            <button id="btn-geographie-restart" class="btn btn-large mt-20" style="background: var(--neon-cyan); border-color: var(--neon-cyan); color: #000; font-weight: 700; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); display:none;">Recommencer une partie</button>
+            <p id="geographie-restart-helper" class="helper-text" style="display:none;">Seul l'hôte peut relancer la partie.</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right: Players Sidebar -->
+      <aside class="imposteur-sidebar">
+        <div class="glass-panel imposteur-sidebar-panel" style="border-color: var(--neon-cyan); box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.1);">
+          <div class="sidebar-header">
+            <h4>👥 Explorateurs (<span id="geographie-players-count">0</span>)</h4>
+          </div>
+          <ul class="imposteur-players-list" id="geographie-players-list">
+            <!-- Dynamic players list -->
           </ul>
         </div>
       </aside>

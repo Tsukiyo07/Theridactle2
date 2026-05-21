@@ -34,15 +34,36 @@ const stopWords = new Set([
 
 const IMPOSTEUR_WORDS = {
   anime: [
-    { civil: 'Pikachu', impostor: 'Raichu' },
+    { civil: 'Pikachu', impostor: 'Évoli' },
     { civil: 'Naruto', impostor: 'Sasuke' },
     { civil: 'Luffy', impostor: 'Zoro' },
-    { civil: 'Goku', impostor: 'Vegeta' },
+    { civil: 'Goku', impostor: 'Végéta' },
     { civil: 'Death Note', impostor: 'Code Geass' },
-    { civil: 'Totoro', impostor: 'Pikachu' },
-    { civil: 'One Piece', impostor: 'Naruto' },
-    { civil: 'Eren Jäger', impostor: 'Armin Arlert' },
-    { civil: 'Saitama', impostor: 'Goku' }
+    { civil: 'Totoro', impostor: 'Chihiro' },
+    { civil: 'One Piece', impostor: 'Fairy Tail' },
+    { civil: 'Eren Jäger', impostor: 'Levi Ackerman' },
+    { civil: 'Saitama', impostor: 'Genos' },
+    { civil: 'Tanjiro', impostor: 'Nezuko' },
+    { civil: 'Light Yagami', impostor: 'L (Ryuzaki)' },
+    { civil: 'Edward Elric', impostor: 'Alphonse Elric' },
+    { civil: 'Gon Freecss', impostor: 'Killua Zoldyck' },
+    { civil: 'Deku (Midoriya)', impostor: 'Bakugo' },
+    { civil: 'Kakashi', impostor: 'Jiraiya' },
+    { civil: 'Gold Roger', impostor: 'Barbe Blanche' },
+    { civil: 'Jujutsu Kaisen', impostor: 'Chainsaw Man' },
+    { civil: 'Evangelion', impostor: 'Darling in the Franxx' },
+    { civil: 'Sailor Moon', impostor: 'Cardcaptor Sakura' },
+    { civil: 'Hisoka', impostor: 'Illumi' },
+    { civil: 'Koro-sensei', impostor: 'Onizuka (GTO)' },
+    { civil: 'Ken Kaneki', impostor: 'Tokyo Ghoul' },
+    { civil: 'Guts', impostor: 'Griffith' },
+    { civil: 'Madara Uchiha', impostor: 'Hashirama Senju' },
+    { civil: 'Rimuru Tempest', impostor: 'Ainz Ooal Gown' },
+    { civil: 'Sacha Ketchum', impostor: 'Yugi Muto' },
+    { civil: 'Bleach', impostor: 'Naruto' },
+    { civil: 'Kurapika', impostor: 'Leorio' },
+    { civil: 'Roronoa Zoro', impostor: 'Sanji' },
+    { civil: 'Shingeki no Kyojin', impostor: 'Demon Slayer' }
   ],
   jeux_video: [
     { civil: 'Mario', impostor: 'Luigi' },
@@ -51,9 +72,30 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Fortnite', impostor: 'Apex Legends' },
     { civil: 'Sonic', impostor: 'Shadow' },
     { civil: 'PlayStation', impostor: 'Xbox' },
-    { civil: 'Pokemon', impostor: 'Digimon' },
+    { civil: 'Pokémon', impostor: 'Digimon' },
     { civil: 'Tetris', impostor: 'Pac-Man' },
-    { civil: 'Nintendo Switch', impostor: 'GameBoy' }
+    { civil: 'Nintendo Switch', impostor: 'GameBoy' },
+    { civil: 'League of Legends', impostor: 'Dota 2' },
+    { civil: 'Elden Ring', impostor: 'Dark Souls' },
+    { civil: 'Kratos', impostor: 'Master Chief' },
+    { civil: 'Joel (TLOU)', impostor: 'Ellie (TLOU)' },
+    { civil: 'Lara Croft', impostor: 'Nathan Drake' },
+    { civil: 'World of Warcraft', impostor: 'Final Fantasy XIV' },
+    { civil: 'GTA V', impostor: 'Red Dead Redemption 2' },
+    { civil: 'Assassin\'s Creed', impostor: 'Prince of Persia' },
+    { civil: 'Counter-Strike', impostor: 'Valorant' },
+    { civil: 'FIFA', impostor: 'PES (eFootball)' },
+    { civil: 'Call of Duty', impostor: 'Battlefield' },
+    { civil: 'Animal Crossing', impostor: 'Stardew Valley' },
+    { civil: 'Sans (Undertale)', impostor: 'Papyrus' },
+    { civil: 'Geralt de Riv', impostor: 'Arthur Morgan' },
+    { civil: 'Crash Bandicoot', impostor: 'Spyro le Dragon' },
+    { civil: 'Portal', impostor: 'Half-Life' },
+    { civil: 'Resident Evil', impostor: 'Silent Hill' },
+    { civil: 'Rayman', impostor: 'Lapins Crétins' },
+    { civil: 'Doom Slayer', impostor: 'Master Chief' },
+    { civil: 'Cyberpunk 2077', impostor: 'Deus Ex' },
+    { civil: 'Pac-Man', impostor: 'Donkey Kong' }
   ],
   films_series: [
     { civil: 'Harry Potter', impostor: 'Voldemort' },
@@ -64,7 +106,28 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Breaking Bad', impostor: 'Better Call Saul' },
     { civil: 'Game of Thrones', impostor: 'House of the Dragon' },
     { civil: 'Shrek', impostor: 'Fiona' },
-    { civil: 'Netflix', impostor: 'Disney+' }
+    { civil: 'Netflix', impostor: 'Disney+' },
+    { civil: 'Luke Skywalker', impostor: 'Darth Vador' },
+    { civil: 'Walter White', impostor: 'Jesse Pinkman' },
+    { civil: 'Sherlock Holmes', impostor: 'Docteur Watson' },
+    { civil: 'Iron Man', impostor: 'Captain America' },
+    { civil: 'Gandalf', impostor: 'Dumbledore' },
+    { civil: 'Frodon Sacquet', impostor: 'Sam Gamegie' },
+    { civil: 'Shrek', impostor: 'L\'Âne' },
+    { civil: 'Jon Snow', impostor: 'Daenerys Targaryen' },
+    { civil: 'Neo (Matrix)', impostor: 'Morpheus' },
+    { civil: 'Michael Scott', impostor: 'Dwight Schrute' },
+    { civil: 'Rick Sanchez', impostor: 'Morty Smith' },
+    { civil: 'Mercredi Addams', impostor: 'Eleven (Stranger Things)' },
+    { civil: 'James Bond', impostor: 'Ethan Hunt' },
+    { civil: 'Marty McFly', impostor: 'Doc Brown' },
+    { civil: 'Jack Dawson', impostor: 'Rose DeWitt Bukater' },
+    { civil: 'Joker', impostor: 'Harley Quinn' },
+    { civil: 'Thanos', impostor: 'Darkseid' },
+    { civil: 'Spider-Man', impostor: 'Peter Parker' },
+    { civil: 'Interstellar', impostor: 'Inception' },
+    { civil: 'Le Parrain', impostor: 'Scarface' },
+    { civil: 'Friends', impostor: 'How I Met Your Mother' }
   ],
   general: [
     { civil: 'Café', impostor: 'Thé' },
@@ -78,9 +141,72 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Mer', impostor: 'Piscine' },
     { civil: 'Guitare', impostor: 'Piano' },
     { civil: 'Orage', impostor: 'Pluie' },
-    { civil: 'Vélo', impostor: 'Trottinette' }
+    { civil: 'Vélo', impostor: 'Trottinette' },
+    { civil: 'Paris', impostor: 'Londres' },
+    { civil: 'Mer', impostor: 'Océan' },
+    { civil: 'Pluie', impostor: 'Neige' },
+    { civil: 'Orage', impostor: 'Tempête' },
+    { civil: 'Moto', impostor: 'Scooter' },
+    { civil: 'Fraise', impostor: 'Framboise' },
+    { civil: 'Pomme', impostor: 'Poire' },
+    { civil: 'Pain', impostor: 'Croissant' },
+    { civil: 'Beurre', impostor: 'Margarine' },
+    { civil: 'Sel', impostor: 'Poivre' },
+    { civil: 'Or', impostor: 'Argent' },
+    { civil: 'Diamant', impostor: 'Rubis' },
+    { civil: 'Livre', impostor: 'Liseuse' },
+    { civil: 'Stylo', impostor: 'Crayon' },
+    { civil: 'Chapeau', impostor: 'Casquette' },
+    { civil: 'Chaussures', impostor: 'Chaussettes' },
+    { civil: 'Lunettes', impostor: 'Lentilles' },
+    { civil: 'Cinéma', impostor: 'Théâtre' },
+    { civil: 'Télévision', impostor: 'Projecteur' },
+    { civil: 'Coca-Cola', impostor: 'Pepsi' }
   ]
 };
+
+const GEOGRAPHY_DATABASE = [
+  // Europe
+  { name: 'France', code: 'fr', capital: 'Paris', continent: 'europe', path: 'M 40,25 L 55,20 L 70,30 L 80,45 L 75,70 L 65,80 L 45,80 L 35,65 L 30,45 Z' },
+  { name: 'Italie', code: 'it', capital: 'Rome', continent: 'europe', path: 'M 30,20 L 50,15 L 60,35 L 55,50 L 70,70 L 85,85 L 75,90 L 60,80 L 50,70 L 40,55 L 35,40 Z' },
+  { name: 'Espagne', code: 'es', capital: 'Madrid', continent: 'europe', path: 'M 25,25 L 75,25 L 80,60 L 60,80 L 25,70 Z' },
+  { name: 'Allemagne', code: 'de', capital: 'Berlin', continent: 'europe', path: 'M 25,20 L 75,20 L 85,45 L 70,80 L 40,75 L 20,50 Z' },
+  { name: 'Royaume-Uni', code: 'gb', capital: 'Londres', continent: 'europe', path: 'M 35,20 L 45,25 L 40,50 L 30,70 L 20,60 Z' },
+  { name: 'Suède', code: 'se', capital: 'Stockholm', continent: 'europe', path: 'M 30,15 L 45,15 L 45,45 L 35,80 L 20,70 L 25,45 Z' },
+  { name: 'Grèce', code: 'gr', capital: 'Athènes', continent: 'europe', path: 'M 20,30 L 70,25 L 80,45 L 60,75 L 35,70 L 20,50 Z' },
+  { name: 'Islande', code: 'is', capital: 'Reykjavik', continent: 'europe', path: 'M 20,45 L 50,35 L 80,40 L 75,60 L 45,60 L 25,50 Z' },
+  { name: 'Suisse', code: 'ch', capital: 'Berne', continent: 'europe', path: 'M 20,35 L 80,35 L 80,65 L 20,65 Z' },
+  { name: 'Portugal', code: 'pt', capital: 'Lisbonne', continent: 'europe', path: 'M 40,20 L 60,20 L 55,80 L 35,80 Z' },
+
+  // Asie
+  { name: 'Japon', code: 'jp', capital: 'Tokyo', continent: 'asie', path: 'M 20,80 L 35,65 L 50,50 L 65,35 L 80,20 L 85,15 L 82,20 L 65,38 L 50,55 L 35,70 L 18,85 Z' },
+  { name: 'Chine', code: 'cn', capital: 'Pékin', continent: 'asie', path: 'M 15,30 L 85,25 L 90,60 L 75,85 L 45,80 L 25,60 Z' },
+  { name: 'Inde', code: 'in', capital: 'New Delhi', continent: 'asie', path: 'M 25,20 L 65,25 L 70,38 L 55,55 L 48,80 L 38,55 L 30,38 Z' },
+  { name: 'Corée du Sud', code: 'kr', capital: 'Séoul', continent: 'asie', path: 'M 35,25 L 65,25 L 70,60 L 40,75 L 30,55 Z' },
+  { name: 'Turquie', code: 'tr', capital: 'Ankara', continent: 'asie', path: 'M 15,40 L 85,40 L 85,60 L 15,60 Z' },
+  { name: 'Arabie Saoudite', code: 'sa', capital: 'Riyad', continent: 'asie', path: 'M 20,25 L 80,20 L 85,65 L 45,80 L 25,65 Z' },
+  { name: 'Thaïlande', code: 'th', capital: 'Bangkok', continent: 'asie', path: 'M 30,20 L 65,20 L 60,50 L 45,85 L 35,85 Z' },
+
+  // Afrique
+  { name: 'Égypte', code: 'eg', capital: 'Le Caire', continent: 'afrique', path: 'M 25,25 L 75,25 L 75,75 L 25,75 Z' },
+  { name: 'Afrique du Sud', code: 'za', capital: 'Pretoria', continent: 'afrique', path: 'M 25,25 L 75,25 L 80,50 L 60,70 L 40,70 Z' },
+  { name: 'Madagascar', code: 'mg', capital: 'Antananarivo', continent: 'afrique', path: 'M 40,20 L 48,28 L 44,55 L 34,75 L 26,65 L 30,38 Z' },
+  { name: 'Maroc', code: 'ma', capital: 'Rabat', continent: 'afrique', path: 'M 30,20 L 70,30 L 80,60 L 50,80 L 30,50 Z' },
+  { name: 'Kenya', code: 'ke', capital: 'Nairobi', continent: 'afrique', path: 'M 35,25 L 65,20 L 75,55 L 50,75 L 30,50 Z' },
+  { name: 'Algérie', code: 'dz', capital: 'Alger', continent: 'afrique', path: 'M 20,20 L 70,15 L 80,65 L 40,80 L 25,50 Z' },
+
+  // Amérique
+  { name: 'États-Unis', code: 'us', capital: 'Washington', continent: 'amerique', path: 'M 15,35 L 80,30 L 90,40 L 90,65 L 80,70 L 65,65 L 60,75 L 50,75 L 40,65 L 30,65 L 20,55 Z' },
+  { name: 'Canada', code: 'ca', capital: 'Ottawa', continent: 'amerique', path: 'M 15,30 L 35,20 L 55,15 L 75,18 L 85,25 L 90,35 L 75,55 L 65,55 L 45,45 L 25,45 L 15,35 Z' },
+  { name: 'Brésil', code: 'br', capital: 'Brasilia', continent: 'amerique', path: 'M 35,20 L 70,30 L 85,45 L 70,80 L 50,75 L 35,55 L 25,35 Z' },
+  { name: 'Argentine', code: 'ar', capital: 'Buenos Aires', continent: 'amerique', path: 'M 35,25 L 55,30 L 50,60 L 45,85 L 35,50 Z' },
+  { name: 'Mexique', code: 'mx', capital: 'Mexico', continent: 'amerique', path: 'M 20,30 L 70,35 L 80,65 L 55,75 L 35,60 Z' },
+  { name: 'Colombie', code: 'co', capital: 'Bogota', continent: 'amerique', path: 'M 30,20 L 65,20 L 75,55 L 55,75 L 35,50 Z' },
+
+  // Océanie
+  { name: 'Australie', code: 'au', capital: 'Canberra', continent: 'oceanie', path: 'M 20,50 L 35,35 L 65,35 L 80,50 L 85,65 L 70,80 L 45,80 L 30,70 Z' },
+  { name: 'Nouvelle-Zélande', code: 'nz', capital: 'Wellington', continent: 'oceanie', path: 'M 25,80 L 35,65 L 45,50 L 50,45 M 35,35 L 40,25 Z' }
+];
 
 let rooms = {}; // { roomId: { gameType, ... } }
 
@@ -507,6 +633,38 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Change Imposteur Theme
+  if (parsedUrl.pathname === '/api/imposteur/theme' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, theme } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'imposteur') {
+          res.writeHead(404); return res.end();
+        }
+        room.theme = theme;
+        console.log(`Imposteur room ${roomId} changed theme to ${theme}`);
+        broadcast(room, {
+          type: 'IMPOSTEUR_STATE',
+          state: {
+            status: room.status,
+            theme: room.theme,
+            players: getSanitizedPlayers(room),
+            turnOrder: room.turnOrder,
+            currentTurnIndex: room.currentTurnIndex
+          }
+        });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
   // Start Imposteur Game
   if (parsedUrl.pathname === '/api/imposteur/start' && req.method === 'POST') {
     let body = '';
@@ -773,6 +931,382 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ==========================================
+  // GEOGRAPHIE HELPERS & ENDPOINTS
+  // ==========================================
+
+  function getSanitizedGeoPlayers(room) {
+    const sanitized = {};
+    Object.keys(room.players).forEach(name => {
+      const p = room.players[name];
+      sanitized[name] = {
+        nickname: p.nickname,
+        score: p.score,
+        hasAnswered: p.currentAnswer !== null,
+        currentAnswer: (room.status === 'correction' || room.status === 'game_over') ? p.currentAnswer : null,
+        isCorrect: (room.status === 'correction' || room.status === 'game_over') ? p.isCorrect : null,
+        pointsEarned: (room.status === 'correction' || room.status === 'game_over') ? p.pointsEarned : 0
+      };
+    });
+    return sanitized;
+  }
+
+  function getGeoLeaderboard(room) {
+    return Object.values(room.players)
+      .map(p => ({ nickname: p.nickname, score: p.score }))
+      .sort((a, b) => b.score - a.score);
+  }
+
+  function broadcastGeoState(room) {
+    const currentQuestion = room.questions[room.currentQuestionIndex];
+    let sanitizedQuestion = null;
+    if (currentQuestion && (room.status === 'question' || room.status === 'correction' || room.status === 'game_over')) {
+      sanitizedQuestion = {
+        choices: currentQuestion.choices,
+        prompt: currentQuestion.prompt,
+        media: currentQuestion.media,
+        correctAnswer: (room.status === 'correction' || room.status === 'game_over') ? currentQuestion.correctAnswer : null
+      };
+    }
+
+    broadcast(room, {
+      type: 'GEOGRAPHIE_STATE',
+      state: {
+        status: room.status,
+        mode: room.mode,
+        scope: room.scope,
+        questionCount: room.questionCount,
+        currentQuestionIndex: room.currentQuestionIndex,
+        players: getSanitizedGeoPlayers(room),
+        question: sanitizedQuestion,
+        leaderboard: getGeoLeaderboard(room)
+      }
+    });
+  }
+
+  // Create Geography Room
+  if (parsedUrl.pathname === '/api/geographie/room/create' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { nickname } = JSON.parse(body);
+        const name = nickname.trim();
+        if (!name) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Pseudo requis' }));
+        }
+        let roomId = generateRoomId();
+        while(rooms[roomId]) roomId = generateRoomId();
+        
+        rooms[roomId] = {
+          gameType: 'geographie',
+          roomId: roomId,
+          status: 'lobby',
+          mode: 'drapeaux',
+          scope: 'monde',
+          questionCount: 10,
+          currentQuestionIndex: 0,
+          questions: [],
+          players: {
+            [name]: { nickname: name, score: 0, currentAnswer: null, isCorrect: false, pointsEarned: 0 }
+          },
+          clients: []
+        };
+        
+        console.log(`Created Geographie room ${roomId} by ${name}`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ roomId, nickname: name }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Join Geography Room
+  if (parsedUrl.pathname === '/api/geographie/room/join' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname } = JSON.parse(body);
+        const id = (roomId || '').toUpperCase();
+        const name = nickname.trim();
+        
+        if (!rooms[id] || rooms[id].gameType !== 'geographie') {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Salon introuvable' }));
+        }
+        if (!name) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Pseudo requis' }));
+        }
+        
+        const room = rooms[id];
+        if (room.status !== 'lobby') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Partie déjà commencée' }));
+        }
+        if (room.players[name]) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Pseudo déjà utilisé dans ce salon' }));
+        }
+        
+        room.players[name] = { nickname: name, score: 0, currentAnswer: null, isCorrect: false, pointsEarned: 0 };
+        
+        console.log(`Player ${name} joined Geographie room ${id}`);
+        broadcastGeoState(room);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, roomId: id, nickname: name }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Change Geography Settings/Theme
+  if (parsedUrl.pathname === '/api/geographie/theme' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, mode, scope, questionCount } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'geographie') {
+          res.writeHead(404); return res.end();
+        }
+        room.mode = mode || room.mode;
+        room.scope = scope || room.scope;
+        room.questionCount = questionCount || room.questionCount;
+        
+        broadcastGeoState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Start Geography Game
+  if (parsedUrl.pathname === '/api/geographie/start' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'geographie') {
+          res.writeHead(404); return res.end();
+        }
+        
+        let pool = GEOGRAPHY_DATABASE;
+        if (room.scope !== 'monde') {
+          pool = GEOGRAPHY_DATABASE.filter(c => c.continent === room.scope);
+        }
+        
+        const count = Math.min(parseInt(room.questionCount) || 10, pool.length);
+        room.questionCount = count;
+        
+        const shuffledPool = [...pool].sort(() => Math.random() - 0.5);
+        
+        room.questions = [];
+        for (let i = 0; i < count; i++) {
+          const target = shuffledPool[i];
+          
+          let distractors = pool.filter(c => c.code !== target.code);
+          distractors = distractors.sort(() => Math.random() - 0.5).slice(0, 3);
+          
+          let choices = [];
+          let prompt = '';
+          let media = '';
+          let correctAnswer = '';
+          
+          if (room.mode === 'drapeaux') {
+            correctAnswer = target.name;
+            choices = [target.name, ...distractors.map(c => c.name)];
+            prompt = "Quel pays possède ce drapeau ?";
+            media = target.code;
+          } else if (room.mode === 'capitales') {
+            correctAnswer = target.capital;
+            choices = [target.capital, ...distractors.map(c => c.capital)];
+            prompt = `Quelle est la capitale du pays suivant : ${target.name} ?`;
+            media = target.name;
+          } else if (room.mode === 'localisation') {
+            correctAnswer = target.name;
+            choices = [target.name, ...distractors.map(c => c.name)];
+            prompt = "Quel pays correspond à cette silhouette ?";
+            media = target.path;
+          }
+          
+          choices = choices.sort(() => Math.random() - 0.5);
+          
+          room.questions.push({
+            target: target,
+            choices: choices,
+            prompt: prompt,
+            media: media,
+            correctAnswer: correctAnswer
+          });
+        }
+        
+        Object.keys(room.players).forEach(name => {
+          room.players[name].score = 0;
+          room.players[name].currentAnswer = null;
+          room.players[name].isCorrect = false;
+          room.players[name].pointsEarned = 0;
+        });
+        
+        room.currentQuestionIndex = 0;
+        room.status = 'question';
+        room.questionStartTime = Date.now();
+        
+        console.log(`Starting Geographie game in room ${roomId} with ${count} questions`);
+        broadcastGeoState(room);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Submit Answer
+  if (parsedUrl.pathname === '/api/geographie/submit' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname, choice } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'geographie') {
+          res.writeHead(404); return res.end();
+        }
+        
+        if (room.status !== 'question') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: "Ce n'est pas le moment de répondre" }));
+        }
+        
+        const p = room.players[nickname];
+        if (!p) {
+          res.writeHead(404); return res.end();
+        }
+        
+        if (p.currentAnswer === null) {
+          p.currentAnswer = choice || "";
+          p.answeredTime = Date.now();
+        }
+        
+        const playersList = Object.values(room.players);
+        const answeredCount = playersList.filter(pl => pl.currentAnswer !== null).length;
+        
+        if (answeredCount === playersList.length) {
+          const currentQuestion = room.questions[room.currentQuestionIndex];
+          playersList.forEach(pl => {
+            if (pl.currentAnswer === currentQuestion.correctAnswer) {
+              pl.isCorrect = true;
+              const timeTaken = Math.max(0, pl.answeredTime - room.questionStartTime);
+              const speedBonus = Math.max(0, Math.round((15000 - timeTaken) / 100)); // up to 150 pts bonus
+              pl.pointsEarned = 100 + speedBonus;
+              pl.score += pl.pointsEarned;
+            } else {
+              pl.isCorrect = false;
+              pl.pointsEarned = 0;
+            }
+          });
+          
+          room.status = 'correction';
+        }
+        
+        broadcastGeoState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Next Question
+  if (parsedUrl.pathname === '/api/geographie/next' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'geographie') {
+          res.writeHead(404); return res.end();
+        }
+        
+        if (room.status !== 'correction') {
+          res.writeHead(400); return res.end();
+        }
+        
+        Object.keys(room.players).forEach(name => {
+          room.players[name].currentAnswer = null;
+          room.players[name].isCorrect = false;
+          room.players[name].pointsEarned = 0;
+        });
+        
+        room.currentQuestionIndex++;
+        if (room.currentQuestionIndex >= room.questions.length) {
+          room.status = 'game_over';
+        } else {
+          room.status = 'question';
+          room.questionStartTime = Date.now();
+        }
+        
+        broadcastGeoState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Restart Room
+  if (parsedUrl.pathname === '/api/geographie/restart' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'geographie') {
+          res.writeHead(404); return res.end();
+        }
+        
+        room.status = 'lobby';
+        room.currentQuestionIndex = 0;
+        room.questions = [];
+        
+        Object.keys(room.players).forEach(name => {
+          room.players[name].score = 0;
+          room.players[name].currentAnswer = null;
+          room.players[name].isCorrect = false;
+          room.players[name].pointsEarned = 0;
+        });
+        
+        broadcastGeoState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
 
   // ==========================================
   // SSE CONNECTION
@@ -813,6 +1347,30 @@ const server = http.createServer((req, res) => {
           impostorNickname: room.status === 'game_over' ? room.impostorNickname : null
         }
       })}\n\n`);
+    } else if (room.gameType === 'geographie') {
+      const currentQuestion = room.questions[room.currentQuestionIndex];
+      let sanitizedQuestion = null;
+      if (currentQuestion && (room.status === 'question' || room.status === 'correction' || room.status === 'game_over')) {
+        sanitizedQuestion = {
+          choices: currentQuestion.choices,
+          prompt: currentQuestion.prompt,
+          media: currentQuestion.media,
+          correctAnswer: (room.status === 'correction' || room.status === 'game_over') ? currentQuestion.correctAnswer : null
+        };
+      }
+      res.write(`data: ${JSON.stringify({ 
+        type: 'GEOGRAPHIE_STATE', 
+        state: { 
+          status: room.status,
+          mode: room.mode,
+          scope: room.scope,
+          questionCount: room.questionCount,
+          currentQuestionIndex: room.currentQuestionIndex,
+          players: getSanitizedGeoPlayers(room),
+          question: sanitizedQuestion,
+          leaderboard: getGeoLeaderboard(room)
+        }
+      })}\n\n`);
     } else {
       res.write(`data: ${JSON.stringify({ type: 'STATE', state: { 
         guesses: room.guesses, 
@@ -840,6 +1398,12 @@ const server = http.createServer((req, res) => {
               currentTurnIndex: room.currentTurnIndex
             }
           });
+        }
+      } else if (room.gameType === 'geographie') {
+        if (nickname && room.players[nickname] && room.status === 'lobby') {
+          delete room.players[nickname];
+          console.log(`Player ${nickname} left Geographie room ${roomId} (connection closed)`);
+          broadcastGeoState(room);
         }
       }
       
