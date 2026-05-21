@@ -976,13 +976,10 @@ const server = http.createServer((req, res) => {
     };
 
     if (room.mode === 'localisation') {
-      sanitizedQuestion.silhouettes = currentQuestion.choices.map(name => {
-        const dbItem = GEOGRAPHY_DATABASE.find(c => c.name === name);
-        return {
-          name: name,
-          path: dbItem ? dbItem.path : ''
-        };
-      });
+      sanitizedQuestion.silhouettes = GEOGRAPHY_DATABASE.map(c => ({
+        name: c.name,
+        path: c.path
+      }));
     }
     return sanitizedQuestion;
   }

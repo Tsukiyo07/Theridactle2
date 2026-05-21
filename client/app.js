@@ -1238,7 +1238,7 @@ function updateGeographieUI(state) {
     const myAnswerVal = myPlayerObj ? myPlayerObj.currentAnswer : null;
     
     // Toggle UI grids depending on mode
-    if (state.mode === 'capitales') {
+    if (state.mode === 'capitales' || state.mode === 'drapeaux') {
       grid.classList.add('view-hidden');
       textInputContainer.classList.remove('view-hidden');
       
@@ -1249,15 +1249,17 @@ function updateGeographieUI(state) {
         if (hasAnswered && myAnswerVal !== null) {
           textInput.value = myAnswerVal;
         }
+        if (state.mode === 'drapeaux') {
+          textInput.placeholder = "Écrivez le pays ici...";
+        } else {
+          textInput.placeholder = "Écrivez la capitale ici...";
+        }
       }
       if (textBtn) {
         textBtn.disabled = hasAnswered;
       }
     } else if (state.mode === 'localisation') {
       grid.classList.add('view-hidden');
-      textInputContainer.classList.add('view-hidden');
-    } else { // drapeaux
-      grid.classList.remove('view-hidden');
       textInputContainer.classList.add('view-hidden');
     }
     
@@ -1276,74 +1278,123 @@ function updateGeographieUI(state) {
     } else if (state.mode === 'localisation') {
       const silhouettes = state.question.silhouettes || [];
       
-      let sectorsHtml = '';
-      const sectorConfig = [
-        { id: 'ALPHA', name: 'SECTEUR ALPHA', tx: 40, ty: 40, color: 'var(--neon-cyan)' },
-        { id: 'BETA', name: 'SECTEUR BETA', tx: 260, ty: 40, color: '#f43f5e' }, // rose/rouge
-        { id: 'GAMMA', name: 'SECTEUR GAMMA', tx: 40, ty: 260, color: 'var(--neon-emerald)' },
-        { id: 'DELTA', name: 'SECTEUR DELTA', tx: 260, ty: 260, color: '#fbbf24' } // or/jaune
-      ];
-      
-      silhouettes.forEach((sil, idx) => {
-        const conf = sectorConfig[idx];
-        if (!conf) return;
+      const WORLD_MAP_COORDINATES = {
+        'Islande': { x: 390, y: 90, scale: 0.35 },
+        'Royaume-Uni': { x: 420, y: 150, scale: 0.45 },
+        'Suède': { x: 480, y: 60, scale: 0.6 },
+        'France': { x: 440, y: 200, scale: 0.5 },
+        'Espagne': { x: 410, y: 240, scale: 0.45 },
+        'Portugal': { x: 380, y: 250, scale: 0.35 },
+        'Allemagne': { x: 480, y: 190, scale: 0.5 },
+        'Suisse': { x: 470, y: 220, scale: 0.25 },
+        'Italie': { x: 495, y: 235, scale: 0.45 },
+        'Grèce': { x: 530, y: 260, scale: 0.35 },
+        'Turquie': { x: 570, y: 235, scale: 0.5 },
+        'Arabie Saoudite': { x: 610, y: 305, scale: 0.6 },
+        'Inde': { x: 710, y: 320, scale: 0.7 },
+        'Chine': { x: 780, y: 210, scale: 0.9 },
+        'Corée du Sud': { x: 855, y: 210, scale: 0.4 },
+        'Japon': { x: 890, y: 190, scale: 0.5 },
+        'Thaïlande': { x: 790, y: 340, scale: 0.45 },
+        'Maroc': { x: 400, y: 300, scale: 0.45 },
+        'Algérie': { x: 440, y: 320, scale: 0.6 },
+        'Égypte': { x: 530, y: 325, scale: 0.55 },
+        'Kenya': { x: 565, y: 415, scale: 0.45 },
+        'Afrique du Sud': { x: 535, y: 505, scale: 0.55 },
+        'Madagascar': { x: 605, y: 485, scale: 0.45 },
+        'Canada': { x: 120, y: 80, scale: 0.8 },
+        'États-Unis': { x: 110, y: 170, scale: 0.9 },
+        'Mexique': { x: 140, y: 270, scale: 0.6 },
+        'Colombie': { x: 200, y: 360, scale: 0.45 },
+        'Brésil': { x: 250, y: 400, scale: 0.7 },
+        'Argentine': { x: 230, y: 510, scale: 0.55 },
+        'Australie': { x: 850, y: 470, scale: 0.8 },
+        'Nouvelle-Zélande': { x: 930, y: 530, scale: 0.45 }
+      };
+
+      let mapHtml = '';
+      silhouettes.forEach(sil => {
+        const coord = WORLD_MAP_COORDINATES[sil.name];
+        if (!coord) return;
         
         const isSelected = myAnswerVal === sil.name;
         
-        let pathFill = 'rgba(0, 242, 254, 0.06)';
-        let pathStroke = 'rgba(0, 242, 254, 0.35)';
-        let strokeWidth = '3';
+        let pathFill = 'rgba(255, 255, 255, 0.04)';
+        let pathStroke = 'rgba(255, 255, 255, 0.2)';
+        let strokeWidth = '1.5';
         let filterEffect = '';
         
         if (hasAnswered) {
-          if (isSelected) {
-            pathFill = 'rgba(0, 242, 254, 0.25)';
-            pathStroke = 'var(--neon-cyan)';
-            strokeWidth = '5';
-            filterEffect = 'filter: drop-shadow(0 0 12px var(--neon-cyan));';
+          if (sil.name === state.question.correctAnswer) {
+            pathFill = 'rgba(16, 185, 129, 0.25)';
+            pathStroke = 'var(--neon-emerald)';
+            strokeWidth = '3';
+            filterEffect = 'filter: drop-shadow(0 0 8px var(--neon-emerald));';
+          } else if (isSelected) {
+            pathFill = 'rgba(244, 63, 94, 0.25)';
+            pathStroke = '#f43f5e';
+            strokeWidth = '3';
+            filterEffect = 'filter: drop-shadow(0 0 8px #f43f5e);';
           } else {
             pathFill = 'rgba(255, 255, 255, 0.01)';
-            pathStroke = 'rgba(255, 255, 255, 0.12)';
-            strokeWidth = '2';
+            pathStroke = 'rgba(255, 255, 255, 0.08)';
+            strokeWidth = '1';
           }
+        } else if (isSelected) {
+          pathFill = 'rgba(0, 242, 254, 0.25)';
+          pathStroke = 'var(--neon-cyan)';
+          strokeWidth = '3';
+          filterEffect = 'filter: drop-shadow(0 0 8px var(--neon-cyan));';
         }
         
-        sectorsHtml += `
-          <g class="radar-sector-group" data-choice="${sil.name}" style="cursor: ${hasAnswered ? 'default' : 'pointer'};" transform="translate(${conf.tx}, ${conf.ty})">
-            <rect x="0" y="0" width="100" height="100" fill="rgba(0,0,0,0.55)" stroke="${conf.color}" stroke-width="1.5" stroke-dasharray="4 4" rx="10" style="transition: all 0.3s ease;" />
-            <text x="50" y="16" text-anchor="middle" font-family="monospace" font-size="8" font-weight="700" fill="${conf.color}">${conf.name}</text>
-            <g transform="translate(10, 15) scale(0.8)">
-              <path d="${sil.path}" fill="${pathFill}" stroke="${pathStroke}" stroke-width="${strokeWidth}" stroke-linejoin="round" style="transition: all 0.3s ease; ${filterEffect}" />
-            </g>
+        mapHtml += `
+          <g class="world-country-group" data-country="${sil.name}" style="cursor: ${hasAnswered ? 'default' : 'pointer'};" transform="translate(${coord.x}, ${coord.y}) scale(${coord.scale})">
+            ${(hasAnswered && sil.name === state.question.correctAnswer) ? `
+              <circle cx="50" cy="50" r="45" fill="none" stroke="var(--neon-emerald)" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6" style="animation: pulseGlow 1.5s infinite alternate;" />
+            ` : ''}
+            <path d="${sil.path}" fill="${pathFill}" stroke="${pathStroke}" stroke-width="${strokeWidth}" stroke-linejoin="round" style="transition: all 0.3s ease; ${filterEffect}" />
           </g>
         `;
       });
-      
-      mediaContainer.innerHTML = `
-        <div style="position: relative; width: 100%; max-width: 480px; margin: 0 auto; user-select: none;">
-          <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-cyan); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
-            SYS_RADAR // ACTIVE_GRID
+
+      let clueHtml = '';
+      if (state.question.media) {
+        clueHtml = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.2rem; background: rgba(0, 242, 254, 0.04); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 12px; padding: 0.6rem 1.25rem; width: fit-content; margin-left: auto; margin-right: auto; backdrop-filter: blur(5px);">
+            <span style="font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.6); font-family: monospace; letter-spacing: 0.5px;">INDICE SHAPE :</span>
+            <svg viewBox="0 0 100 100" style="width: 48px; height: 48px; filter: drop-shadow(0 0 8px var(--neon-cyan));">
+              <path d="${state.question.media}" fill="rgba(0, 242, 254, 0.15)" stroke="var(--neon-cyan)" stroke-width="4" stroke-linejoin="round" />
+            </svg>
           </div>
-          <div style="position: absolute; top: 12px; right: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: #fff; background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
-            ${hasAnswered ? '✅ ENREGISTRÉ' : '📡 SÉLECTIONNEZ UN SECTEUR'}
+        `;
+      }
+
+      mediaContainer.innerHTML = `
+        <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; user-select: none;">
+          ${clueHtml}
+          <div style="position: absolute; top: ${state.question.media ? '76px' : '12px'}; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-cyan); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+            SYS_MAP // WORLD_RADAR
+          </div>
+          <div style="position: absolute; top: ${state.question.media ? '76px' : '12px'}; right: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: #fff; background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
+            ${hasAnswered ? '✅ ENREGISTRÉ' : '📡 SÉLECTIONNEZ LE PAYS SUR LA CARTE'}
           </div>
           
-          <svg id="geographie-interactive-map" viewBox="0 0 400 400" style="width: 100%; height: 350px; background: #07090e; border: 2px solid rgba(0, 242, 254, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(0, 242, 254, 0.05); outline: none;">
+          <svg id="geographie-interactive-map" viewBox="0 0 1000 600" style="width: 100%; height: 420px; background: #07090e; border: 2px solid rgba(0, 242, 254, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(0, 242, 254, 0.05); outline: none;">
             <defs>
-              <pattern id="radar-grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0, 242, 254, 0.04)" stroke-width="1"/>
+              <pattern id="radar-grid-pattern" width="50" height="50" patternUnits="userSpaceOnUse">
+                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(0, 242, 254, 0.03)" stroke-width="1"/>
               </pattern>
             </defs>
             
             <g id="map-pannable-group" transform="translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})">
               <rect x="-1000" y="-1000" width="3000" height="3000" fill="url(#radar-grid-pattern)" />
               
-              <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
-              <circle cx="200" cy="200" r="100" fill="none" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
-              <line x1="200" y1="0" x2="200" y2="400" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
-              <line x1="0" y1="200" x2="400" y2="200" stroke="rgba(0, 242, 254, 0.025)" stroke-width="1" />
+              <circle cx="500" cy="300" r="400" fill="none" stroke="rgba(0, 242, 254, 0.02)" stroke-width="1.5" />
+              <circle cx="500" cy="300" r="200" fill="none" stroke="rgba(0, 242, 254, 0.02)" stroke-width="1.5" />
+              <line x1="500" y1="0" x2="500" y2="600" stroke="rgba(0, 242, 254, 0.015)" stroke-width="1.5" />
+              <line x1="0" y1="300" x2="1000" y2="300" stroke="rgba(0, 242, 254, 0.015)" stroke-width="1.5" />
               
-              ${sectorsHtml}
+              ${mapHtml}
             </g>
           </svg>
           
@@ -1415,79 +1466,31 @@ function updateGeographieUI(state) {
         });
         
         if (!hasAnswered) {
-          const sectorGroups = svgEl.querySelectorAll('.radar-sector-group');
-          sectorGroups.forEach(grp => {
+          const countryGroups = svgEl.querySelectorAll('.world-country-group');
+          countryGroups.forEach(grp => {
             grp.addEventListener('click', (e) => {
               if (svgEl.dataset.dragged === "true") return;
-              const choiceName = grp.getAttribute('data-choice');
-              submitGeoAnswer(choiceName);
+              const countryName = grp.getAttribute('data-country');
+              submitGeoAnswer(countryName);
             });
-            const rect = grp.querySelector('rect');
             const path = grp.querySelector('path');
             grp.addEventListener('mouseenter', () => {
               if (hasAnswered) return;
-              rect.style.strokeWidth = '2.5px';
-              rect.style.fill = 'rgba(0, 242, 254, 0.05)';
               path.setAttribute('fill', 'rgba(0, 242, 254, 0.15)');
               path.setAttribute('stroke', 'var(--neon-cyan)');
-              path.setAttribute('stroke-width', '4');
+              path.setAttribute('stroke-width', '3');
             });
             grp.addEventListener('mouseleave', () => {
               if (hasAnswered) return;
-              rect.style.strokeWidth = '1.5px';
-              rect.style.fill = 'rgba(0,0,0,0.55)';
-              path.setAttribute('fill', 'rgba(0, 242, 254, 0.06)');
-              path.setAttribute('stroke', 'rgba(0, 242, 254, 0.35)');
-              path.setAttribute('stroke-width', '3');
+              const countryName = grp.getAttribute('data-country');
+              const isSel = myAnswerVal === countryName;
+              path.setAttribute('fill', isSel ? 'rgba(0, 242, 254, 0.25)' : 'rgba(255, 255, 255, 0.04)');
+              path.setAttribute('stroke', isSel ? 'var(--neon-cyan)' : 'rgba(255, 255, 255, 0.2)');
+              path.setAttribute('stroke-width', isSel ? '3' : '1.5');
             });
           });
         }
       }
-    }
-    
-    // Render choices buttons grid (only if mode is flags)
-    if (state.mode === 'drapeaux') {
-      state.question.choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.style.padding = '1.25rem';
-        btn.style.fontSize = '1.1rem';
-        btn.style.fontWeight = '600';
-        btn.style.border = '1px solid rgba(255,255,255,0.08)';
-        btn.style.borderRadius = '12px';
-        btn.style.background = 'rgba(255, 255, 255, 0.03)';
-        btn.style.color = '#fff';
-        btn.style.transition = 'all 0.3s ease';
-        btn.textContent = choice;
-        
-        if (hasAnswered) {
-          btn.disabled = true;
-          if (myAnswerVal === choice) {
-            btn.style.background = 'rgba(0, 242, 254, 0.2)';
-            btn.style.borderColor = 'var(--neon-cyan)';
-            btn.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.3)';
-          } else {
-            btn.style.opacity = '0.5';
-          }
-        } else {
-          btn.addEventListener('mouseenter', () => {
-            btn.style.background = 'rgba(0, 242, 254, 0.08)';
-            btn.style.borderColor = 'rgba(0, 242, 254, 0.4)';
-            btn.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.15)';
-            btn.style.transform = 'translateY(-2px)';
-          });
-          btn.addEventListener('mouseleave', () => {
-            btn.style.background = 'rgba(255, 255, 255, 0.03)';
-            btn.style.borderColor = 'rgba(255,255,255,0.08)';
-            btn.style.boxShadow = 'none';
-            btn.style.transform = 'none';
-          });
-          btn.addEventListener('click', () => {
-            submitGeoAnswer(choice);
-          });
-        }
-        grid.appendChild(btn);
-      });
     }
   }
   
@@ -1511,8 +1514,8 @@ function updateGeographieUI(state) {
       `;
     } else if (state.mode === 'localisation' && targetPath) {
       miniMedia.innerHTML = `
-        <svg viewBox="0 0 1000 1000" style="width: 80px; height: 80px; filter: drop-shadow(0 0 6px var(--neon-emerald));">
-          <path d="${targetPath}" fill="rgba(16, 185, 129, 0.2)" stroke="var(--neon-emerald)" stroke-width="12" />
+        <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; filter: drop-shadow(0 0 6px var(--neon-emerald));">
+          <path d="${targetPath}" fill="rgba(16, 185, 129, 0.2)" stroke="var(--neon-emerald)" stroke-width="3" />
         </svg>
       `;
     } else {
