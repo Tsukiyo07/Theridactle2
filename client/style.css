@@ -1742,14 +1742,68 @@ h1, h2, h3, h4, .logo {
   transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
 }
 
-#geographie-media-container svg:hover {
-  transform: scale(1.03);
-}
-
 #geographie-media-container svg:hover path {
   fill: rgba(0, 242, 254, 0.3) !important;
   stroke: #00f2fe !important;
   filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6));
+}
+
+/* 🗺️ Interactive World Map SVG styling and animations */
+.world-map-country {
+  fill: #0e1225 !important;
+  stroke: rgba(255, 255, 255, 0.05) !important;
+  stroke-width: 0.5px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.world-map-interactive {
+  fill: #182046 !important;
+  stroke: rgba(0, 242, 254, 0.3) !important;
+  stroke-width: 1px !important;
+  cursor: pointer !important;
+}
+
+.world-map-interactive:hover {
+  fill: rgba(0, 242, 254, 0.25) !important;
+  stroke: var(--neon-cyan) !important;
+  stroke-width: 2px !important;
+  filter: drop-shadow(0 0 8px var(--neon-cyan)) !important;
+}
+
+.world-map-selected {
+  fill: rgba(0, 242, 254, 0.35) !important;
+  stroke: var(--neon-cyan) !important;
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 10px var(--neon-cyan)) !important;
+}
+
+.world-map-correct {
+  fill: rgba(16, 185, 129, 0.35) !important;
+  stroke: var(--neon-emerald) !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 12px var(--neon-emerald)) !important;
+  animation: pulseCorrect 1.5s infinite alternate !important;
+}
+
+@keyframes pulseCorrect {
+  from { filter: drop-shadow(0 0 8px var(--neon-emerald)); }
+  to { filter: drop-shadow(0 0 16px var(--neon-emerald)); }
+}
+
+.world-map-wrong {
+  fill: rgba(244, 63, 94, 0.35) !important;
+  stroke: #f43f5e !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 12px #f43f5e) !important;
+}
+
+.world-map-muted {
+  fill: rgba(255, 255, 255, 0.01) !important;
+  stroke: rgba(255, 255, 255, 0.03) !important;
+  stroke-width: 0.5px !important;
+  filter: none !important;
+  cursor: default !important;
 }
 
 /* Correct Answer Showcase Cards */

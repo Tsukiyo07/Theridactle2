@@ -978,6 +978,7 @@ const server = http.createServer((req, res) => {
     if (room.mode === 'localisation') {
       sanitizedQuestion.silhouettes = GEOGRAPHY_DATABASE.map(c => ({
         name: c.name,
+        code: c.code,
         path: c.path
       }));
     }
