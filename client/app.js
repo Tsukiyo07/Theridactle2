@@ -57,6 +57,7 @@ const dom = {
   navHome: document.getElementById('nav-home'),
   roomDisplay: document.getElementById('room-display'),
   roomCodeSpan: document.getElementById('room-code'),
+  btnCopyInvite: document.getElementById('btn-copy-invite'),
   btnLeaveNav: document.getElementById('btn-leave-nav'),
   
   portalView: document.getElementById('portal-view'),
@@ -216,6 +217,7 @@ function init() {
   if (dom.navLogo) dom.navLogo.addEventListener('click', confirmLeave);
   if (dom.navHome) dom.navHome.addEventListener('click', (e) => { e.preventDefault(); confirmLeave(); });
   if (dom.btnLeaveNav) dom.btnLeaveNav.addEventListener('click', confirmLeave);
+  if (dom.btnCopyInvite) dom.btnCopyInvite.addEventListener('click', copyInvitationLink);
 
   // Portal routing
   if (dom.cardTheridactle) dom.cardTheridactle.addEventListener('click', () => showView('theriMenu'));
@@ -649,6 +651,50 @@ function init() {
     })
     .catch(() => console.log('Reconnection failed'));
   }
+
+  // Invitation link detection
+  const urlParams = new URLSearchParams(window.location.search);
+  const inviteRoom = urlParams.get('room');
+  if (inviteRoom) {
+    const code = inviteRoom.trim().toUpperCase();
+    if (activeRoomId && activeRoomId.toUpperCase() === code && activeNickname) {
+      console.log('Invite link matches active room, let silent-reconnect handle it.');
+    } else {
+      fetch(`/api/room/check?roomId=${code}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            if (data.gameType === 'imposteur') {
+              showView('impMenu');
+              if (dom.impJoinCodeInput) {
+                dom.impJoinCodeInput.value = code;
+                dom.impJoinCodeInput.focus();
+                dom.impJoinCodeInput.style.borderColor = 'var(--neon-pink)';
+                dom.impJoinCodeInput.style.boxShadow = '0 0 15px rgba(236, 72, 153, 0.5)';
+              }
+            } else if (data.gameType === 'geographie') {
+              showView('geoMenu');
+              const geoInput = document.getElementById('geographie-join-code');
+              if (geoInput) {
+                geoInput.value = code;
+                geoInput.focus();
+                geoInput.style.borderColor = 'var(--neon-cyan)';
+                geoInput.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.5)';
+              }
+            } else if (data.gameType === 'theridactle') {
+              showView('theriMenu');
+              if (dom.joinRoomInput) {
+                dom.joinRoomInput.value = code;
+                dom.joinRoomInput.focus();
+                dom.joinRoomInput.style.borderColor = 'var(--accent)';
+                dom.joinRoomInput.style.boxShadow = '0 0 15px rgba(167, 139, 250, 0.5)';
+              }
+            }
+          }
+        })
+        .catch(err => console.log('Check invitation failed', err));
+    }
+  }
 }
 
 // --- Theridactle APIs ---
@@ -803,6 +849,82 @@ function leaveImposteurRoom() {
   dom.impResultsPanel.classList.add('view-hidden');
 }
 
+window.kickPlayer = function(targetNickname) {
+  if (confirm(`Voulez-vous vraiment exclure ${targetNickname} de la partie ?`)) {
+    fetch('/api/imposteur/kick', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId: imposteurState.roomId, targetNickname })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast(`❌ ${targetNickname} a été exclu.`);
+      }
+    })
+    .catch(err => console.error('Failed to kick player', err));
+  }
+};
+
+function showToast(msg, type = 'success') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.position = 'fixed';
+    container.style.bottom = '24px';
+    container.style.right = '24px';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '8px';
+    container.style.zIndex = '999999';
+    document.body.appendChild(container);
+  }
+  
+  const toast = document.createElement('div');
+  toast.className = `premium-toast ${type}`;
+  toast.innerHTML = `<span>${msg}</span>`;
+  container.appendChild(toast);
+  
+  // Force reflow
+  toast.offsetHeight;
+  
+  // Slide in
+  toast.classList.add('show');
+  
+  // Auto remove after 3s
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.style.transform = 'translateY(20px)';
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.remove();
+    }, 400);
+  }, 3000);
+}
+
+function copyInvitationLink() {
+  const roomId = dom.roomCodeSpan.textContent;
+  if (!roomId) return;
+  const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
+  
+  navigator.clipboard.writeText(inviteUrl)
+    .then(() => {
+      showToast('🔗 Lien d\'invitation copié !');
+    })
+    .catch(err => {
+      console.error('Failed to copy', err);
+      // Fallback
+      const el = document.createElement('textarea');
+      el.value = inviteUrl;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast('🔗 Lien d\'invitation copié !');
+    });
+}
+
 function connectImposteurSSE(roomId, nickname) {
   if (evtSource) evtSource.close();
   evtSource = new EventSource(`/api/events?roomId=${roomId}&nickname=${encodeURIComponent(nickname)}`);
@@ -856,13 +978,22 @@ function updateImposteurUI(state) {
       badgeHtml += `<span class="badge-item badge-dead" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;"><span class="badge-emoji">📡</span><span class="badge-text"> Déco</span></span>`;
     }
     
+    let kickBtnHtml = '';
+    if (isHost && name !== myName && p.isConnected === false) {
+      kickBtnHtml = `<button class="btn-kick" onclick="kickPlayer('${name}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; white-space: nowrap; margin-left: 5px;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">Virer</button>`;
+    }
+    
     li.innerHTML = `
-      <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'};">
+      <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'}; display: flex; align-items: center; gap: 0.75rem;">
         <span class="player-avatar">${name.charAt(0)}</span>
-        <span class="player-name">${name} ${name === myName ? '(Vous)' : ''} <span style="color: var(--neon-pink); font-weight: bold; margin-left: 5px;">(${p.score || 0} pts)</span></span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="player-name" style="margin: 0; line-height: 1.2;">${name} ${name === myName ? '(Vous)' : ''}</span>
+          <span style="color: var(--neon-pink); font-size: 11px; font-weight: bold; margin-top: 2px;">${p.score || 0} pts</span>
+        </div>
       </div>
-      <div class="player-badges">
+      <div class="player-badges" style="display: flex; align-items: center; gap: 0.35rem;">
         ${badgeHtml}
+        ${kickBtnHtml}
       </div>
     `;
     dom.impPlayersList.appendChild(li);
@@ -919,14 +1050,8 @@ function updateImposteurUI(state) {
     }
   }
   
-  // 2. Playing Phase (Descriptions)
-  if (state.status === 'playing') {
-    dom.impLobbyPanel.classList.add('view-hidden');
-    dom.impPlayPanel.classList.remove('view-hidden');
-    dom.impVotePanel.classList.add('view-hidden');
-    dom.impResultsPanel.classList.add('view-hidden');
-    
-    // Fetch my secret word if empty
+  // Fetch my secret word if empty and we are playing or discussing
+  if (state.status === 'playing' || state.status === 'discussing') {
     if (!imposteurState.myWord) {
       fetch(`/api/imposteur/my-word?roomId=${imposteurState.roomId}&nickname=${encodeURIComponent(myName)}`)
         .then(r => r.json())
@@ -937,6 +1062,14 @@ function updateImposteurUI(state) {
     } else {
       dom.impMyWordDisplay.textContent = imposteurState.myWord;
     }
+  }
+
+  // 2. Playing Phase (Descriptions)
+  if (state.status === 'playing') {
+    dom.impLobbyPanel.classList.add('view-hidden');
+    dom.impPlayPanel.classList.remove('view-hidden');
+    dom.impVotePanel.classList.add('view-hidden');
+    dom.impResultsPanel.classList.add('view-hidden');
     
     // Check active turn
     const activePlayer = state.turnOrder[state.currentTurnIndex];
@@ -1038,7 +1171,7 @@ function renderDescriptions(state) {
   history.forEach(item => {
     const div = document.createElement('div');
     div.className = 'desc-item';
-    const roundBadge = `<span class="badge-item badge-host" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); margin-left: 10px; font-size: 10px; padding: 2px 6px; border-radius: 4px;">Tour ${item.round}</span>`;
+    const roundBadge = `<span class="desc-round-badge" style="background: rgba(167, 139, 250, 0.12); border: 1px solid rgba(167, 139, 250, 0.25); color: var(--accent); margin-left: 10px; font-size: 10px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 800;">Tour ${item.round}</span>`;
     div.innerHTML = `
       <span class="desc-player-avatar">${item.nickname.charAt(0)}</span>
       <div class="desc-content">

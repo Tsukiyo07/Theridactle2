@@ -515,6 +515,19 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Check Room Exist & Type
+  if (parsedUrl.pathname === '/api/room/check') {
+    const roomId = (parsedUrl.query.roomId || '').toUpperCase();
+    const room = rooms[roomId];
+    if (!room) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Salon introuvable' }));
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, gameType: room.gameType }));
+    return;
+  }
+
   // Join Room verification
   if (parsedUrl.pathname === '/api/room/join' && req.method === 'POST') {
     let body = '';
@@ -937,18 +950,18 @@ const server = http.createServer((req, res) => {
 function checkAndAdvanceTurnIfOffline(room) {
   if (room.status !== 'playing') return;
   
-  // Guard: check if there's any active player who is both connected and not eliminated
-  const hasConnectedActivePlayer = Object.values(room.players).some(p => p.isConnected !== false && !p.isEliminated);
-  if (!hasConnectedActivePlayer) {
-    console.log(`No active connected players in room ${room.roomId}. Stopping turn skip recursion.`);
+  // Guard: check if there's any active player who is not eliminated
+  const hasActivePlayer = Object.values(room.players).some(p => !p.isEliminated);
+  if (!hasActivePlayer) {
+    console.log(`No active players in room ${room.roomId}. Stopping turn skip recursion.`);
     return;
   }
   
   const activePlayerName = room.turnOrder[room.currentTurnIndex];
   const activePlayer = room.players[activePlayerName];
   
-  if (!activePlayer || activePlayer.isConnected === false || activePlayer.isEliminated) {
-    console.log(`Skipping player ${activePlayerName} because they are offline or eliminated`);
+  if (!activePlayer || activePlayer.isEliminated) {
+    console.log(`Skipping player ${activePlayerName} because they are eliminated`);
     advanceTurnAndCheckRoundEnd(room);
   }
 }
@@ -962,8 +975,13 @@ function advanceTurnAndCheckRoundEnd(room) {
     
     if (currentRound < rounds) {
       room.currentDescriptionRound++;
+      // Rotate the turnOrder to change the starting player for the next round
+      if (room.turnOrder && room.turnOrder.length > 0) {
+        const first = room.turnOrder.shift();
+        room.turnOrder.push(first);
+      }
       room.currentTurnIndex = 0;
-      console.log(`Advancing to description round ${room.currentDescriptionRound} in room ${room.roomId}`);
+      console.log(`Advancing to description round ${room.currentDescriptionRound} in room ${room.roomId}. New turnOrder: ${room.turnOrder.join(', ')}`);
       checkAndAdvanceTurnIfOffline(room);
     } else {
       room.status = 'discussing';
@@ -1273,6 +1291,77 @@ function advanceTurnAndCheckRoundEnd(room) {
             currentTurnIndex: room.currentTurnIndex
           }
         });
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Kick Player from Imposteur Room
+  if (parsedUrl.pathname === '/api/imposteur/kick' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, targetNickname } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'imposteur') {
+          res.writeHead(404); return res.end();
+        }
+        
+        if (room.players[targetNickname]) {
+          const isCurrentTurnPlayer = (room.status === 'playing' && room.turnOrder[room.currentTurnIndex] === targetNickname);
+          
+          // Remove player
+          delete room.players[targetNickname];
+          
+          // Remove from turnOrder
+          const oldTurnOrder = [...room.turnOrder];
+          room.turnOrder = room.turnOrder.filter(name => name !== targetNickname);
+          
+          // Clear votes referencing kicked player
+          Object.values(room.players).forEach(p => {
+            if (p.votedFor === targetNickname) {
+              p.votedFor = null;
+            }
+          });
+          
+          // Close player connection
+          room.clients = room.clients.filter(client => {
+            if (client.nickname === targetNickname) {
+              try { client.res.end(); } catch(err) {}
+              return false;
+            }
+            return true;
+          });
+          
+          console.log(`Kicked ${targetNickname} from room ${roomId}`);
+          
+          if (room.status === 'playing') {
+            if (isCurrentTurnPlayer) {
+              if (room.currentTurnIndex >= room.turnOrder.length) {
+                advanceTurnAndCheckRoundEnd(room);
+              } else {
+                checkAndAdvanceTurnIfOffline(room);
+              }
+            } else {
+              const kickedIndex = oldTurnOrder.indexOf(targetNickname);
+              if (kickedIndex !== -1 && kickedIndex < room.currentTurnIndex) {
+                room.currentTurnIndex = Math.max(0, room.currentTurnIndex - 1);
+              }
+              checkAndAdvanceTurnIfOffline(room);
+            }
+          }
+          
+          broadcast(room, {
+            type: 'IMPOSTEUR_STATE',
+            state: getFullImposteurState(room)
+          });
+        }
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
@@ -1758,9 +1847,6 @@ function advanceTurnAndCheckRoundEnd(room) {
           } else {
             room.players[nickname].isConnected = false;
             console.log(`Player ${nickname} disconnected from Imposteur room ${roomId}`);
-            if (room.turnOrder[room.currentTurnIndex] === nickname) {
-              checkAndAdvanceTurnIfOffline(room);
-            }
           }
           
           broadcast(room, {
