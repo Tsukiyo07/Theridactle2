@@ -1742,65 +1742,54 @@ h1, h2, h3, h4, .logo {
   transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
 }
 
-#geographie-media-container svg:hover path {
-  fill: rgba(0, 242, 254, 0.3) !important;
-  stroke: #00f2fe !important;
-  filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6));
-}
-
 /* 🗺️ Interactive World Map SVG styling and animations */
 .world-map-country {
-  fill: #0e1225 !important;
-  stroke: rgba(255, 255, 255, 0.05) !important;
+  fill: #1b2a4a !important;
+  stroke: rgba(255, 255, 255, 0.12) !important;
   stroke-width: 0.5px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   cursor: default;
 }
 
 .world-map-interactive {
-  fill: #182046 !important;
-  stroke: rgba(0, 242, 254, 0.3) !important;
-  stroke-width: 1px !important;
+  fill: #1e3470 !important;
+  stroke: rgba(0, 242, 254, 0.4) !important;
+  stroke-width: 0.8px !important;
   cursor: pointer !important;
+  transition: all 0.2s ease;
 }
 
 .world-map-interactive:hover {
-  fill: rgba(0, 242, 254, 0.25) !important;
+  fill: rgba(0, 242, 254, 0.3) !important;
+  stroke: var(--neon-cyan) !important;
+  stroke-width: 1.5px !important;
+  filter: drop-shadow(0 0 5px var(--neon-cyan)) !important;
+}
+
+.world-map-selected {
+  fill: rgba(0, 242, 254, 0.45) !important;
   stroke: var(--neon-cyan) !important;
   stroke-width: 2px !important;
   filter: drop-shadow(0 0 8px var(--neon-cyan)) !important;
 }
 
-.world-map-selected {
-  fill: rgba(0, 242, 254, 0.35) !important;
-  stroke: var(--neon-cyan) !important;
-  stroke-width: 2.5px !important;
-  filter: drop-shadow(0 0 10px var(--neon-cyan)) !important;
-}
-
 .world-map-correct {
-  fill: rgba(16, 185, 129, 0.35) !important;
+  fill: rgba(16, 185, 129, 0.65) !important;
   stroke: var(--neon-emerald) !important;
-  stroke-width: 3px !important;
-  filter: drop-shadow(0 0 12px var(--neon-emerald)) !important;
-  animation: pulseCorrect 1.5s infinite alternate !important;
-}
-
-@keyframes pulseCorrect {
-  from { filter: drop-shadow(0 0 8px var(--neon-emerald)); }
-  to { filter: drop-shadow(0 0 16px var(--neon-emerald)); }
+  stroke-width: 2px !important;
+  filter: drop-shadow(0 0 10px var(--neon-emerald)) !important;
 }
 
 .world-map-wrong {
-  fill: rgba(244, 63, 94, 0.35) !important;
+  fill: rgba(244, 63, 94, 0.5) !important;
   stroke: #f43f5e !important;
-  stroke-width: 3px !important;
-  filter: drop-shadow(0 0 12px #f43f5e) !important;
+  stroke-width: 2px !important;
+  filter: drop-shadow(0 0 8px #f43f5e) !important;
 }
 
 .world-map-muted {
-  fill: rgba(255, 255, 255, 0.01) !important;
-  stroke: rgba(255, 255, 255, 0.03) !important;
+  fill: #121f3a !important;
+  stroke: rgba(255, 255, 255, 0.06) !important;
   stroke-width: 0.5px !important;
   filter: none !important;
   cursor: default !important;
@@ -2144,6 +2133,88 @@ h1, h2, h3, h4, .logo {
 
   .secret-word-value {
     font-size: 2.25rem;
+  }
+
+  /* GEOGRAPHIE QUIZ MOBILE OVERRIDES */
+  #geographie-game-view {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Reduce map height on mobile for better usability */
+  #geographie-interactive-map {
+    height: 280px !important;
+  }
+
+  #geographie-correction-map {
+    height: 260px !important;
+  }
+
+  /* Geographie media container: no fixed min-height on mobile */
+  #geographie-media-container {
+    min-height: unset !important;
+    padding: 0.5rem !important;
+  }
+
+  /* Make the play panel glass-panel fit mobile */
+  #geographie-play-panel .glass-panel,
+  #geographie-correction-panel .glass-panel {
+    padding: 1rem 0.75rem !important;
+  }
+
+  /* Question prompt */
+  #geographie-question-prompt {
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Sidebar on mobile for geographie: horizontal scroll */
+  #geographie-game-view .imposteur-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-glass);
+    order: -1;
+  }
+
+  #geographie-players-list {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    overflow-x: auto !important;
+    padding: 0.25rem 0 !important;
+    scrollbar-width: none !important;
+  }
+
+  #geographie-players-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text answer input on mobile */
+  #geographie-text-input-container {
+    flex-direction: row !important;
+    max-width: 100% !important;
+  }
+
+  #geographie-text-answer {
+    font-size: 16px !important; /* prevent iOS zoom */
+  }
+
+  /* Geo choices grid: 1 col on very small screens */
+  .geo-choices-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.6rem !important;
+  }
+
+  /* Correction panel adjustments */
+  #geographie-correct-answer-text {
+    font-size: 1.5rem !important;
+  }
+
+  /* Leaderboard on mobile */
+  #geographie-podium-container {
+    height: 160px !important;
+    gap: 0.5rem !important;
   }
 
 }

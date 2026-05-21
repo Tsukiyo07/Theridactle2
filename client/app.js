@@ -1374,21 +1374,16 @@ function updateGeographieUI(state) {
 
       mediaContainer.innerHTML = `
         <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; user-select: none;">
-          <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-cyan); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
-            SYS_MAP // WORLD_RADAR
-          </div>
-          <div style="position: absolute; top: 12px; right: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: #fff; background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
-            ${hasAnswered ? '✅ ENREGISTRÉ' : '📡 SÉLECTIONNEZ LE PAYS SUR LA CARTE'}
-          </div>
+          ${hasAnswered ? '<div style="position: absolute; top: 12px; right: 12px; z-index: 10; font-size: 12px; color: #fff; background: rgba(16, 185, 129, 0.25); padding: 5px 10px; border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 20px; pointer-events: none; font-weight: 600; backdrop-filter: blur(5px);">✅ Réponse enregistrée</div>' : '<div style="position: absolute; top: 12px; right: 12px; z-index: 10; font-size: 12px; color: var(--neon-cyan); background: rgba(0,0,0,0.5); padding: 5px 10px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 20px; pointer-events: none; font-weight: 600; backdrop-filter: blur(5px);">👆 Cliquez sur le bon pays</div>'}
           
-          <svg id="geographie-interactive-map" viewBox="${window.worldMapSvgViewBox}" style="width: 100%; height: 420px; background: #07090e; border: 2px solid rgba(0, 242, 254, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(0, 242, 254, 0.05); outline: none;">
+          <svg id="geographie-interactive-map" viewBox="${window.worldMapSvgViewBox}" style="width: 100%; height: 420px; background: #0d1528; border: 2px solid rgba(0, 242, 254, 0.2); border-radius: 16px; cursor: grab; overflow: hidden; outline: none;">
             <g id="map-pannable-group" transform="translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})">
               <!-- injected world map -->
               ${window.worldMapSvgContent}
             </g>
           </svg>
           
-          <div style="margin-top: 0.6rem; text-align: center; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; font-family: sans-serif; letter-spacing: 0.5px;">
+          <div style="margin-top: 0.5rem; text-align: center; font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 500; font-family: sans-serif; letter-spacing: 0.5px;">
             🖱️ Glissez pour déplacer • 🔍 Molette pour zoomer
           </div>
         </div>
@@ -1399,8 +1394,8 @@ function updateGeographieUI(state) {
       const gEl = document.getElementById('map-pannable-group');
 
       if (svgEl && gEl) {
-        // Set all paths and groups inside the SVG to default background first
-        const allPaths = svgEl.querySelectorAll('#map-pannable-group path, #map-pannable-group g');
+        // Set all paths inside the SVG to default background first
+        const allPaths = svgEl.querySelectorAll('#map-pannable-group path');
         allPaths.forEach(item => {
           item.className.baseVal = 'world-map-country';
         });
@@ -1550,7 +1545,6 @@ function updateGeographieUI(state) {
     // Correct Showcase mini-media
     const miniMedia = document.getElementById('geographie-correction-mini-media');
     const targetCode = state.question?.target?.code;
-    const targetPath = state.question?.target?.path;
     
     if (state.mode === 'drapeaux' && targetCode) {
       const code = targetCode.toLowerCase();
@@ -1599,18 +1593,16 @@ function updateGeographieUI(state) {
         // We have the map SVG! Render full world map for correction
         miniMedia.innerHTML = `
           <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; user-select: none;">
-            <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-family: monospace; font-size: 9px; color: var(--neon-emerald); background: rgba(10,13,22,0.85); padding: 4px 8px; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 4px; pointer-events: none; letter-spacing: 1px; backdrop-filter: blur(5px);">
-              SYS_MAP // CORRECTION_RADAR
-            </div>
+            <div style="position: absolute; top: 12px; left: 12px; z-index: 10; font-size: 12px; font-weight: 700; color: #fff; background: rgba(16, 185, 129, 0.25); padding: 5px 10px; border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 20px; pointer-events: none; backdrop-filter: blur(5px);">✅ ${correctCountryName}</div>
             
-            <svg id="geographie-correction-map" viewBox="${window.worldMapSvgViewBox}" style="width: 100%; height: 380px; background: #07090e; border: 2px solid rgba(16, 185, 129, 0.25); border-radius: 16px; cursor: grab; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(16, 185, 129, 0.05); outline: none;">
+            <svg id="geographie-correction-map" viewBox="${window.worldMapSvgViewBox}" style="width: 100%; height: 380px; background: #0d1528; border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 16px; cursor: grab; overflow: hidden; outline: none;">
               <g id="correction-map-pannable-group" transform="translate(${window.mapPanX}, ${window.mapPanY}) scale(${window.mapZoom})">
                 <!-- injected world map -->
                 ${window.worldMapSvgContent}
               </g>
             </svg>
             
-            <div style="margin-top: 0.6rem; text-align: center; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; font-family: sans-serif; letter-spacing: 0.5px;">
+            <div style="margin-top: 0.5rem; text-align: center; font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 500; font-family: sans-serif; letter-spacing: 0.5px;">
               🖱️ Glissez pour déplacer • 🔍 Molette pour zoomer
             </div>
           </div>
@@ -1620,8 +1612,8 @@ function updateGeographieUI(state) {
         const gEl = document.getElementById('correction-map-pannable-group');
 
         if (svgEl && gEl) {
-          // First, apply baseline "muted" styles to ALL paths and groups
-          const allPaths = svgEl.querySelectorAll('#correction-map-pannable-group path, #correction-map-pannable-group g');
+          // First, apply baseline "muted" styles to ALL paths
+          const allPaths = svgEl.querySelectorAll('#correction-map-pannable-group path');
           allPaths.forEach(item => {
             item.className.baseVal = 'world-map-muted';
           });

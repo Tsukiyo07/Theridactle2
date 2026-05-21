@@ -1156,8 +1156,8 @@ const server = http.createServer((req, res) => {
           } else if (room.mode === 'localisation') {
             correctAnswer = target.name;
             choices = [target.name, ...distractors.map(c => c.name)];
-            prompt = `Où se trouve la silhouette de ce pays : ${target.name} ?`;
-            media = target.path;
+            prompt = `Trouvez et cliquez sur ce pays sur la carte : ${target.name}`;
+            media = target.code;
           }
           
           choices = choices.sort(() => Math.random() - 0.5);
