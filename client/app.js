@@ -1503,7 +1503,6 @@ function updateGeographieUI(state) {
       }
     }
   }
-  }
   
   // 3. Correction Phase
   else if (state.status === 'correction') {
