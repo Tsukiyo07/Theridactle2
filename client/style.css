@@ -1447,6 +1447,28 @@ h1, h2, h3, h4, .logo {
   box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
+.vote-card.skip-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.vote-card.skip-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.06);
+}
+
+.vote-card.skip-card.voted {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.vote-card.skip-card.voted .vote-indicator {
+  background: rgba(255, 255, 255, 0.7);
+  color: #000;
+}
+
 /* Imposteur Sidebar Panel */
 .imposteur-sidebar {
   width: 340px;

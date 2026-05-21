@@ -344,6 +344,7 @@ function init() {
       .then(data => {
         if (data.roomId) {
           localStorage.setItem('imposteur-nickname', nickname);
+          localStorage.setItem('imposteur-roomId', data.roomId);
           startPlayingImposteur(data.roomId, nickname);
         } else {
           showImpMenuError(data.error || 'Erreur lors de la création du salon.');
@@ -375,6 +376,7 @@ function init() {
       .then(data => {
         if (data.success) {
           localStorage.setItem('imposteur-nickname', nickname);
+          localStorage.setItem('imposteur-roomId', data.roomId);
           startPlayingImposteur(data.roomId, nickname);
         } else {
           showImpMenuError(data.error || 'Salon introuvable ou déjà complet.');
@@ -397,13 +399,40 @@ function init() {
     });
   }
 
+  const roundsSelect = document.getElementById('imposteur-rounds-select');
+  if (roundsSelect) {
+    roundsSelect.addEventListener('change', () => {
+      if (imposteurState.isHost) {
+        fetch('/api/imposteur/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: imposteurState.roomId, descriptionRounds: parseInt(roundsSelect.value) })
+        });
+      }
+    });
+  }
+
+  const btnResetScores = document.getElementById('btn-imposteur-reset-scores');
+  if (btnResetScores) {
+    btnResetScores.addEventListener('click', () => {
+      if (imposteurState.isHost && confirm('Voulez-vous vraiment réinitialiser les scores de tous les joueurs à 0 ?')) {
+        fetch('/api/imposteur/reset-scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: imposteurState.roomId })
+        });
+      }
+    });
+  }
+
   if (dom.btnImpStart) {
     dom.btnImpStart.addEventListener('click', () => {
       const theme = dom.impThemeSelect.value;
+      const rounds = roundsSelect ? parseInt(roundsSelect.value) : 1;
       fetch('/api/imposteur/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: imposteurState.roomId, theme })
+        body: JSON.stringify({ roomId: imposteurState.roomId, theme, descriptionRounds: rounds })
       });
     });
   }
@@ -427,6 +456,19 @@ function init() {
           dom.impDescInput.value = '';
         }
       });
+    });
+  }
+
+  const btnTally = document.getElementById('btn-imposteur-tally');
+  if (btnTally) {
+    btnTally.addEventListener('click', () => {
+      if (imposteurState.isHost) {
+        fetch('/api/imposteur/tally-votes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: imposteurState.roomId })
+        });
+      }
     });
   }
 
@@ -586,6 +628,27 @@ function init() {
       }
     });
   }
+
+  // Auto-reconnect
+  const activeRoomId = localStorage.getItem('imposteur-roomId');
+  const activeNickname = localStorage.getItem('imposteur-nickname');
+  if (activeRoomId && activeNickname) {
+    console.log(`Silent auto-reconnection to ${activeRoomId} as ${activeNickname}`);
+    fetch('/api/imposteur/room/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId: activeRoomId, nickname: activeNickname })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        startPlayingImposteur(data.roomId, activeNickname);
+      } else {
+        localStorage.removeItem('imposteur-roomId');
+      }
+    })
+    .catch(() => console.log('Reconnection failed'));
+  }
 }
 
 // --- Theridactle APIs ---
@@ -729,6 +792,7 @@ function leaveImposteurRoom() {
     currentTurnIndex: 0
   };
   
+  localStorage.removeItem('imposteur-roomId');
   showView('portal');
   dom.impJoinCodeInput.value = '';
   
@@ -788,11 +852,14 @@ function updateImposteurUI(state) {
     
     if (p.hasVoted) badgeHtml += `<span class="badge-item badge-voted"><span class="badge-emoji">✅</span><span class="badge-text"> Voté</span></span>`;
     if (p.isEliminated) badgeHtml += `<span class="badge-item badge-dead"><span class="badge-emoji">💀</span><span class="badge-text"> Éliminé</span></span>`;
+    if (p.isConnected === false) {
+      badgeHtml += `<span class="badge-item badge-dead" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;"><span class="badge-emoji">📡</span><span class="badge-text"> Déco</span></span>`;
+    }
     
     li.innerHTML = `
-      <div class="player-info-left">
+      <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'};">
         <span class="player-avatar">${name.charAt(0)}</span>
-        <span class="player-name">${name} ${name === myName ? '(Vous)' : ''}</span>
+        <span class="player-name">${name} ${name === myName ? '(Vous)' : ''} <span style="color: var(--neon-pink); font-weight: bold; margin-left: 5px;">(${p.score || 0} pts)</span></span>
       </div>
       <div class="player-badges">
         ${badgeHtml}
@@ -818,6 +885,19 @@ function updateImposteurUI(state) {
     
     dom.impThemeSelect.value = state.theme;
     
+    // Sync rounds selector dropdown
+    const roundsSelect = document.getElementById('imposteur-rounds-select');
+    if (roundsSelect) {
+      roundsSelect.value = state.descriptionRounds || 1;
+      roundsSelect.disabled = !isHost;
+    }
+    
+    // Sync scores reset button box
+    const resetScoresBox = document.getElementById('imposteur-reset-scores-box');
+    if (resetScoresBox) {
+      resetScoresBox.style.display = isHost ? 'block' : 'none';
+    }
+    
     if (isHost) {
       dom.impThemeSelect.disabled = false;
       dom.btnImpStart.style.display = 'block';
@@ -834,7 +914,7 @@ function updateImposteurUI(state) {
     } else {
       dom.impThemeSelect.disabled = true;
       dom.btnImpStart.style.display = 'none';
-      dom.impStartHelper.textContent = "Attente que l'hôte configure le thème et lance la partie...";
+      dom.impStartHelper.textContent = "Attente que l'hôte configure les paramètres et lance la partie...";
       dom.impStartHelper.style.color = 'var(--text-muted)';
     }
   }
@@ -867,7 +947,7 @@ function updateImposteurUI(state) {
     
     if (isMyTurn && !isMeEliminated) {
       dom.impTurnBar.classList.add('my-turn');
-      dom.impTurnStatusText.textContent = "🔔 C'est à votre tour ! Entrez un mot ou une courte expression.";
+      dom.impTurnStatusText.textContent = `🔔 C'est à votre tour (Tour ${state.currentDescriptionRound}/${state.descriptionRounds}) ! Décrivez votre mot.`;
       dom.impDescForm.classList.remove('view-hidden');
       dom.impDescInput.focus();
     } else if (isMeEliminated) {
@@ -876,7 +956,7 @@ function updateImposteurUI(state) {
       dom.impDescForm.classList.add('view-hidden');
     } else {
       dom.impTurnBar.classList.remove('my-turn');
-      dom.impTurnStatusText.textContent = `📢 C'est au tour de ${activePlayer} de donner sa description.`;
+      dom.impTurnStatusText.textContent = `📢 C'est au tour de ${activePlayer} de donner sa description (Tour ${state.currentDescriptionRound}/${state.descriptionRounds}).`;
       dom.impDescForm.classList.add('view-hidden');
     }
     
@@ -896,6 +976,24 @@ function updateImposteurUI(state) {
     
     renderDescriptions(state);
     renderVotingGrid(state);
+    
+    // Tally button box
+    const tallyBox = document.getElementById('imposteur-tally-box');
+    if (tallyBox) {
+      tallyBox.style.display = 'block';
+      const btnTally = document.getElementById('btn-imposteur-tally');
+      const helperTally = document.getElementById('tally-helper-text');
+      if (isHost) {
+        if (btnTally) btnTally.style.display = 'inline-block';
+        if (helperTally) helperTally.style.display = 'none';
+      } else {
+        if (btnTally) btnTally.style.display = 'none';
+        if (helperTally) {
+          helperTally.style.display = 'block';
+          helperTally.textContent = "Attente que l'hôte dépouille les votes...";
+        }
+      }
+    }
   }
   
   // 4. Game Over (Results)
@@ -932,21 +1030,26 @@ function updateImposteurUI(state) {
 
 function renderDescriptions(state) {
   dom.impDescriptionsList.innerHTML = '';
-  
-  state.turnOrder.forEach(name => {
-    const p = state.players[name];
-    if (p && p.description) {
-      const item = document.createElement('div');
-      item.className = 'desc-item';
-      item.innerHTML = `
-        <span class="desc-player-avatar">${name.charAt(0)}</span>
-        <div class="desc-content">
-          <div class="desc-player-name">${name}</div>
-          <div class="desc-player-bubble">« ${p.description} »</div>
+  const history = state.descriptionHistory || [];
+  if (history.length === 0) {
+    dom.impDescriptionsList.innerHTML = `<div class="empty-state-text" style="color: var(--text-muted); text-align: center; padding: 1rem;">Aucune description pour le moment.</div>`;
+    return;
+  }
+  history.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'desc-item';
+    const roundBadge = `<span class="badge-item badge-host" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); margin-left: 10px; font-size: 10px; padding: 2px 6px; border-radius: 4px;">Tour ${item.round}</span>`;
+    div.innerHTML = `
+      <span class="desc-player-avatar">${item.nickname.charAt(0)}</span>
+      <div class="desc-content">
+        <div class="desc-player-name" style="display: flex; align-items: center;">
+          ${item.nickname} ${item.nickname === imposteurState.nickname ? '(Vous)' : ''}
+          ${roundBadge}
         </div>
-      `;
-      dom.impDescriptionsList.appendChild(item);
-    }
+        <div class="desc-player-bubble">« ${item.text} »</div>
+      </div>
+    `;
+    dom.impDescriptionsList.appendChild(div);
   });
 }
 
@@ -989,8 +1092,8 @@ function renderVotingGrid(state) {
       ${countBadgeHtml}
     `;
     
-    // Add vote interaction
-    if (!p.isEliminated && !isMeEliminated && name !== myName && !myVotedName) {
+    // Add vote interaction (users can change their votes now)
+    if (!p.isEliminated && !isMeEliminated && name !== myName) {
       card.addEventListener('click', () => {
         fetch('/api/imposteur/vote', {
           method: 'POST',
@@ -1008,6 +1111,40 @@ function renderVotingGrid(state) {
     
     dom.impVotingGrid.appendChild(card);
   });
+
+  // Skip Card
+  const skipCard = document.createElement('div');
+  skipCard.className = 'vote-card skip-card';
+  if (myPlayer && myPlayer.votedFor === 'skip') {
+    skipCard.classList.add('voted');
+  }
+  
+  const skipCount = voteCounts['skip'] || 0;
+  const skipBadgeHtml = skipCount > 0 ? `<span class="vote-count-badge">🗳️ ${skipCount} ${skipCount > 1 ? 'votes' : 'vote'}</span>` : '';
+  
+  skipCard.innerHTML = `
+    <span class="vote-indicator">PASSER</span>
+    <span class="vote-avatar" style="background: rgba(255, 255, 255, 0.1);">⏭️</span>
+    <span class="vote-name">Passer le vote (Skip)</span>
+    ${skipBadgeHtml}
+  `;
+  
+  if (!isMeEliminated) {
+    skipCard.addEventListener('click', () => {
+      fetch('/api/imposteur/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: imposteurState.roomId,
+          nickname: myName,
+          votedNickname: 'skip'
+        })
+      });
+    });
+  } else {
+    skipCard.style.cursor = 'default';
+  }
+  dom.impVotingGrid.appendChild(skipCard);
 }
 
 // --- Quiz Géographie Client Logic ---

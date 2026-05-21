@@ -112,7 +112,7 @@
       <div class="menu-inputs">
         <div class="input-group">
           <label for="imposteur-nickname">Votre Pseudo</label>
-          <input type="text" id="imposteur-nickname" placeholder="Entrez un pseudo stylé" max-length="15" autocomplete="off">
+          <input type="text" id="imposteur-nickname" placeholder="Entrez un pseudo stylé" maxlength="15" autocomplete="off">
         </div>
 
         <div class="menu-actions" style="margin-top: 1.5rem;">
@@ -143,7 +143,7 @@
       <div class="menu-inputs">
         <div class="input-group">
           <label for="geographie-nickname">Votre Pseudo</label>
-          <input type="text" id="geographie-nickname" placeholder="Entrez un pseudo aventurier" max-length="15" autocomplete="off">
+          <input type="text" id="geographie-nickname" placeholder="Entrez un pseudo aventurier" maxlength="15" autocomplete="off">
         </div>
 
         <div class="menu-actions" style="margin-top: 1.5rem;">
@@ -275,7 +275,21 @@
                   <option value="films_series">🎬 Films & Séries (Harry Potter/Voldemort, Star Wars/Star Trek...)</option>
                 </select>
               </div>
-              <p class="theme-helper">Seul le créateur du salon peut changer le thème et lancer la partie.</p>
+              
+              <h4 class="mt-15">Nombre de tours de description</h4>
+              <div class="theme-select-wrapper">
+                <select id="imposteur-rounds-select" class="theme-select">
+                  <option value="1">1 Tour (Rapide)</option>
+                  <option value="2" selected>2 Tours (Standard)</option>
+                  <option value="3">3 Tours (Stratégique)</option>
+                </select>
+              </div>
+
+              <div id="imposteur-reset-scores-box" class="mt-15" style="display:none;">
+                <button id="btn-imposteur-reset-scores" class="btn btn-quit btn-large" style="padding: 0.5rem 1rem; font-size: 13px;">🔄 Réinitialiser les scores</button>
+              </div>
+
+              <p class="theme-helper mt-10">Seul le créateur du salon peut configurer les options et lancer la partie.</p>
             </div>
             
             <div class="lobby-start-box">
@@ -331,6 +345,11 @@
             
             <div class="voting-grid" id="imposteur-voting-grid">
               <!-- Voting cards inserted dynamically -->
+            </div>
+
+            <div id="imposteur-tally-box" class="text-center mt-20" style="display:none; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+              <button id="btn-imposteur-tally" class="btn btn-accent btn-large">📥 Dépouiller les votes</button>
+              <p id="tally-helper-text" class="helper-text mt-10" style="color: var(--text-muted);">Seul l'hôte peut dépouiller les votes pour figer la décision.</p>
             </div>
           </div>
         </div>

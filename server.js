@@ -220,66 +220,69 @@ const IMPOSTEUR_WORDS = {
   jeux_video: [
     { civil: 'Mario', impostor: 'Luigi' },
     { civil: 'Zelda', impostor: 'Link' },
-    { civil: 'Minecraft', impostor: 'Roblox' },
-    { civil: 'Fortnite', impostor: 'Apex Legends' },
     { civil: 'Sonic', impostor: 'Shadow' },
-    { civil: 'PlayStation', impostor: 'Xbox' },
-    { civil: 'Pokémon', impostor: 'Digimon' },
-    { civil: 'Tetris', impostor: 'Pac-Man' },
-    { civil: 'Nintendo Switch', impostor: 'GameBoy' },
-    { civil: 'League of Legends', impostor: 'Dota 2' },
-    { civil: 'Elden Ring', impostor: 'Dark Souls' },
-    { civil: 'Kratos', impostor: 'Master Chief' },
-    { civil: 'Joel (TLOU)', impostor: 'Ellie (TLOU)' },
-    { civil: 'Lara Croft', impostor: 'Nathan Drake' },
-    { civil: 'World of Warcraft', impostor: 'Final Fantasy XIV' },
-    { civil: 'GTA V', impostor: 'Red Dead Redemption 2' },
-    { civil: 'Assassin\'s Creed', impostor: 'Prince of Persia' },
-    { civil: 'Counter-Strike', impostor: 'Valorant' },
-    { civil: 'FIFA', impostor: 'PES (eFootball)' },
-    { civil: 'Call of Duty', impostor: 'Battlefield' },
-    { civil: 'Animal Crossing', impostor: 'Stardew Valley' },
-    { civil: 'Sans (Undertale)', impostor: 'Papyrus' },
-    { civil: 'Geralt de Riv', impostor: 'Arthur Morgan' },
+    { civil: 'Kratos (God of War)', impostor: 'Master Chief (Halo)' },
+    { civil: 'Joel (The Last of Us)', impostor: 'Ellie (The Last of Us)' },
+    { civil: 'Lara Croft (Tomb Raider)', impostor: 'Nathan Drake (Uncharted)' },
+    { civil: 'Sans (Undertale)', impostor: 'Papyrus (Undertale)' },
+    { civil: 'Steve (Minecraft)', impostor: 'Alex (Minecraft)' },
+    { civil: 'Pikachu (Pokémon)', impostor: 'Évoli (Pokémon)' },
+    { civil: 'Sub-Zero (Mortal Kombat)', impostor: 'Scorpion (Mortal Kombat)' },
+    { civil: 'Ryu (Street Fighter)', impostor: 'Ken Masters (Street Fighter)' },
+    { civil: 'Geralt de Riv (The Witcher)', impostor: 'Arthur Morgan (RDR2)' },
     { civil: 'Crash Bandicoot', impostor: 'Spyro le Dragon' },
-    { civil: 'Portal', impostor: 'Half-Life' },
-    { civil: 'Resident Evil', impostor: 'Silent Hill' },
-    { civil: 'Rayman', impostor: 'Lapins Crétins' },
-    { civil: 'Doom Slayer', impostor: 'Master Chief' },
-    { civil: 'Cyberpunk 2077', impostor: 'Deus Ex' },
-    { civil: 'Pac-Man', impostor: 'Donkey Kong' }
+    { civil: 'Rayman', impostor: 'Lapin Crétin' },
+    { civil: 'Doom Slayer (Doom)', impostor: 'Duke Nukem' },
+    { civil: 'Bowser (Mario)', impostor: 'Donkey Kong' },
+    { civil: 'Princesse Peach', impostor: 'Princesse Daisy' },
+    { civil: 'Solid Snake (Metal Gear)', impostor: 'Sam Fisher (Splinter Cell)' },
+    { civil: 'Ezio Auditore (Assassin\'s Creed)', impostor: 'Altaïr Ibn-La\'Ahad (Assassin\'s Creed)' },
+    { civil: 'Trevor Philips (GTA V)', impostor: 'Michael De Santa (GTA V)' },
+    { civil: 'Arthur Morgan (RDR2)', impostor: 'John Marston (RDR)' },
+    { civil: 'Cloud Strife (Final Fantasy VII)', impostor: 'Sephiroth (Final Fantasy VII)' },
+    { civil: 'Kirby', impostor: 'Meta Knight' },
+    { civil: 'Tracer (Overwatch)', impostor: 'Widowmaker (Overwatch)' },
+    { civil: 'Phoenix Wright (Ace Attorney)', impostor: 'Professeur Layton' },
+    { civil: 'Cuphead', impostor: 'Mugman' },
+    { civil: 'Jinx (League of Legends)', impostor: 'Vi (League of Legends)' },
+    { civil: 'Glados (Portal)', impostor: 'Wheatley (Portal)' },
+    { civil: 'Sans (Undertale)', impostor: 'Flowey (Undertale)' },
+    { civil: 'Leon S. Kennedy (Resident Evil)', impostor: 'Chris Redfield (Resident Evil)' }
   ],
   films_series: [
-    { civil: 'Harry Potter', impostor: 'Voldemort' },
-    { civil: 'Batman', impostor: 'Joker' },
-    { civil: 'Star Wars', impostor: 'Star Trek' },
-    { civil: 'Marvel', impostor: 'DC Comics' },
+    { civil: 'Harry Potter', impostor: 'Lord Voldemort' },
+    { civil: 'Batman (Bruce Wayne)', impostor: 'Le Joker' },
     { civil: 'Jack Sparrow', impostor: 'Indiana Jones' },
-    { civil: 'Breaking Bad', impostor: 'Better Call Saul' },
-    { civil: 'Game of Thrones', impostor: 'House of the Dragon' },
-    { civil: 'Shrek', impostor: 'Fiona' },
-    { civil: 'Netflix', impostor: 'Disney+' },
+    { civil: 'Shrek', impostor: 'Princesse Fiona' },
     { civil: 'Luke Skywalker', impostor: 'Darth Vador' },
-    { civil: 'Walter White', impostor: 'Jesse Pinkman' },
+    { civil: 'Walter White (Heisenberg)', impostor: 'Jesse Pinkman' },
     { civil: 'Sherlock Holmes', impostor: 'Docteur Watson' },
-    { civil: 'Iron Man', impostor: 'Captain America' },
-    { civil: 'Gandalf', impostor: 'Dumbledore' },
+    { civil: 'Iron Man (Tony Stark)', impostor: 'Captain America (Steve Rogers)' },
+    { civil: 'Gandalf (LGDF)', impostor: 'Albus Dumbledore (Harry Potter)' },
     { civil: 'Frodon Sacquet', impostor: 'Sam Gamegie' },
     { civil: 'Shrek', impostor: 'L\'Âne' },
     { civil: 'Jon Snow', impostor: 'Daenerys Targaryen' },
-    { civil: 'Neo (Matrix)', impostor: 'Morpheus' },
+    { civil: 'Neo (Matrix)', impostor: 'Morpheus (Matrix)' },
     { civil: 'Michael Scott', impostor: 'Dwight Schrute' },
     { civil: 'Rick Sanchez', impostor: 'Morty Smith' },
     { civil: 'Mercredi Addams', impostor: 'Eleven (Stranger Things)' },
-    { civil: 'James Bond', impostor: 'Ethan Hunt' },
-    { civil: 'Marty McFly', impostor: 'Doc Brown' },
-    { civil: 'Jack Dawson', impostor: 'Rose DeWitt Bukater' },
-    { civil: 'Joker', impostor: 'Harley Quinn' },
-    { civil: 'Thanos', impostor: 'Darkseid' },
-    { civil: 'Spider-Man', impostor: 'Peter Parker' },
-    { civil: 'Interstellar', impostor: 'Inception' },
-    { civil: 'Le Parrain', impostor: 'Scarface' },
-    { civil: 'Friends', impostor: 'How I Met Your Mother' }
+    { civil: 'James Bond (007)', impostor: 'Ethan Hunt (Mission Impossible)' },
+    { civil: 'Marty McFly', impostor: 'Doc Brown (Emmett Brown)' },
+    { civil: 'Jack Dawson (Titanic)', impostor: 'Rose DeWitt Bukater' },
+    { civil: 'Le Joker', impostor: 'Harley Quinn' },
+    { civil: 'Thanos (Marvel)', impostor: 'Darth Vador (Star Wars)' },
+    { civil: 'Thor (Marvel)', impostor: 'Loki (Marvel)' },
+    { civil: 'Forrest Gump', impostor: 'Benjamin Button' },
+    { civil: 'Dominic Toretto (Fast & Furious)', impostor: 'Brian O\'Conner (Fast & Furious)' },
+    { civil: 'Barney Stinson (HIMYM)', impostor: 'Ted Mosby (HIMYM)' },
+    { civil: 'Chandler Bing (Friends)', impostor: 'Joey Tribbiani (Friends)' },
+    { civil: 'Spider-Man (Peter Parker)', impostor: 'Batman (Bruce Wayne)' },
+    { civil: 'Gollum', impostor: 'Bilbon Sacquet' },
+    { civil: 'Legolas', impostor: 'Gimli' },
+    { civil: 'Thomas Shelby (Peaky Blinders)', impostor: 'Alfie Solomons (Peaky Blinders)' },
+    { civil: 'Jim Halpert', impostor: 'Pam Beesly' },
+    { civil: 'Sheldon Cooper', impostor: 'Leonard Hofstadter' },
+    { civil: 'Dracula', impostor: 'Monstre de Frankenstein' }
   ],
   general: [
     { civil: 'Café', impostor: 'Thé' },
@@ -453,13 +456,31 @@ function getSanitizedPlayers(room) {
     const p = room.players[name];
     sanitized[name] = {
       nickname: p.nickname,
-      description: p.description,
       votedFor: p.votedFor,
       hasVoted: p.votedFor !== null,
-      isEliminated: p.isEliminated
+      isEliminated: p.isEliminated,
+      score: p.score || 0,
+      isConnected: p.isConnected !== false
     };
   });
   return sanitized;
+}
+
+function getFullImposteurState(room) {
+  return {
+    status: room.status,
+    theme: room.theme,
+    descriptionRounds: room.descriptionRounds || 1,
+    currentDescriptionRound: room.currentDescriptionRound || 1,
+    descriptionHistory: room.descriptionHistory || [],
+    players: getSanitizedPlayers(room),
+    turnOrder: room.turnOrder || [],
+    currentTurnIndex: room.currentTurnIndex || 0,
+    winner: room.winner || null,
+    civilWord: room.status === 'game_over' ? room.civilWord : null,
+    impostorWord: room.status === 'game_over' ? room.impostorWord : null,
+    impostorNickname: room.status === 'game_over' ? room.impostorNickname : null
+  };
 }
 
 const server = http.createServer((req, res) => {
@@ -692,6 +713,10 @@ const server = http.createServer((req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Pseudo requis' }));
         }
+        if (name.length > 15) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Le pseudo ne doit pas dépasser 15 caractères' }));
+        }
         let roomId = generateRoomId();
         while(rooms[roomId]) roomId = generateRoomId();
         
@@ -700,8 +725,11 @@ const server = http.createServer((req, res) => {
           roomId: roomId,
           status: 'lobby',
           theme: 'general',
+          descriptionRounds: 1,
+          currentDescriptionRound: 1,
+          descriptionHistory: [],
           players: {
-            [name]: { nickname: name, word: '', description: '', isImpostor: false, votedFor: null, isEliminated: false }
+            [name]: { nickname: name, word: '', isImpostor: false, votedFor: null, isEliminated: false, score: 0, isConnected: true }
           },
           turnOrder: [],
           currentTurnIndex: 0,
@@ -736,8 +764,28 @@ const server = http.createServer((req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Pseudo requis' }));
         }
+        if (name.length > 15) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Le pseudo ne doit pas dépasser 15 caractères' }));
+        }
         
         const room = rooms[id];
+        
+        // Reconnection logic
+        const existingPlayer = room.players[name];
+        if (existingPlayer) {
+          existingPlayer.isConnected = true;
+          console.log(`Player ${name} reconnected to Imposteur room ${id}`);
+          
+          broadcast(room, {
+            type: 'IMPOSTEUR_STATE',
+            state: getFullImposteurState(room)
+          });
+          
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ success: true, roomId: id, nickname: name }));
+        }
+
         if (room.status !== 'lobby') {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Partie déjà commencée' }));
@@ -747,19 +795,13 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ error: 'Pseudo déjà utilisé dans ce salon' }));
         }
         
-        room.players[name] = { nickname: name, word: '', description: '', isImpostor: false, votedFor: null, isEliminated: false };
+        room.players[name] = { nickname: name, word: '', isImpostor: false, votedFor: null, isEliminated: false, score: 0, isConnected: true };
         
         console.log(`Player ${name} joined Imposteur room ${id}`);
         
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
-          state: {
-            status: room.status,
-            theme: room.theme,
-            players: getSanitizedPlayers(room),
-            turnOrder: room.turnOrder,
-            currentTurnIndex: room.currentTurnIndex
-          }
+          state: getFullImposteurState(room)
         });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -800,13 +842,7 @@ const server = http.createServer((req, res) => {
         console.log(`Imposteur room ${roomId} changed theme to ${theme}`);
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
-          state: {
-            status: room.status,
-            theme: room.theme,
-            players: getSanitizedPlayers(room),
-            turnOrder: room.turnOrder,
-            currentTurnIndex: room.currentTurnIndex
-          }
+          state: getFullImposteurState(room)
         });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
@@ -823,7 +859,7 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { roomId, theme } = JSON.parse(body);
+        const { roomId, theme, descriptionRounds } = JSON.parse(body);
         const room = rooms[roomId];
         if (!room || room.gameType !== 'imposteur') {
           res.writeHead(404); return res.end();
@@ -865,20 +901,28 @@ const server = http.createServer((req, res) => {
         room.theme = theme;
         room.winner = null;
         
-        room.turnOrder = [...playersList].sort(() => Math.random() - 0.5);
+        if (descriptionRounds) {
+          room.descriptionRounds = parseInt(descriptionRounds) || 1;
+        }
+        room.currentDescriptionRound = 1;
+        room.descriptionHistory = [];
+        
+        // True random Fisher-Yates shuffle
+        const shuffledList = [...playersList];
+        for (let i = shuffledList.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledList[i], shuffledList[j]] = [shuffledList[j], shuffledList[i]];
+        }
+        room.turnOrder = shuffledList;
         room.currentTurnIndex = 0;
+        
+        checkAndAdvanceTurnIfOffline(room);
         
         console.log(`Imposteur Game started in room ${roomId}. Impostor is ${impostorName}. Word A: ${pair.civil}, Word B: ${pair.impostor}`);
         
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
-          state: {
-            status: room.status,
-            theme: room.theme,
-            players: getSanitizedPlayers(room),
-            turnOrder: room.turnOrder,
-            currentTurnIndex: room.currentTurnIndex
-          }
+          state: getFullImposteurState(room)
         });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -889,6 +933,48 @@ const server = http.createServer((req, res) => {
     });
     return;
   }
+
+function checkAndAdvanceTurnIfOffline(room) {
+  if (room.status !== 'playing') return;
+  
+  // Guard: check if there's any active player who is both connected and not eliminated
+  const hasConnectedActivePlayer = Object.values(room.players).some(p => p.isConnected !== false && !p.isEliminated);
+  if (!hasConnectedActivePlayer) {
+    console.log(`No active connected players in room ${room.roomId}. Stopping turn skip recursion.`);
+    return;
+  }
+  
+  const activePlayerName = room.turnOrder[room.currentTurnIndex];
+  const activePlayer = room.players[activePlayerName];
+  
+  if (!activePlayer || activePlayer.isConnected === false || activePlayer.isEliminated) {
+    console.log(`Skipping player ${activePlayerName} because they are offline or eliminated`);
+    advanceTurnAndCheckRoundEnd(room);
+  }
+}
+
+function advanceTurnAndCheckRoundEnd(room) {
+  room.currentTurnIndex++;
+  
+  if (room.currentTurnIndex >= room.turnOrder.length) {
+    const rounds = room.descriptionRounds || 1;
+    const currentRound = room.currentDescriptionRound || 1;
+    
+    if (currentRound < rounds) {
+      room.currentDescriptionRound++;
+      room.currentTurnIndex = 0;
+      console.log(`Advancing to description round ${room.currentDescriptionRound} in room ${room.roomId}`);
+      checkAndAdvanceTurnIfOffline(room);
+    } else {
+      room.status = 'discussing';
+      Object.keys(room.players).forEach(name => {
+        room.players[name].votedFor = null;
+      });
+    }
+  } else {
+    checkAndAdvanceTurnIfOffline(room);
+  }
+}
 
   // Submit Description
   if (parsedUrl.pathname === '/api/imposteur/submit-description' && req.method === 'POST') {
@@ -914,22 +1000,19 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ error: "La description ne peut pas être vide" }));
         }
         
+        if (!room.descriptionHistory) room.descriptionHistory = [];
+        room.descriptionHistory.push({
+          nickname: nickname,
+          text: desc,
+          round: room.currentDescriptionRound || 1
+        });
         room.players[nickname].description = desc;
-        room.currentTurnIndex++;
         
-        if (room.currentTurnIndex >= room.turnOrder.length) {
-          room.status = 'discussing';
-        }
+        advanceTurnAndCheckRoundEnd(room);
         
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
-          state: {
-            status: room.status,
-            theme: room.theme,
-            players: getSanitizedPlayers(room),
-            turnOrder: room.turnOrder,
-            currentTurnIndex: room.currentTurnIndex
-          }
+          state: getFullImposteurState(room)
         });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -959,43 +1042,99 @@ const server = http.createServer((req, res) => {
         
         room.players[nickname].votedFor = votedNickname;
         
-        const alivePlayers = Object.values(room.players).filter(p => !p.isEliminated);
-        const votesCast = alivePlayers.filter(p => p.votedFor !== null);
+        broadcast(room, {
+          type: 'IMPOSTEUR_STATE',
+          state: getFullImposteurState(room)
+        });
         
-        if (votesCast.length === alivePlayers.length) {
-          const voteCounts = {};
-          alivePlayers.forEach(p => voteCounts[p.nickname] = 0);
-          alivePlayers.forEach(p => {
-            if (p.votedFor) {
-              voteCounts[p.votedFor] = (voteCounts[p.votedFor] || 0) + 1;
-            }
-          });
-          
-          let maxVotes = -1;
-          let eliminatedNickname = null;
-          let isTie = false;
-          
-          Object.keys(voteCounts).forEach(name => {
-            if (voteCounts[name] > maxVotes) {
-              maxVotes = voteCounts[name];
-              eliminatedNickname = name;
-              isTie = false;
-            } else if (voteCounts[name] === maxVotes) {
-              isTie = true;
-            }
-          });
-          
-          if (isTie) {
-            const tied = Object.keys(voteCounts).filter(name => voteCounts[name] === maxVotes);
-            eliminatedNickname = tied[Math.floor(Math.random() * tied.length)];
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Tally Votes
+  if (parsedUrl.pathname === '/api/imposteur/tally-votes' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'imposteur' || room.status !== 'discussing') {
+          res.writeHead(404); return res.end();
+        }
+        
+        const alivePlayers = Object.values(room.players).filter(p => !p.isEliminated);
+        
+        // Count votes
+        const voteCounts = {};
+        // Initialize
+        alivePlayers.forEach(p => voteCounts[p.nickname] = 0);
+        voteCounts['skip'] = 0;
+        
+        alivePlayers.forEach(p => {
+          if (p.votedFor) {
+            voteCounts[p.votedFor] = (voteCounts[p.votedFor] || 0) + 1;
           }
+        });
+        
+        let maxVotes = -1;
+        let selectedChoice = null;
+        let isTie = false;
+        
+        Object.keys(voteCounts).forEach(choice => {
+          if (voteCounts[choice] > maxVotes) {
+            maxVotes = voteCounts[choice];
+            selectedChoice = choice;
+            isTie = false;
+          } else if (voteCounts[choice] === maxVotes) {
+            isTie = true;
+          }
+        });
+        
+        if (isTie) {
+          const tied = Object.keys(voteCounts).filter(choice => voteCounts[choice] === maxVotes);
+          selectedChoice = tied[Math.floor(Math.random() * tied.length)];
+        }
+        
+        if (selectedChoice === 'skip') {
+          // Vote is skipped! Nobody is eliminated, start another round of descriptions.
+          console.log(`Vote skipped in room ${roomId}. Resetting descriptions for another round.`);
+          room.status = 'playing';
+          room.currentTurnIndex = 0;
+          room.currentDescriptionRound = 1;
           
+          Object.keys(room.players).forEach(name => {
+            room.players[name].description = '';
+            room.players[name].votedFor = null;
+          });
+          
+          checkAndAdvanceTurnIfOffline(room);
+        } else {
+          // Eliminate the voted player
+          const eliminatedNickname = selectedChoice;
           room.players[eliminatedNickname].isEliminated = true;
           const eliminatedPlayer = room.players[eliminatedNickname];
+          console.log(`Player ${eliminatedNickname} was eliminated in room ${roomId}`);
           
           if (eliminatedPlayer.isImpostor) {
             room.status = 'game_over';
             room.winner = 'civils';
+            
+            // Score system: +2 for surviving civils, +1 for eliminated civils
+            Object.values(room.players).forEach(p => {
+              if (!p.isImpostor) {
+                if (!p.isEliminated) {
+                  p.score = (p.score || 0) + 2;
+                } else {
+                  p.score = (p.score || 0) + 1;
+                }
+              }
+            });
           } else {
             const remainingPlayers = Object.values(room.players).filter(p => !p.isEliminated);
             const remainingImpostors = remainingPlayers.filter(p => p.isImpostor);
@@ -1003,34 +1142,90 @@ const server = http.createServer((req, res) => {
             if (remainingImpostors.length > 0 && remainingPlayers.length <= 2) {
               room.status = 'game_over';
               room.winner = 'impostor';
+              
+              // Score system: +3 for the impostor
+              Object.values(room.players).forEach(p => {
+                if (p.isImpostor) {
+                  p.score = (p.score || 0) + 3;
+                }
+              });
             } else {
               room.status = 'playing';
               room.currentTurnIndex = 0;
+              room.currentDescriptionRound = 1;
               room.turnOrder = room.turnOrder.filter(name => !room.players[name].isEliminated);
               
               Object.keys(room.players).forEach(name => {
                 room.players[name].description = '';
                 room.players[name].votedFor = null;
               });
+              
+              checkAndAdvanceTurnIfOffline(room);
             }
           }
         }
         
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
-          state: {
-            status: room.status,
-            theme: room.theme,
-            players: getSanitizedPlayers(room),
-            turnOrder: room.turnOrder,
-            currentTurnIndex: room.currentTurnIndex,
-            winner: room.winner,
-            civilWord: room.status === 'game_over' ? room.civilWord : null,
-            impostorWord: room.status === 'game_over' ? room.impostorWord : null,
-            impostorNickname: room.status === 'game_over' ? room.impostorNickname : null
-          }
+          state: getFullImposteurState(room)
         });
         
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Change Imposteur Settings (Description rounds)
+  if (parsedUrl.pathname === '/api/imposteur/settings' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, descriptionRounds } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'imposteur') {
+          res.writeHead(404); return res.end();
+        }
+        if (descriptionRounds) {
+          room.descriptionRounds = parseInt(descriptionRounds) || 1;
+        }
+        console.log(`Imposteur room ${roomId} set description rounds to ${room.descriptionRounds}`);
+        broadcast(room, {
+          type: 'IMPOSTEUR_STATE',
+          state: getFullImposteurState(room)
+        });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // Reset Imposteur Scores
+  if (parsedUrl.pathname === '/api/imposteur/reset-scores' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'imposteur') {
+          res.writeHead(404); return res.end();
+        }
+        Object.keys(room.players).forEach(name => {
+          room.players[name].score = 0;
+        });
+        console.log(`Scores reset for Imposteur room ${roomId}`);
+        broadcast(room, {
+          type: 'IMPOSTEUR_STATE',
+          state: getFullImposteurState(room)
+        });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
       } catch (e) {
@@ -1170,6 +1365,10 @@ const server = http.createServer((req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Pseudo requis' }));
         }
+        if (name.length > 15) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Le pseudo ne doit pas dépasser 15 caractères' }));
+        }
         let roomId = generateRoomId();
         while(rooms[roomId]) roomId = generateRoomId();
         
@@ -1215,6 +1414,10 @@ const server = http.createServer((req, res) => {
         if (!name) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Pseudo requis' }));
+        }
+        if (name.length > 15) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Le pseudo ne doit pas dépasser 15 caractères' }));
         }
         
         const room = rooms[id];
@@ -1507,19 +1710,19 @@ const server = http.createServer((req, res) => {
     
     // Send initial state depending on gameType
     if (room.gameType === 'imposteur') {
+      if (nickname && room.players[nickname]) {
+        room.players[nickname].isConnected = true;
+        console.log(`Player ${nickname} marked connected in Imposteur room ${roomId}`);
+        
+        broadcast(room, {
+          type: 'IMPOSTEUR_STATE',
+          state: getFullImposteurState(room)
+        });
+      }
+      
       res.write(`data: ${JSON.stringify({ 
         type: 'IMPOSTEUR_STATE', 
-        state: { 
-          status: room.status,
-          theme: room.theme,
-          players: getSanitizedPlayers(room),
-          turnOrder: room.turnOrder,
-          currentTurnIndex: room.currentTurnIndex,
-          winner: room.winner,
-          civilWord: room.status === 'game_over' ? room.civilWord : null,
-          impostorWord: room.status === 'game_over' ? room.impostorWord : null,
-          impostorNickname: room.status === 'game_over' ? room.impostorNickname : null
-        }
+        state: getFullImposteurState(room)
       })}\n\n`);
     } else if (room.gameType === 'geographie') {
       res.write(`data: ${JSON.stringify({ 
@@ -1548,19 +1751,21 @@ const server = http.createServer((req, res) => {
       
       // Cleanup for Imposteur if still in lobby
       if (room.gameType === 'imposteur') {
-        if (nickname && room.players[nickname] && room.status === 'lobby') {
-          delete room.players[nickname];
-          console.log(`Player ${nickname} left Imposteur room ${roomId} (connection closed)`);
+        if (nickname && room.players[nickname]) {
+          if (room.status === 'lobby') {
+            delete room.players[nickname];
+            console.log(`Player ${nickname} left Imposteur room ${roomId} (connection closed)`);
+          } else {
+            room.players[nickname].isConnected = false;
+            console.log(`Player ${nickname} disconnected from Imposteur room ${roomId}`);
+            if (room.turnOrder[room.currentTurnIndex] === nickname) {
+              checkAndAdvanceTurnIfOffline(room);
+            }
+          }
           
           broadcast(room, {
             type: 'IMPOSTEUR_STATE',
-            state: {
-              status: room.status,
-              theme: room.theme,
-              players: getSanitizedPlayers(room),
-              turnOrder: room.turnOrder,
-              currentTurnIndex: room.currentTurnIndex
-            }
+            state: getFullImposteurState(room)
           });
         }
       } else if (room.gameType === 'geographie') {
