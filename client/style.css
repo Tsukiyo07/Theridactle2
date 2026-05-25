@@ -2372,3 +2372,89 @@ h1, h2, h3, h4, .logo {
   border-color: rgba(239, 68, 68, 0.4);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(239, 68, 68, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
+
+/* Premium Loup-Garou Role Builder Styles */
+.role-catalog-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.role-catalog-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btn-lg-add-role {
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-lg-add-role:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 10px rgba(255,255,255,0.2);
+}
+
+.lg-active-card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  animation: scaleUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lg-active-card-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+
+.lg-active-card-chip .btn-remove {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  transition: color 0.15s;
+}
+
+.lg-active-card-chip .btn-remove:hover {
+  color: #ef4444;
+}
+
+/* Role Chip Glow Colors */
+.lg-active-card-chip[data-role="loup"] { border-color: #ef4444; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25); }
+.lg-active-card-chip[data-role="simple_villageois"] { border-color: #94a3b8; }
+.lg-active-card-chip[data-role="voyante"] { border-color: #a78bfa; box-shadow: 0 2px 8px rgba(167, 139, 250, 0.25); }
+.lg-active-card-chip[data-role="sorciere"] { border-color: #34d399; box-shadow: 0 2px 8px rgba(52, 211, 153, 0.25); }
+.lg-active-card-chip[data-role="chasseur"] { border-color: #f59e0b; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25); }
+.lg-active-card-chip[data-role="cupidon"] { border-color: #ec4899; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.25); }
+.lg-active-card-chip[data-role="garde"] { border-color: #3b82f6; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25); }
+.lg-active-card-chip[data-role="voleur"] { border-color: #06b6d4; box-shadow: 0 2px 8px rgba(6, 182, 212, 0.25); }
+.lg-active-card-chip[data-role="petite_fille"] { border-color: #f472b6; }
+.lg-active-card-chip[data-role="bouc_emissaire"] { border-color: #f97316; }
+.lg-active-card-chip[data-role="idiot_du_village"] { border-color: #84cc16; }
+.lg-active-card-chip[data-role="montreur_d_ours"] { border-color: #78716c; }
+.lg-active-card-chip[data-role="ancien"] { border-color: #a1a1aa; }
+

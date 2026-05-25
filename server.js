@@ -1837,14 +1837,14 @@ function advanceTurnAndCheckRoundEnd(room) {
           seerTargetRole: target ? target.role : null
         };
       }
-      else if (viewer.role === 'sorciere' && room.status === 'night_witch') {
+      else if (viewer.role === 'sorciere' && room.status === 'night_sorciere') {
         privateActionData = {
           wolfTarget: room.nightState.wolfTarget,
           hasHealPotion: !room.nightState.witchHealed,
           hasKillPotion: !room.nightState.witchKilled
         };
       }
-      else if (viewer.role === 'loup' && room.status === 'night_actions') {
+      else if (viewer.role === 'loup' && room.status === 'night_loup') {
         const wolfVotes = {};
         Object.values(room.players).forEach(p => {
           if (p.role === 'loup' && p.votedFor && p.isAlive) {
@@ -1853,6 +1853,11 @@ function advanceTurnAndCheckRoundEnd(room) {
         });
         privateActionData = {
           wolfVotes
+        };
+      }
+      else if (viewer.role === 'voleur' && room.status === 'night_voleur') {
+        privateActionData = {
+          voleurMiddleCards: room.voleurMiddleCards || []
         };
       }
     }
@@ -1887,73 +1892,83 @@ function advanceTurnAndCheckRoundEnd(room) {
     });
   }
 
-  function checkNightPart1End(room) {
-    if (room.status !== 'night_actions') return;
+  function advanceLoupGarouNight(room) {
+    if (room.status === 'lobby' || room.status === 'game_over') return;
+    if (!room.nightActionsPerformed) room.nightActionsPerformed = [];
 
-    // Check Cupidon
-    if (room.rolesConfig.cupidon && room.currentNight === 1) {
-      const cupidAlive = Object.values(room.players).some(p => p.role === 'cupidon' && p.isAlive);
-      if (cupidAlive && room.nightState.lovers.length === 0) {
-        return; // Wait for Cupidon
+    // Order of classic waking roles
+    const sequence = ['voleur', 'cupidon', 'garde', 'voyante', 'loup', 'sorciere'];
+
+    for (const role of sequence) {
+      if (room.nightActionsPerformed.includes(role)) continue;
+
+      const roleIsActive = room.rolesConfig.activeCards && room.rolesConfig.activeCards.includes(role);
+      const playerWithRole = Object.values(room.players).find(p => p.role === role && p.isAlive);
+
+      if (role === 'loup') {
+        const aliveWolves = Object.values(room.players).filter(p => p.role === 'loup' && p.isAlive);
+        if (aliveWolves.length > 0) {
+          room.status = 'night_loup';
+          return;
+        } else {
+          room.nightActionsPerformed.push('loup');
+          continue;
+        }
+      }
+
+      if (role === 'voleur') {
+        if (roleIsActive && room.currentNight === 1 && playerWithRole) {
+          room.status = 'night_voleur';
+          return;
+        } else {
+          room.nightActionsPerformed.push('voleur');
+          continue;
+        }
+      }
+
+      if (role === 'cupidon') {
+        if (roleIsActive && room.currentNight === 1 && playerWithRole) {
+          room.status = 'night_cupidon';
+          return;
+        } else {
+          room.nightActionsPerformed.push('cupidon');
+          continue;
+        }
+      }
+
+      if (role === 'garde') {
+        if (roleIsActive && playerWithRole) {
+          room.status = 'night_garde';
+          return;
+        } else {
+          room.nightActionsPerformed.push('garde');
+          continue;
+        }
+      }
+
+      if (role === 'voyante') {
+        if (roleIsActive && playerWithRole) {
+          room.status = 'night_voyante';
+          return;
+        } else {
+          room.nightActionsPerformed.push('voyante');
+          continue;
+        }
+      }
+
+      if (role === 'sorciere') {
+        if (roleIsActive && playerWithRole) {
+          room.status = 'night_sorciere';
+          return;
+        } else {
+          room.nightActionsPerformed.push('sorciere');
+          continue;
+        }
       }
     }
 
-    // Check Garde
-    if (room.rolesConfig.garde) {
-      const gardeAlive = Object.values(room.players).some(p => p.role === 'garde' && p.isAlive);
-      if (gardeAlive && !room.nightState.protectedPlayer) {
-        return; // Wait for Garde
-      }
-    }
-
-    // Check Voyante
-    if (room.rolesConfig.voyante) {
-      const voyanteAlive = Object.values(room.players).some(p => p.role === 'voyante' && p.isAlive);
-      if (voyanteAlive && !room.nightState.seerTarget) {
-        return; // Wait for Voyante
-      }
-    }
-
-    // Check Loups-Garous
-    const aliveWolves = Object.values(room.players).filter(p => p.role === 'loup' && p.isAlive);
-    const votesForTarget = {};
-    let wolfVotesCount = 0;
-    aliveWolves.forEach(w => {
-      if (w.votedFor) {
-        votesForTarget[w.votedFor] = (votesForTarget[w.votedFor] || 0) + 1;
-        wolfVotesCount++;
-      }
-    });
-
-    if (wolfVotesCount < aliveWolves.length) {
-      return; // Not all wolves have voted yet
-    }
-
-    // Check if wolves agreed on a single target (majority or consensus)
-    let consensusTarget = null;
-    Object.keys(votesForTarget).forEach(target => {
-      if (votesForTarget[target] >= aliveWolves.length / 2) {
-        consensusTarget = target;
-      }
-    });
-
-    if (!consensusTarget && aliveWolves.length > 0) {
-      return; // Wolves haven't agreed on a target
-    }
-
-    room.nightState.wolfTarget = consensusTarget;
-
-    // Part 1 ends. Transition to Witch or resolve Night directly
-    const witchAlive = Object.values(room.players).some(p => p.role === 'sorciere' && p.isAlive);
-    const witchHasPotions = !room.nightState.witchHealed || !room.nightState.witchKilled;
-
-    if (room.rolesConfig.sorciere && witchAlive && witchHasPotions) {
-      room.status = 'night_witch';
-      console.log(`Loup-Garou room ${room.roomId} night part 1 completed. Waking up Sorciere.`);
-    } else {
-      resolveNight(room);
-    }
-    broadcastLoupGarouState(room);
+    // No roles left, resolve night!
+    resolveNight(room);
   }
 
   function resolveNight(room) {
@@ -2080,12 +2095,7 @@ function advanceTurnAndCheckRoundEnd(room) {
             [name]: { nickname: name, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false }
           },
           rolesConfig: {
-            loupCount: 1,
-            voyante: true,
-            sorciere: true,
-            chasseur: true,
-            cupidon: true,
-            garde: true
+            activeCards: ['loup', 'simple_villageois', 'voyante', 'sorciere', 'chasseur']
           },
           nightState: {
             lovers: [],
@@ -2201,26 +2211,15 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
 
         const playersList = Object.keys(room.players);
-        const config = room.rolesConfig;
-        
-        // Count total roles requested
-        let rolesPool = [];
-        for (let i = 0; i < (config.loupCount || 1); i++) rolesPool.push('loup');
-        if (config.voyante) rolesPool.push('voyante');
-        if (config.sorciere) rolesPool.push('sorciere');
-        if (config.chasseur) rolesPool.push('chasseur');
-        if (config.cupidon) rolesPool.push('cupidon');
-        if (config.garde) rolesPool.push('garde');
+        const config = room.rolesConfig || {};
+        let activeCards = config.activeCards || ['loup', 'simple_villageois'];
 
-        if (playersList.length < rolesPool.length) {
+        if (activeCards.length !== playersList.length) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(JSON.stringify({ error: `Pas assez de joueurs (${playersList.length}) pour les rôles sélectionnés (${rolesPool.length}) !` }));
+          return res.end(JSON.stringify({ error: `Le nombre de cartes sélectionnées (${activeCards.length}) doit être exactement égal au nombre de joueurs (${playersList.length}) !` }));
         }
 
-        // Fill remaining with simple villagers
-        while (rolesPool.length < playersList.length) {
-          rolesPool.push('simple_villageois');
-        }
+        let rolesPool = [...activeCards];
 
         // Shuffle roles
         for (let i = rolesPool.length - 1; i > 0; i--) {
@@ -2239,9 +2238,9 @@ function advanceTurnAndCheckRoundEnd(room) {
         });
 
         // Initialize state
-        room.status = 'night_actions';
         room.currentNight = 1;
-        room.historyLogs = [`🌒 La Nuit n°1 tombe sur le village de Thiercelieux... Les rôles se réveillent en secret.`];
+        room.nightActionsPerformed = [];
+        room.historyLogs = [`🌒 La Nuit n°1 tombe sur le village... Tout le monde s'endort.`];
         room.nightState = {
           lovers: [],
           protectedPlayer: null,
@@ -2253,6 +2252,16 @@ function advanceTurnAndCheckRoundEnd(room) {
           witchKilledThisTurn: null
         };
 
+        // Voleur middle cards setup
+        if (activeCards.includes('voleur')) {
+          const possibleExtras = ['simple_villageois', 'loup', 'voyante', 'garde', 'chasseur'];
+          const ex1 = possibleExtras[Math.floor(Math.random() * possibleExtras.length)];
+          const ex2 = possibleExtras[Math.floor(Math.random() * possibleExtras.length)];
+          room.voleurMiddleCards = [ex1, ex2];
+        } else {
+          room.voleurMiddleCards = [];
+        }
+
         // Shuffle turn order (who votes first)
         const shuffledList = [...playersList];
         for (let i = shuffledList.length - 1; i > 0; i--) {
@@ -2261,7 +2270,9 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
         room.turnOrder = shuffledList;
 
-        console.log(`Loup-Garou room ${roomId} game started successfully!`);
+        advanceLoupGarouNight(room);
+
+        console.log(`Loup-Garou room ${roomId} game started successfully sequentially!`);
         broadcastLoupGarouState(room);
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2291,22 +2302,68 @@ function advanceTurnAndCheckRoundEnd(room) {
           return res.end(JSON.stringify({ error: 'Action impossible ou joueur éliminé' }));
         }
 
-        if (actionType === 'cupidon' && p.role === 'cupidon' && room.currentNight === 1) {
+        if (actionType === 'voleur' && p.role === 'voleur' && room.currentNight === 1) {
+          if (targetName && room.voleurMiddleCards && room.voleurMiddleCards.includes(targetName)) {
+            const originalRole = p.role;
+            p.role = targetName;
+            const idx = room.voleurMiddleCards.indexOf(targetName);
+            if (idx !== -1) {
+              room.voleurMiddleCards[idx] = originalRole;
+            }
+            room.historyLogs.push(`🪶 Le Voleur a choisi d'échanger sa carte.`);
+          } else {
+            room.historyLogs.push(`🪶 Le Voleur a choisi de garder sa carte.`);
+          }
+          room.nightActionsPerformed.push('voleur');
+          advanceLoupGarouNight(room);
+        }
+        else if (actionType === 'cupidon' && p.role === 'cupidon' && room.currentNight === 1) {
           if (targetName && targetName2) {
             room.nightState.lovers = [targetName, targetName2];
             room.players[targetName].coupleId = 'couple_1';
             room.players[targetName2].coupleId = 'couple_1';
             room.historyLogs.push(`💘 Cupidon a lié deux cœurs d'un amour indestructible.`);
           }
+          room.nightActionsPerformed.push('cupidon');
+          advanceLoupGarouNight(room);
         }
         else if (actionType === 'garde' && p.role === 'garde') {
           room.nightState.protectedPlayer = targetName;
+          room.nightActionsPerformed.push('garde');
+          advanceLoupGarouNight(room);
         }
         else if (actionType === 'voyante' && p.role === 'voyante') {
           room.nightState.seerTarget = targetName;
+          room.nightActionsPerformed.push('voyante');
+          advanceLoupGarouNight(room);
         }
         else if (actionType === 'loup' && p.role === 'loup') {
-          p.votedFor = targetName; // save individual wolf vote
+          p.votedFor = targetName;
+          
+          const aliveWolves = Object.values(room.players).filter(pl => pl.role === 'loup' && pl.isAlive);
+          const votes = {};
+          let votesCount = 0;
+          aliveWolves.forEach(w => {
+            if (w.votedFor) {
+              votes[w.votedFor] = (votes[w.votedFor] || 0) + 1;
+              votesCount++;
+            }
+          });
+          
+          if (votesCount >= aliveWolves.length) {
+            let consensusTarget = null;
+            Object.keys(votes).forEach(target => {
+              if (votes[target] >= aliveWolves.length / 2) {
+                consensusTarget = target;
+              }
+            });
+            
+            if (consensusTarget) {
+              room.nightState.wolfTarget = consensusTarget;
+              room.nightActionsPerformed.push('loup');
+              advanceLoupGarouNight(room);
+            }
+          }
         }
         else if (actionType === 'sorciere_heal' && p.role === 'sorciere') {
           room.nightState.witchHealed = true;
@@ -2317,15 +2374,8 @@ function advanceTurnAndCheckRoundEnd(room) {
           room.nightState.witchKilledThisTurn = targetName;
         }
         else if (actionType === 'sorciere_skip' && p.role === 'sorciere') {
-          // Witch does nothing
-        }
-
-        // Trigger condition checks
-        if (room.status === 'night_actions') {
-          checkNightPart1End(room);
-        }
-        else if (room.status === 'night_witch' && actionType.startsWith('sorciere')) {
-          resolveNight(room);
+          room.nightActionsPerformed.push('sorciere');
+          advanceLoupGarouNight(room);
         }
 
         broadcastLoupGarouState(room);

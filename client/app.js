@@ -915,38 +915,39 @@ function init() {
     });
   }
 
-  const wolvesSelect = document.getElementById('loup-garou-wolves-select');
-  if (wolvesSelect) {
-    wolvesSelect.addEventListener('change', () => {
-      if (loupGarouState.isHost) {
-        const loupCount = parseInt(wolvesSelect.value);
-        fetch('/api/loup-garou/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomId: loupGarouState.roomId, loupCount })
-        });
-      }
+  const btnLgTtsToggle = document.getElementById('btn-loup-garou-tts-toggle');
+  if (btnLgTtsToggle) {
+    const ttsEnabled = localStorage.getItem('loup-garou-tts-enabled') !== 'false';
+    const ttsIcon = document.getElementById('loup-garou-tts-icon');
+    if (ttsIcon) ttsIcon.textContent = ttsEnabled ? '🔊' : '🔇';
+    btnLgTtsToggle.innerHTML = `${ttsEnabled ? '<span id="loup-garou-tts-icon">🔊</span> Vocaux activés' : '<span id="loup-garou-tts-icon">🔇</span> Vocaux coupés'}`;
+    
+    btnLgTtsToggle.addEventListener('click', () => {
+      const current = localStorage.getItem('loup-garou-tts-enabled') !== 'false';
+      const next = !current;
+      localStorage.setItem('loup-garou-tts-enabled', next ? 'true' : 'false');
+      const icon = document.getElementById('loup-garou-tts-icon');
+      if (icon) icon.textContent = next ? '🔊' : '🔇';
+      btnLgTtsToggle.innerHTML = `${next ? '<span id="loup-garou-tts-icon">🔊</span> Vocaux activés' : '<span id="loup-garou-tts-icon">🔇</span> Vocaux coupés'}`;
+      showToast(next ? "Narrateur vocal activé 🔊" : "Narrateur vocal désactivé 🔇");
     });
   }
 
-  document.querySelectorAll('.role-config-card').forEach(card => {
-    card.addEventListener('click', () => {
-      if (loupGarouState.isHost) {
-        card.classList.toggle('active');
-        const role = card.getAttribute('data-role');
-        const active = card.classList.contains('active');
-        
-        const updates = {};
-        updates[role] = active;
-        
-        fetch('/api/loup-garou/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomId: loupGarouState.roomId, rolesConfig: updates })
-        });
-      }
+  const btnLgVoleurSkip = document.getElementById('btn-loup-garou-voleur-skip');
+  if (btnLgVoleurSkip) {
+    btnLgVoleurSkip.addEventListener('click', () => {
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'voleur',
+          targetName: ''
+        })
+      });
     });
-  });
+  }
 
   const btnLgStart = document.getElementById('btn-loup-garou-start');
   if (btnLgStart) {
@@ -2607,6 +2608,103 @@ function updateGeographieUI(state) {
 
 // --- Loup-Garou Client Logic ---
 
+const loupGarouAllRoles = {
+  loup: { emoji: '🐺', name: 'Loup-Garou', isUnique: false },
+  simple_villageois: { emoji: '👤', name: 'Simple Villageois', isUnique: false },
+  voyante: { emoji: '👁️', name: 'Voyante', isUnique: true },
+  sorciere: { emoji: '🧪', name: 'Sorcière', isUnique: true },
+  chasseur: { emoji: '🎯', name: 'Chasseur', isUnique: true },
+  cupidon: { emoji: '💘', name: 'Cupidon', isUnique: true },
+  garde: { emoji: '🛡️', name: 'Garde', isUnique: true },
+  voleur: { emoji: '🪶', name: 'Voleur', isUnique: true },
+  petite_fille: { emoji: '👧', name: 'Petite Fille', isUnique: true },
+  bouc_emissaire: { emoji: '🐐', name: 'Bouc Émissaire', isUnique: true },
+  idiot_du_village: { emoji: '🤪', name: 'Idiot du Village', isUnique: true },
+  montreur_d_ours: { emoji: '🐻', name: "Montreur d'Ours", isUnique: true },
+  ancien: { emoji: '👴', name: 'Ancien', isUnique: true }
+};
+
+window.prevLoupGarouStatus = null;
+
+window.speakLoupGarouVoice = function(text) {
+  const ttsEnabled = localStorage.getItem('loup-garou-tts-enabled') !== 'false';
+  if (!ttsEnabled) return;
+  
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.volume = 1.0;
+    utterance.rate = 0.9;
+    
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) {
+      utterance.voice = frVoice;
+    }
+    
+    window.speechSynthesis.speak(utterance);
+  }
+};
+
+window.addLoupGarouCard = function(role) {
+  if (!loupGarouState.isHost) return;
+  if (!loupGarouState.rolesConfig) loupGarouState.rolesConfig = {};
+  if (!loupGarouState.rolesConfig.activeCards) {
+    loupGarouState.rolesConfig.activeCards = [];
+  }
+  
+  const roleMeta = loupGarouAllRoles[role];
+  if (roleMeta && roleMeta.isUnique) {
+    if (loupGarouState.rolesConfig.activeCards.includes(role)) {
+      showToast("Ce rôle unique est déjà sélectionné !", "error");
+      return;
+    }
+  }
+  
+  loupGarouState.rolesConfig.activeCards.push(role);
+  
+  fetch('/api/loup-garou/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomId: loupGarouState.roomId,
+      rolesConfig: loupGarouState.rolesConfig
+    })
+  });
+};
+
+window.removeLoupGarouCard = function(index) {
+  if (!loupGarouState.isHost) return;
+  if (!loupGarouState.rolesConfig || !loupGarouState.rolesConfig.activeCards) return;
+  
+  loupGarouState.rolesConfig.activeCards.splice(index, 1);
+  
+  fetch('/api/loup-garou/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomId: loupGarouState.roomId,
+      rolesConfig: loupGarouState.rolesConfig
+    })
+  });
+};
+
+window.submitVoleurSwap = function(role) {
+  fetch('/api/loup-garou/night-action', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomId: loupGarouState.roomId,
+      nickname: loupGarouState.nickname,
+      actionType: 'voleur',
+      targetName: role
+    })
+  });
+};
+
+
 function showLgMenuError(msg) {
   const err = document.getElementById('loup-garou-menu-error');
   if (err) {
@@ -2783,44 +2881,165 @@ function updateLoupGarouUI(state) {
     });
   }
 
+  // TTS Voice Narration on status transitions
+  if (state.status !== window.prevLoupGarouStatus) {
+    const prevStatus = window.prevLoupGarouStatus;
+    window.prevLoupGarouStatus = state.status;
+    
+    if (prevStatus && state.status !== 'lobby') {
+      let speechText = "";
+      switch (state.status) {
+        case 'night_voleur':
+          speechText = "Le village s'endort... Tout le monde ferme les yeux... Le Voleur se réveille. Voleur, réveillez-vous et choisissez un nouveau rôle.";
+          break;
+        case 'night_cupidon':
+          speechText = (prevStatus === 'lobby' || prevStatus === 'night_voleur')
+            ? "Tout le monde s'endort et ferme les yeux... Le Cupidon se réveille. Cupidon, réveillez-vous et unissez deux destins amoureux."
+            : "Le Cupidon se réveille. Cupidon, réveillez-vous et unissez deux destins amoureux.";
+          break;
+        case 'night_garde':
+          speechText = (prevStatus === 'lobby' || prevStatus === 'night_cupidon' || prevStatus === 'night_voleur')
+            ? "Tout le monde ferme les yeux... Le Garde se réveille. Garde, réveillez-vous et protégez un villageois."
+            : "Le Garde se réveille. Garde, réveillez-vous et protégez un villageois.";
+          break;
+        case 'night_voyante':
+          speechText = "La Voyante se réveille. Voyante, réveillez-vous et scrutez l'identité secrète d'un joueur.";
+          break;
+        case 'night_loup':
+          speechText = "Les Loups-Garous se réveillent. Loups-Garous, réveillez-vous, concertez-vous et désignez votre victime de la nuit.";
+          break;
+        case 'night_sorciere':
+          speechText = "La Sorcière se réveille. Sorcière, réveillez-vous. Allez-vous utiliser votre potion de vie ou votre potion de mort ?";
+          break;
+        case 'day_announcements':
+          speechText = "Le village se réveille... Tout le monde ouvre les yeux... Écoutons les nouvelles du matin.";
+          break;
+        case 'day_vote':
+          speechText = "Les débats sont ouverts. C'est l'heure du conseil municipal. Citoyens, votez pour éliminer un suspect.";
+          break;
+        case 'day_hunter':
+          speechText = "Attention, le Chasseur charge son fusil ! Chasseur, tirez votre coup de vengeance avant de mourir.";
+          break;
+        case 'game_over':
+          speechText = "Fin de la partie ! Le rideau tombe et les secrets sont révélés.";
+          break;
+      }
+      
+      if (speechText) {
+        window.speakLoupGarouVoice(speechText);
+      }
+    }
+  }
+
   // Lobby Phase
   if (state.status === 'lobby') {
     showPanel(lobbyPanel);
     
-    // Config toggles
+    const activeCards = (state.rolesConfig && state.rolesConfig.activeCards) || [];
+    const activeCardsCountSpan = document.getElementById('lg-active-cards-count');
+    const activeCardsList = document.getElementById('lg-active-cards-list');
+    
+    if (activeCardsCountSpan) activeCardsCountSpan.textContent = activeCards.length;
+    
+    // Dynamic active cards render
+    if (activeCardsList) {
+      activeCardsList.innerHTML = '';
+      if (activeCards.length === 0) {
+        activeCardsList.innerHTML = '<span style="color: rgba(255,255,255,0.3); font-size: 11px; margin: auto;">Aucun rôle sélectionné. Ajoutez des rôles ci-dessous !</span>';
+      } else {
+        activeCards.forEach((role, index) => {
+          const meta = loupGarouAllRoles[role] || { emoji: '👤', name: role };
+          const chip = document.createElement('div');
+          chip.style.display = 'inline-flex';
+          chip.style.alignItems = 'center';
+          chip.style.gap = '6px';
+          chip.style.padding = '6px 12px';
+          chip.style.background = 'rgba(255, 255, 255, 0.08)';
+          chip.style.border = '1px solid rgba(255,255,255,0.15)';
+          chip.style.borderRadius = '20px';
+          chip.style.fontSize = '11px';
+          chip.style.color = '#fff';
+          
+          let removeBtn = '';
+          if (isHost) {
+            removeBtn = `<button onclick="removeLoupGarouCard(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 0 0 4px; display: flex; align-items: center;">&times;</button>`;
+          }
+          
+          chip.innerHTML = `<span>${meta.emoji} ${meta.name}</span>${removeBtn}`;
+          activeCardsList.appendChild(chip);
+        });
+      }
+    }
+    
+    // Validation
+    const playersCount = playerNames.length;
+    const isCountValid = activeCards.length === playersCount && playersCount > 0;
+    
+    const validationBadge = document.getElementById('lg-validation-badge');
+    if (validationBadge) {
+      if (isCountValid) {
+        validationBadge.textContent = `Compte valide (${activeCards.length} cartes / ${playersCount} joueurs) ✅`;
+        validationBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+        validationBadge.style.borderColor = '#10b981';
+        validationBadge.style.color = '#34d399';
+      } else {
+        validationBadge.textContent = `Compte invalide (${activeCards.length} cartes pour ${playersCount} joueurs) ❌`;
+        validationBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+        validationBadge.style.borderColor = '#ef4444';
+        validationBadge.style.color = '#f87171';
+      }
+    }
+    
+    // Grid highlighting and lock uniques
     document.querySelectorAll('.role-config-card').forEach(card => {
       const role = card.getAttribute('data-role');
-      const isActive = state.rolesConfig[role];
-      if (isActive) {
-        card.classList.add('active');
-        card.style.background = 'rgba(239, 68, 68, 0.15)';
+      const roleMeta = loupGarouAllRoles[role];
+      const isInDeck = activeCards.includes(role);
+      
+      if (roleMeta && roleMeta.isUnique && isInDeck) {
+        card.style.opacity = '0.5';
+        const addBtn = card.querySelector('.btn-lg-add-role');
+        if (addBtn) addBtn.style.display = 'none';
       } else {
-        card.classList.remove('active');
-        card.style.background = 'rgba(255, 255, 255, 0.02)';
+        card.style.opacity = '1';
+        const addBtn = card.querySelector('.btn-lg-add-role');
+        if (addBtn) addBtn.style.display = 'flex';
       }
     });
-    
-    const wolvesSelect = document.getElementById('loup-garou-wolves-select');
-    if (wolvesSelect) {
-      wolvesSelect.value = state.rolesConfig.loupCount || 1;
-      wolvesSelect.disabled = !isHost;
-    }
     
     const btnLgStart = document.getElementById('btn-loup-garou-start');
     const startHelper = document.getElementById('loup-garou-start-helper');
     if (isHost) {
-      if (btnLgStart) btnLgStart.style.display = 'block';
+      if (btnLgStart) {
+        btnLgStart.style.display = 'block';
+        btnLgStart.disabled = !isCountValid;
+        btnLgStart.style.opacity = isCountValid ? '1' : '0.4';
+        btnLgStart.style.cursor = isCountValid ? 'pointer' : 'not-allowed';
+        if (isCountValid) {
+          btnLgStart.style.background = '#10b981';
+          btnLgStart.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)';
+        } else {
+          btnLgStart.style.background = '#ef4444';
+          btnLgStart.style.boxShadow = 'none';
+        }
+      }
       if (startHelper) startHelper.style.display = 'none';
     } else {
       if (btnLgStart) btnLgStart.style.display = 'none';
       if (startHelper) {
         startHelper.style.display = 'block';
-        startHelper.textContent = "Attente que l'hôte lance le rituel...";
+        if (isCountValid) {
+          startHelper.textContent = "Le paquet est configuré ! Attente que l'hôte lance la partie...";
+          startHelper.style.color = '#34d399';
+        } else {
+          startHelper.textContent = `Configuration en cours par l'hôte (${activeCards.length}/${playersCount} joueurs)...`;
+          startHelper.style.color = 'var(--text-muted)';
+        }
       }
     }
   }
-  // Night Action / Night Witch Phase
-  else if (state.status === 'night_actions' || state.status === 'night_witch') {
+  // Night Sequential Phase
+  else if (state.status.startsWith('night_')) {
     showPanel(playPanel);
     
     // Private Secret Card Drawer
@@ -2836,7 +3055,13 @@ function updateLoupGarouUI(state) {
       'chasseur': { emoji: '🎯', name: 'Chasseur', desc: 'Vous êtes le Chasseur. Si vous perdez la vie, votre coup de fusil de vengeance éliminera instantanément un autre joueur.' },
       'cupidon': { emoji: '💘', name: 'Cupidon', desc: 'Vous êtes Cupidon. La première nuit de la partie, vous devez unir deux destins amoureux inséparables.' },
       'garde': { emoji: '🛡️', name: 'Garde', desc: 'Vous êtes le Garde. Chaque nuit, placez votre bouclier protecteur sur un villageois pour lui éviter d\'être dévoré.' },
-      'simple_villageois': { emoji: '👤', name: 'Simple Villageois', desc: 'Vous êtes un Simple Villageois. Votre seule arme est votre intuition diurne pour démasquer les loups.' }
+      'voleur': { emoji: '🪶', name: 'Voleur', desc: 'Vous êtes le Voleur. Choisissez secrètement une des deux cartes du milieu pour échanger votre rôle.' },
+      'simple_villageois': { emoji: '👤', name: 'Simple Villageois', desc: 'Vous êtes un Simple Villageois. Votre seule arme est votre intuition diurne pour démasquer les loups.' },
+      'petite_fille': { emoji: '👧', name: 'Petite Fille', desc: 'Vous êtes la Petite Fille. Vous pouvez espionner les loups durant la nuit, mais attention à ne pas vous faire surprendre !' },
+      'bouc_emissaire': { emoji: '🐐', name: 'Bouc Émissaire', desc: 'Vous êtes le Bouc Émissaire. En cas d\'égalité des votes du village, vous serez automatiquement éliminé.' },
+      'idiot_du_village': { emoji: '🤪', name: 'Idiot du Village', desc: 'Vous êtes l\'Idiot du Village. Si le village vote contre vous, votre rôle est révélé et vous survivez sans droit de vote.' },
+      'montreur_d_ours': { emoji: '🐻', name: "Montreur d'Ours", desc: 'Vous êtes le Montreur d\'Ours. Si un loup est à côté de vous, votre ours grognera au lever du jour.' },
+      'ancien': { emoji: '👴', name: 'Ancien', desc: 'Vous êtes l\'Ancien. Vous pouvez survivre à une première attaque de loups-garous.' }
     };
     
     const details = roleDetails[state.myRole] || { emoji: '👤', name: 'Inconnu', desc: 'Rôle mystère...' };
@@ -2847,13 +3072,21 @@ function updateLoupGarouUI(state) {
     
     const turnStatusText = document.getElementById('loup-garou-turn-status-text');
     if (turnStatusText) {
-      turnStatusText.textContent = state.status === 'night_actions' 
-        ? "La Nuit est tombée. Les rôles mystiques s'éveillent... 🌙" 
-        : "La meute s'est rendormie. La Sorcière s'éveille et concocte ses philtres... 🧪";
+      let phaseFriendlyName = "La Nuit est paisible... 😴";
+      switch (state.status) {
+        case 'night_voleur': phaseFriendlyName = "Le Voleur s'éveille secrètement... 🪶"; break;
+        case 'night_cupidon': phaseFriendlyName = "Cupidon lie deux destins éternels... 💘"; break;
+        case 'night_garde': phaseFriendlyName = "Le Garde veille sur les habitants... 🛡️"; break;
+        case 'night_voyante': phaseFriendlyName = "La Voyante consulte les astres... 👁️"; break;
+        case 'night_loup': phaseFriendlyName = "La meute de Loups-Garous choisit une proie... 🐺🩸"; break;
+        case 'night_sorciere': phaseFriendlyName = "La Sorcière s'éveille et prépare ses potions... 🧪"; break;
+      }
+      turnStatusText.textContent = phaseFriendlyName;
     }
     
     // Default sleep windows
     const sleepWindow = document.getElementById('loup-garou-sleep-window');
+    const voleurWindow = document.getElementById('loup-garou-voleur-window');
     const cupidonWindow = document.getElementById('loup-garou-cupidon-window');
     const gardeWindow = document.getElementById('loup-garou-garde-window');
     const voyanteWindow = document.getElementById('loup-garou-voyante-window');
@@ -2861,7 +3094,7 @@ function updateLoupGarouUI(state) {
     const sorciereWindow = document.getElementById('loup-garou-sorciere-window');
     const hunterWindow = document.getElementById('loup-garou-hunter-window');
     
-    [sleepWindow, cupidonWindow, gardeWindow, voyanteWindow, wolvesWindow, sorciereWindow, hunterWindow].forEach(w => {
+    [sleepWindow, voleurWindow, cupidonWindow, gardeWindow, voyanteWindow, wolvesWindow, sorciereWindow, hunterWindow].forEach(w => {
       if (w) w.classList.add('view-hidden');
     });
     
@@ -2870,8 +3103,44 @@ function updateLoupGarouUI(state) {
     if (state.myAlive) {
       const alivePlayers = Object.keys(state.players).filter(name => state.players[name].isAlive);
       
+      // Voleur wakes
+      if (state.myRole === 'voleur' && state.status === 'night_voleur') {
+        waken = true;
+        if (voleurWindow) {
+          voleurWindow.classList.remove('view-hidden');
+          const cardsBox = document.getElementById('loup-garou-voleur-cards-box');
+          if (cardsBox) {
+            cardsBox.innerHTML = '';
+            const middleCards = (state.privateActionData && state.privateActionData.voleurMiddleCards) || [];
+            if (middleCards.length === 0) {
+              cardsBox.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-size: 12px;">Aucun choix possible ou déjà effectué.</span>';
+            } else {
+              middleCards.forEach(role => {
+                const meta = loupGarouAllRoles[role] || { emoji: '❓', name: role };
+                const cardBtn = document.createElement('button');
+                cardBtn.className = 'btn btn-accent';
+                cardBtn.style.padding = '12px';
+                cardBtn.style.borderRadius = '10px';
+                cardBtn.style.display = 'flex';
+                cardBtn.style.flexDirection = 'column';
+                cardBtn.style.alignItems = 'center';
+                cardBtn.style.gap = '6px';
+                cardBtn.style.minWidth = '110px';
+                cardBtn.innerHTML = `
+                  <div style="font-size: 1.8rem;">${meta.emoji}</div>
+                  <div style="font-size: 11px; font-weight: bold; color: #fff;">${meta.name}</div>
+                `;
+                cardBtn.addEventListener('click', () => {
+                  window.submitVoleurSwap(role);
+                });
+                cardsBox.appendChild(cardBtn);
+              });
+            }
+          }
+        }
+      }
       // Cupidon wakes
-      if (state.myRole === 'cupidon' && state.status === 'night_actions' && state.nightState.lovers.length === 0) {
+      else if (state.myRole === 'cupidon' && state.status === 'night_cupidon') {
         waken = true;
         if (cupidonWindow) {
           cupidonWindow.classList.remove('view-hidden');
@@ -2893,7 +3162,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Garde wakes
-      else if (state.myRole === 'garde' && state.status === 'night_actions') {
+      else if (state.myRole === 'garde' && state.status === 'night_garde') {
         waken = true;
         if (gardeWindow) {
           gardeWindow.classList.remove('view-hidden');
@@ -2909,7 +3178,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Voyante wakes
-      else if (state.myRole === 'voyante' && state.status === 'night_actions') {
+      else if (state.myRole === 'voyante' && state.status === 'night_voyante') {
         waken = true;
         if (voyanteWindow) {
           voyanteWindow.classList.remove('view-hidden');
@@ -2940,7 +3209,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Wolves wake
-      else if (state.myRole === 'loup' && state.status === 'night_actions') {
+      else if (state.myRole === 'loup' && state.status === 'night_loup') {
         waken = true;
         if (wolvesWindow) {
           wolvesWindow.classList.remove('view-hidden');
@@ -2965,7 +3234,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Witch wakes
-      else if (state.myRole === 'sorciere' && state.status === 'night_witch') {
+      else if (state.myRole === 'sorciere' && state.status === 'night_sorciere') {
         waken = true;
         if (sorciereWindow) {
           sorciereWindow.classList.remove('view-hidden');
@@ -3007,6 +3276,10 @@ function updateLoupGarouUI(state) {
     
     if (!waken && sleepWindow) {
       sleepWindow.classList.remove('view-hidden');
+      const h3 = sleepWindow.querySelector('h3');
+      const p = sleepWindow.querySelector('p');
+      if (h3) h3.textContent = "La Nuit est Sombre...";
+      if (p) p.textContent = "Gardez les yeux fermés. Les forces de l'ombre et du bien accomplissent leur destin.";
     }
   }
   // Hunter Vengeance Phase
