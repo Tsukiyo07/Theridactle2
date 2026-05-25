@@ -1014,6 +1014,7 @@
       <div class="profile-modal-tabs">
         <button class="profile-tab active" id="ptab-account" data-tab="account">👤 Mon Profil</button>
         <button class="profile-tab" id="ptab-stats" data-tab="stats">📊 Mes Stats</button>
+        <button class="profile-tab" id="ptab-history" data-tab="history">📜 Mon Historique</button>
       </div>
 
       <!-- Account Tab -->
@@ -1047,7 +1048,7 @@
           <button class="btn btn-secondary" id="btn-register-profile" style="flex: 1;">Créer Compte</button>
         </div>
         <div class="profile-actions" style="margin-top: 10px;">
-          <button class="btn btn-accent btn-block" id="btn-save-profile" style="display:none;">💾 Sauvegarder l'Avatar</button>
+          <button class="btn btn-accent btn-block" id="btn-save-profile" style="display:none;">💾 Sauvegarder le Profil</button>
           <button class="btn btn-quit btn-block" id="btn-logout-profile" style="display:none; margin-top: 10px;">Déconnexion</button>
           <div id="profile-save-msg" style="display:none; margin-top:0.75rem; text-align:center; font-size:13px; color:#34d399;"></div>
           <div id="profile-error-msg" style="display:none; margin-top:0.75rem; text-align:center; font-size:13px; color:#ef4444;"></div>
@@ -1065,6 +1066,20 @@
         </div>
         <div id="profile-stats-content" class="profile-stats-grid">
           <div class="stats-loading">Entrez un pseudo pour voir vos stats...</div>
+        </div>
+      </div>
+
+      <!-- History Tab -->
+      <div id="profile-tab-history" class="profile-tab-content" style="display:none; flex-direction: column; width: 100%;">
+        <div class="profile-stats-header">
+          <div class="profile-stats-avatar" id="profile-history-avatar">🦖</div>
+          <div>
+            <div class="profile-stats-name" id="profile-history-name">—</div>
+            <div class="profile-stats-sub">Historique des parties</div>
+          </div>
+        </div>
+        <div id="profile-history-content" class="profile-history-list" style="margin-top: 1rem; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; width: 100%; padding-right: 5px;">
+          <div class="stats-loading">Entrez un pseudo pour voir votre historique...</div>
         </div>
       </div>
     </div>

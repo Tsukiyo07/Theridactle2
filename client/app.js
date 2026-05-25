@@ -216,6 +216,20 @@ const views = {
   lgGame: document.getElementById('loup-garou-game-view')
 };
 
+// --- Room Top Nav Display Helper ---
+function updateRoomDisplay(visible, code = '') {
+  const topNav = document.querySelector('.top-nav');
+  if (visible) {
+    dom.roomDisplay.style.display = 'inline-block';
+    dom.roomCodeSpan.textContent = code;
+    if (topNav) topNav.classList.add('in-room');
+  } else {
+    dom.roomDisplay.style.display = 'none';
+    dom.roomCodeSpan.textContent = '';
+    if (topNav) topNav.classList.remove('in-room');
+  }
+}
+
 // --- View Router ---
 function showView(viewName) {
   Object.keys(views).forEach(key => {
@@ -232,7 +246,7 @@ function showView(viewName) {
   const menuViews = ['portal', 'theriMenu', 'impMenu', 'geoMenu', 'lgMenu', 'statsMenu'];
   if (menuViews.includes(viewName)) {
     dom.navHome.classList.add('active');
-    dom.roomDisplay.style.display = 'none';
+    updateRoomDisplay(false);
     dom.btnLeaveNav.style.display = 'none';
   } else {
     dom.navHome.classList.remove('active');
@@ -834,7 +848,8 @@ function init() {
           
           if (savedNickname && gameType !== 'theridactle') {
             console.log(`Auto-joining room ${code} as ${savedNickname} for game ${gameType}`);
-            fetch(`/api/${gameType}/room/join`, {
+            const apiGameType = gameType === 'loup_garou' ? 'loup-garou' : gameType;
+            fetch(`/api/${apiGameType}/room/join`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ roomId: code, nickname: savedNickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
@@ -1417,12 +1432,40 @@ function initProfileModal() {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        tempProfileAvatar = ev.target.result;
-        tempProfileAvatarIsPhoto = true;
-        const preview = document.getElementById('profile-avatar-preview');
-        if (preview) preview.innerHTML = `<img src="${tempProfileAvatar}" alt="avatar">`;
-        // Deselect all emoji buttons
-        document.querySelectorAll('.profile-emoji-btn').forEach(b => b.classList.remove('selected'));
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 128;
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Highly compressed lightweight JPEG to avoid high memory/network load
+          tempProfileAvatar = canvas.toDataURL('image/jpeg', 0.7);
+          tempProfileAvatarIsPhoto = true;
+          
+          const preview = document.getElementById('profile-avatar-preview');
+          if (preview) preview.innerHTML = `<img src="${tempProfileAvatar}" alt="avatar">`;
+          // Deselect all emoji buttons
+          document.querySelectorAll('.profile-emoji-btn').forEach(b => b.classList.remove('selected'));
+        };
+        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
@@ -1468,8 +1511,7 @@ function initProfileModal() {
       }).then(r => r.json()).then(data => {
         if(data.success) {
           showSuccess('✅ Compte créé !');
-          currentProfile.password = password;
-          saveProfile(data.user);
+          saveProfile({ ...data.user, password });
           openProfileModal(); // Refresh UI
         } else showError(data.error);
       });
@@ -1489,8 +1531,7 @@ function initProfileModal() {
       }).then(r => r.json()).then(data => {
         if(data.success) {
           showSuccess('✅ Connecté !');
-          currentProfile.password = password;
-          saveProfile(data.user);
+          saveProfile({ ...data.user, password });
           openProfileModal(); // Refresh UI
         } else showError(data.error);
       });
@@ -1525,7 +1566,7 @@ function initProfileModal() {
         })
       }).then(r => r.json()).then(data => {
         if(data.success) {
-          showSuccess('✅ Avatar sauvegardé !');
+          showSuccess('✅ Profil sauvegardé !');
           currentProfile.avatar = newAvatar;
           currentProfile.avatarIsPhoto = newAvatarIsPhoto;
           saveProfile(currentProfile);
@@ -1560,6 +1601,8 @@ function initProfileModal() {
 
       if (tabName === 'stats' && currentProfile.nickname) {
         loadProfileStats(currentProfile.nickname);
+      } else if (tabName === 'history' && currentProfile.nickname) {
+        loadProfileHistory(currentProfile.nickname);
       }
     });
   });
@@ -1569,6 +1612,15 @@ function openProfileModal() {
   const modal = document.getElementById('profile-modal');
   if (!modal) return;
   modal.style.display = 'flex';
+
+  // Reset to default account tab
+  document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+  const defaultTab = document.getElementById('ptab-account');
+  if (defaultTab) defaultTab.classList.add('active');
+
+  document.querySelectorAll('.profile-tab-content').forEach(c => c.style.display = 'none');
+  const defaultContent = document.getElementById('profile-tab-account');
+  if (defaultContent) defaultContent.style.display = 'flex';
 
   // Pre-fill form with current profile
   const nicknameInput = document.getElementById('profile-nickname-input');
@@ -1582,18 +1634,19 @@ function openProfileModal() {
   const btnSave = document.getElementById('btn-save-profile');
   const btnLogout = document.getElementById('btn-logout-profile');
 
+  const passwordField = passwordInput ? passwordInput.closest('.profile-field') : null;
+  const loginRegisterArea = btnLogin ? btnLogin.closest('.profile-actions') : null;
+
   if (currentProfile.nickname && currentProfile.password) {
     if (nicknameInput) nicknameInput.disabled = true;
-    if (passwordInput) passwordInput.disabled = true;
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (btnRegister) btnRegister.style.display = 'none';
+    if (passwordField) passwordField.style.display = 'none';
+    if (loginRegisterArea) loginRegisterArea.style.display = 'none';
     if (btnSave) btnSave.style.display = 'block';
     if (btnLogout) btnLogout.style.display = 'block';
   } else {
     if (nicknameInput) nicknameInput.disabled = false;
-    if (passwordInput) passwordInput.disabled = false;
-    if (btnLogin) btnLogin.style.display = 'block';
-    if (btnRegister) btnRegister.style.display = 'block';
+    if (passwordField) passwordField.style.display = 'block';
+    if (loginRegisterArea) loginRegisterArea.style.display = 'flex';
     if (btnSave) btnSave.style.display = 'none';
     if (btnLogout) btnLogout.style.display = 'none';
   }
@@ -1628,6 +1681,16 @@ function openProfileModal() {
       : currentProfile.avatar || '🦖';
   }
   if (statsName) statsName.textContent = currentProfile.nickname || '—';
+
+  // Update history header
+  const historyAvatar = document.getElementById('profile-history-avatar');
+  const historyName = document.getElementById('profile-history-name');
+  if (historyAvatar) {
+    historyAvatar.innerHTML = currentProfile.avatarIsPhoto && currentProfile.avatar
+      ? `<img src="${currentProfile.avatar}" alt="avatar">`
+      : currentProfile.avatar || '🦖';
+  }
+  if (historyName) historyName.textContent = currentProfile.nickname || '—';
 }
 
 function closeProfileModal() {
@@ -1679,6 +1742,91 @@ function loadProfileStats(nickname) {
     });
 }
 
+function loadProfileHistory(nickname) {
+  const contentEl = document.getElementById('profile-history-content');
+  if (!contentEl || !nickname) return;
+  contentEl.innerHTML = '<div class="stats-loading">⏳ Chargement...</div>';
+
+  const historyAvatar = document.getElementById('profile-history-avatar');
+  const historyName = document.getElementById('profile-history-name');
+  if (historyAvatar) {
+    historyAvatar.innerHTML = currentProfile.avatarIsPhoto && currentProfile.avatar
+      ? `<img src="${currentProfile.avatar}" alt="avatar">`
+      : currentProfile.avatar || '🦖';
+  }
+  if (historyName) historyName.textContent = nickname;
+
+  fetch(`/api/stats/user?nickname=${encodeURIComponent(nickname)}`)
+    .then(r => r.json())
+    .then(data => {
+      const history = data.history || [];
+      if (history.length === 0) {
+        contentEl.innerHTML = '<div class="stats-loading">Aucune partie jouée pour le moment.</div>';
+        return;
+      }
+
+      const gameNames = {
+        theridactle: '🦖 Theridactle',
+        imposteur: '🕵️ L\'Imposteur',
+        geographie: '🌍 Géographie',
+        loup_garou: '🐺 Loup-Garou'
+      };
+
+      contentEl.innerHTML = history.map(item => {
+        const gameLabel = gameNames[item.game] || item.game;
+        const dateObj = new Date(item.timestamp);
+        const formattedDate = dateObj.toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const badgeClass = item.isWinner ? 'history-badge-win' : 'history-badge-loss';
+        const badgeText = item.isWinner ? 'Victoire' : 'Défaite';
+
+        let details = [];
+        if (item.role) {
+          const roleMap = {
+            imposteur: 'Imposteur',
+            suspect: 'Innocent',
+            loup: 'Loup-Garou',
+            simple_villageois: 'Simple Villageois',
+            voyante: 'Voyante',
+            sorciere: 'Sorcière',
+            chasseur: 'Chasseur',
+            cupidon: 'Cupidon',
+            petite_fille: 'Petite Fille',
+            voleur: 'Voleur',
+            maitre_du_jeu: 'Maître du Jeu'
+          };
+          details.push(roleMap[item.role] || item.role);
+        }
+        if (item.score !== undefined && item.score !== null) {
+          details.push(`Score : ${item.score}`);
+        }
+        const scoreOrRoleText = details.join(' • ');
+
+        return `
+          <div class="profile-history-card">
+            <div class="history-game-info">
+              <div class="history-game-name">${escapeHtml(gameLabel)}</div>
+              <div class="history-game-date">${formattedDate}</div>
+            </div>
+            <div class="history-game-result">
+              <span class="history-badge ${badgeClass}">${badgeText}</span>
+              <span class="history-role">${escapeHtml(scoreOrRoleText)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      if (contentEl) contentEl.innerHTML = '<div class="stats-loading">Erreur de chargement</div>';
+    });
+}
+
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1717,10 +1865,9 @@ function startPlayingTheridactle(roomId, isSolo) {
   showView('theriGame');
   
   if (!isSolo) {
-    dom.roomDisplay.style.display = 'inline-block';
-    dom.roomCodeSpan.textContent = roomId;
+    updateRoomDisplay(true, roomId);
   } else {
-    dom.roomDisplay.style.display = 'none';
+    updateRoomDisplay(false);
   }
 
   hintsRemaining = 3;
@@ -1801,8 +1948,7 @@ function showImpMenuError(msg) {
 
 function startPlayingImposteur(roomId, nickname) {
   showView('impGame');
-  dom.roomDisplay.style.display = 'inline-block';
-  dom.roomCodeSpan.textContent = roomId;
+  updateRoomDisplay(true, roomId);
   
   imposteurState.roomId = roomId;
   imposteurState.nickname = nickname;
@@ -2302,8 +2448,7 @@ function showGeoMenuError(msg) {
 
 function startPlayingGeographie(roomId, nickname) {
   showView('geoGame');
-  dom.roomDisplay.style.display = 'inline-block';
-  dom.roomCodeSpan.textContent = roomId;
+  updateRoomDisplay(true, roomId);
   
   geographieState.roomId = roomId;
   geographieState.nickname = nickname;
@@ -3158,6 +3303,7 @@ function updateGeographieUI(state) {
 // --- Loup-Garou Client Logic ---
 
 const loupGarouAllRoles = {
+  maitre_du_jeu: { emoji: '👑', name: 'Maître du Jeu', isUnique: true },
   loup: { emoji: '🐺', name: 'Loup-Garou', isUnique: false },
   simple_villageois: { emoji: '👤', name: 'Simple Villageois', isUnique: false },
   voyante: { emoji: '👁️', name: 'Voyante', isUnique: true },
@@ -3290,8 +3436,7 @@ function showLgMenuError(msg) {
 
 function startPlayingLoupGarou(roomId, nickname) {
   showView('lgGame');
-  dom.roomDisplay.style.display = 'inline-block';
-  dom.roomCodeSpan.textContent = roomId;
+  updateRoomDisplay(true, roomId);
   
   loupGarouState.roomId = roomId;
   loupGarouState.nickname = nickname;
@@ -3574,17 +3719,17 @@ function updateLoupGarouUI(state) {
     
     // Validation
     const playersCount = playerNames.length;
-    const isCountValid = activeCards.length === playersCount && playersCount > 0;
+    const isCountValid = activeCards.length === playersCount - 1 && playersCount > 1;
     
     const validationBadge = document.getElementById('lg-validation-badge');
     if (validationBadge) {
       if (isCountValid) {
-        validationBadge.textContent = `Compte valide (${activeCards.length} cartes / ${playersCount} joueurs) ✅`;
+        validationBadge.textContent = `Compte valide (${activeCards.length} cartes / ${playersCount - 1} joueurs réels) ✅`;
         validationBadge.style.background = 'rgba(16, 185, 129, 0.2)';
         validationBadge.style.borderColor = '#10b981';
         validationBadge.style.color = '#34d399';
       } else {
-        validationBadge.textContent = `Compte invalide (${activeCards.length} cartes pour ${playersCount} joueurs) ❌`;
+        validationBadge.textContent = `Compte invalide (${activeCards.length} cartes pour ${playersCount - 1} joueurs réels) ❌`;
         validationBadge.style.background = 'rgba(239, 68, 68, 0.2)';
         validationBadge.style.borderColor = '#ef4444';
         validationBadge.style.color = '#f87171';
@@ -3662,6 +3807,7 @@ function updateLoupGarouUI(state) {
     const coupleBadge = document.getElementById('loup-garou-my-couple-badge');
     
     const roleDetails = {
+      'maitre_du_jeu': { emoji: '👑', name: 'Maître du Jeu', desc: 'Vous êtes le Maître du Jeu (MJ). Vous orchestrez la partie, réveillez les différents rôles et validez les éliminations sur votre téléphone.' },
       'loup': { emoji: '🐺', name: 'Loup-Garou', desc: 'Vous êtes un cruel Loup-Garou. Dévoilez-vous la nuit pour dévorer des villageois avec vos semblables.' },
       'voyante': { emoji: '👁️', name: 'Voyante', desc: "Vous êtes la Voyante. Chaque nuit, observez secrètement l'identité d'un villageois dans votre boule de cristal." },
       'sorciere': { emoji: '🧪', name: 'Sorcière', desc: 'Vous êtes la Sorcière. Vous possédez deux fioles uniques : une de guérison et un poison mortel.' },

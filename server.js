@@ -8,24 +8,30 @@ const crypto = require('crypto');
 const USERS_FILE = path.join(__dirname, 'users.json');
 
 // --- Users & Stats DB ---
+let cachedUsers = null;
 function loadUsers() {
+  if (cachedUsers) return cachedUsers;
   if (fs.existsSync(USERS_FILE)) {
     try {
-      return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+      cachedUsers = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+      return cachedUsers;
     } catch (e) {
       console.error("Erreur de lecture de users.json", e);
-      return {};
+      cachedUsers = {};
+      return cachedUsers;
     }
   }
-  return {};
+  cachedUsers = {};
+  return cachedUsers;
 }
 
 function saveUsers(users) {
-  try {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-  } catch (e) {
-    console.error("Erreur d'écriture dans users.json", e);
-  }
+  cachedUsers = users;
+  fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8', (err) => {
+    if (err) {
+      console.error("Erreur d'écriture dans users.json", err);
+    }
+  });
 }
 
 function hashPassword(password) {
@@ -485,6 +491,7 @@ function getSanitizedPlayers(room) {
     sanitized[name] = {
       nickname: p.nickname,
       avatar: p.avatar || '🦖',
+      avatarIsPhoto: p.avatarIsPhoto || false,
       votedFor: p.votedFor,
       hasVoted: p.votedFor !== null,
       isEliminated: p.isEliminated,
@@ -514,6 +521,7 @@ function getFullImposteurState(room) {
   };
 }
 
+const staticCache = {};
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   
@@ -1473,6 +1481,7 @@ function advanceTurnAndCheckRoundEnd(room) {
       sanitized[name] = {
         nickname: p.nickname,
         avatar: p.avatar || '🦖',
+        avatarIsPhoto: p.avatarIsPhoto || false,
         score: p.score,
         hasAnswered: p.currentAnswer !== null,
         currentAnswer: (room.status === 'correction' || room.status === 'game_over') ? p.currentAnswer : null,
@@ -1911,6 +1920,7 @@ function advanceTurnAndCheckRoundEnd(room) {
       sanitized[name] = {
         nickname: p.nickname,
         avatar: p.avatar || '🦖',
+        avatarIsPhoto: p.avatarIsPhoto || false,
         isAlive: p.isAlive,
         isConnected: p.isConnected,
         role: roleRevealed ? p.role : 'mystere',
@@ -2177,17 +2187,19 @@ function advanceTurnAndCheckRoundEnd(room) {
   }
 
   function checkLoupGarouWin(room) {
-    const alivePlayers = Object.values(room.players).filter(p => p.isAlive);
+    const alivePlayers = Object.values(room.players).filter(p => p.isAlive && p.role !== 'maitre_du_jeu');
     const aliveWolves = alivePlayers.filter(p => p.role === 'loup');
     const aliveVillagers = alivePlayers.filter(p => p.role !== 'loup');
 
     // Helper to log stats
     function logLoupGarouGameStats() {
-      const playersData = Object.values(room.players).map(p => {
-        let isWinner = false;
-        if (room.winner === 'villageois' && p.role !== 'loup') isWinner = true;
-        else if (room.winner === 'loups' && p.role === 'loup') isWinner = true;
-        else if (room.winner === 'couple' && room.nightState.lovers.includes(p.nickname)) isWinner = true;
+      const playersData = Object.values(room.players)
+        .filter(p => p.role !== 'maitre_du_jeu')
+        .map(p => {
+          let isWinner = false;
+          if (room.winner === 'villageois' && p.role !== 'loup') isWinner = true;
+          else if (room.winner === 'loups' && p.role === 'loup') isWinner = true;
+          else if (room.winner === 'couple' && room.nightState.lovers.includes(p.nickname)) isWinner = true;
         
         return {
           nickname: p.nickname,
@@ -2379,12 +2391,14 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
 
         const playersList = Object.keys(room.players);
+        const hostNickname = playersList[0];
+        const realPlayers = playersList.filter(name => name !== hostNickname);
         const config = room.rolesConfig || {};
         let activeCards = config.activeCards || ['loup', 'simple_villageois'];
 
-        if (activeCards.length !== playersList.length) {
+        if (activeCards.length !== realPlayers.length) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(JSON.stringify({ error: `Le nombre de cartes sélectionnées (${activeCards.length}) doit être exactement égal au nombre de joueurs (${playersList.length}) !` }));
+          return res.end(JSON.stringify({ error: `Le nombre de cartes sélectionnées (${activeCards.length}) doit être exactement égal au nombre de joueurs réels (${realPlayers.length}) !` }));
         }
 
         let rolesPool = [...activeCards];
@@ -2396,7 +2410,13 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
 
         // Assign roles
-        playersList.forEach((name, index) => {
+        room.players[hostNickname].role = 'maitre_du_jeu';
+        room.players[hostNickname].isAlive = true;
+        room.players[hostNickname].votedFor = null;
+        room.players[hostNickname].coupleId = null;
+        room.players[hostNickname].hasShot = true; // GM can't shot
+
+        realPlayers.forEach((name, index) => {
           const p = room.players[name];
           p.role = rolesPool[index];
           p.isAlive = true;
@@ -3034,23 +3054,28 @@ function advanceTurnAndCheckRoundEnd(room) {
   // ==========================================
   const STATS_FILE = path.join(__dirname, 'stats.json');
 
+  let cachedStats = null;
   function loadStats() {
+    if (cachedStats) return cachedStats;
     try {
       if (fs.existsSync(STATS_FILE)) {
-        return JSON.parse(fs.readFileSync(STATS_FILE, 'utf8'));
+        cachedStats = JSON.parse(fs.readFileSync(STATS_FILE, 'utf8'));
+        return cachedStats;
       }
     } catch (err) {
       console.error('Failed to load stats:', err);
     }
-    return { logs: [] };
+    cachedStats = { logs: [] };
+    return cachedStats;
   }
 
   function saveStats(stats) {
-    try {
-      fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), 'utf8');
-    } catch (err) {
-      console.error('Failed to save stats:', err);
-    }
+    cachedStats = stats;
+    fs.writeFile(STATS_FILE, JSON.stringify(stats, null, 2), 'utf8', (err) => {
+      if (err) {
+        console.error('Failed to save stats:', err);
+      }
+    });
   }
 
   function recordGameStats(gameType, playersData) {
@@ -3156,7 +3181,26 @@ function advanceTurnAndCheckRoundEnd(room) {
     });
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ nickname, stats: userStats }));
+    
+    // Extract history logs
+    const historyLogs = (stats.logs || []).filter(log => {
+      return log.players && log.players.some(p => p.nickname === nickname);
+    });
+    
+    historyLogs.sort((a, b) => b.timestamp - a.timestamp);
+    
+    const latestHistory = historyLogs.slice(0, 15).map(log => {
+      const myData = log.players.find(p => p.nickname === nickname);
+      return {
+        game: log.game,
+        timestamp: log.timestamp,
+        isWinner: myData ? myData.isWinner : false,
+        score: myData ? myData.score : 0,
+        role: myData ? myData.role : ''
+      };
+    });
+
+    res.end(JSON.stringify({ nickname, stats: userStats, history: latestHistory }));
     return;
   }
 
@@ -3289,7 +3333,7 @@ function advanceTurnAndCheckRoundEnd(room) {
   }
 
   // ==========================================
-  // STATIC FILES SERVING
+  // STATIC FILES SERVING WITH IN-MEMORY & BROWSER CACHE
   // ==========================================
   let filePath = path.join(__dirname, 'client', req.url === '/' ? 'index.html' : req.url);
   const extname = String(path.extname(filePath)).toLowerCase();
@@ -3297,6 +3341,14 @@ function advanceTurnAndCheckRoundEnd(room) {
     '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
     '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpg', '.svg': 'image/svg+xml'
   };
+
+  if (staticCache[filePath]) {
+    res.writeHead(200, { 
+      'Content-Type': mimeTypes[extname] || 'application/octet-stream',
+      'Cache-Control': 'public, max-age=3600'
+    });
+    return res.end(staticCache[filePath]);
+  }
 
   fs.readFile(filePath, (error, content) => {
     if (error) {
@@ -3308,7 +3360,11 @@ function advanceTurnAndCheckRoundEnd(room) {
         res.end('Server Error: ' + error.code);
       }
     } else {
-      res.writeHead(200, { 'Content-Type': mimeTypes[extname] || 'application/octet-stream' });
+      staticCache[filePath] = content;
+      res.writeHead(200, { 
+        'Content-Type': mimeTypes[extname] || 'application/octet-stream',
+        'Cache-Control': 'public, max-age=3600'
+      });
       res.end(content, 'utf-8');
     }
   });

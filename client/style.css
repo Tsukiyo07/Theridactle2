@@ -1864,6 +1864,10 @@ h1, h2, h3, h4, .logo {
     position: sticky;
     top: 0;
     z-index: 500;
+    gap: 6px !important;
+  }
+  .top-nav.in-room .logo {
+    display: none !important;
   }
   .nav-left { gap: 0.4rem !important; }
   .logo {
@@ -3124,4 +3128,73 @@ h1, h2, h3, h4, .logo {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+/* ==========================================
+   PROFILE HISTORY TAB
+   ========================================== */
+.profile-history-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.profile-history-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.history-game-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-game-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+}
+
+.history-game-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.history-game-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.history-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.history-badge-win {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.history-badge-loss {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.history-role {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
 }
