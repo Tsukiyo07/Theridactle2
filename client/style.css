@@ -2795,7 +2795,7 @@ h1, h2, h3, h4, .logo {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   z-index: 2000;
-  display: flex !important;
+  display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.2s ease;
