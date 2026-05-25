@@ -690,6 +690,14 @@ h1, h2, h3, h4, .logo {
   margin-bottom: 1.75rem;
 }
 
+.wiki-text img, .wiki-text figure, .wiki-text picture {
+  display: none !important;
+}
+
+.is-won .wiki-text img, .is-won .wiki-text figure, .is-won .wiki-text picture {
+  display: block !important;
+}
+
 /* REDACTED BLOCKS SYSTEM */
 .redacted {
   position: relative;

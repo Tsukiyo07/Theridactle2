@@ -115,6 +115,7 @@ const dom = {
   // Imposteur Game Controls
   impLobbyPanel: document.getElementById('imposteur-lobby-panel'),
   impThemeSelect: document.getElementById('imposteur-theme-select'),
+  impImpostorCountSelect: document.getElementById('imposteur-count-select'),
   btnImpStart: document.getElementById('btn-imposteur-start'),
   impStartHelper: document.getElementById('imposteur-start-helper'),
 
@@ -414,6 +415,19 @@ function init() {
     });
   }
 
+  const impostorCountSelect = document.getElementById('imposteur-count-select');
+  if (impostorCountSelect) {
+    impostorCountSelect.addEventListener('change', () => {
+      if (imposteurState.isHost) {
+        fetch('/api/imposteur/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: imposteurState.roomId, impostorCount: parseInt(impostorCountSelect.value) })
+        });
+      }
+    });
+  }
+
   const btnResetScores = document.getElementById('btn-imposteur-reset-scores');
   if (btnResetScores) {
     btnResetScores.addEventListener('click', () => {
@@ -431,10 +445,21 @@ function init() {
     dom.btnImpStart.addEventListener('click', () => {
       const theme = dom.impThemeSelect.value;
       const rounds = roundsSelect ? parseInt(roundsSelect.value) : 1;
+      const impostorCount = impostorCountSelect ? parseInt(impostorCountSelect.value) : 1;
       fetch('/api/imposteur/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: imposteurState.roomId, theme, descriptionRounds: rounds })
+        body: JSON.stringify({ roomId: imposteurState.roomId, theme, descriptionRounds: rounds, impostorCount: impostorCount })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success && data.error) {
+          showToast(data.error, 'error');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to start game', err);
+        showToast('Impossible de lancer la partie.', 'error');
       });
     });
   }
@@ -1022,30 +1047,39 @@ function updateImposteurUI(state) {
       roundsSelect.value = state.descriptionRounds || 1;
       roundsSelect.disabled = !isHost;
     }
+
+    const impostorCountSelect = document.getElementById('imposteur-count-select');
+    if (impostorCountSelect) {
+      impostorCountSelect.value = state.impostorCount || 1;
+      impostorCountSelect.disabled = !isHost;
+    }
     
     // Sync scores reset button box
     const resetScoresBox = document.getElementById('imposteur-reset-scores-box');
     if (resetScoresBox) {
       resetScoresBox.style.display = isHost ? 'block' : 'none';
     }
+
+    const impCount = state.impostorCount || 1;
+    const minPlayers = (2 * impCount) + 1;
     
     if (isHost) {
       dom.impThemeSelect.disabled = false;
       dom.btnImpStart.style.display = 'block';
       
-      if (playerNames.length >= 3) {
+      if (playerNames.length >= minPlayers) {
         dom.btnImpStart.removeAttribute('disabled');
         dom.impStartHelper.textContent = 'Assez de joueurs ! Lancez la partie quand vous le souhaitez.';
         dom.impStartHelper.style.color = '#34d399';
       } else {
         dom.btnImpStart.setAttribute('disabled', 'true');
-        dom.impStartHelper.textContent = `En attente de joueurs (min 3, actuel: ${playerNames.length}).`;
+        dom.impStartHelper.textContent = `En attente de joueurs (min ${minPlayers} pour ${impCount} imposteur(s), actuel: ${playerNames.length}).`;
         dom.impStartHelper.style.color = 'var(--text-muted)';
       }
     } else {
       dom.impThemeSelect.disabled = true;
       dom.btnImpStart.style.display = 'none';
-      dom.impStartHelper.textContent = "Attente que l'hôte configure les paramètres et lance la partie...";
+      dom.impStartHelper.textContent = `Attente que l'hôte configure les paramètres et lance la partie (min ${minPlayers} joueurs)...`;
       dom.impStartHelper.style.color = 'var(--text-muted)';
     }
   }

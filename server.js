@@ -471,6 +471,7 @@ function getFullImposteurState(room) {
     status: room.status,
     theme: room.theme,
     descriptionRounds: room.descriptionRounds || 1,
+    impostorCount: room.impostorCount || 1,
     currentDescriptionRound: room.currentDescriptionRound || 1,
     descriptionHistory: room.descriptionHistory || [],
     players: getSanitizedPlayers(room),
@@ -872,21 +873,31 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { roomId, theme, descriptionRounds } = JSON.parse(body);
+        const { roomId, theme, descriptionRounds, impostorCount } = JSON.parse(body);
         const room = rooms[roomId];
         if (!room || room.gameType !== 'imposteur') {
           res.writeHead(404); return res.end();
         }
         
         const playersList = Object.keys(room.players);
-        if (playersList.length < 3) {
+        const impCount = parseInt(impostorCount) || 1;
+        const minPlayers = (2 * impCount) + 1;
+        
+        if (playersList.length < minPlayers) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(JSON.stringify({ error: 'Il faut au moins 3 joueurs pour lancer une partie !' }));
+          return res.end(JSON.stringify({ error: `Il faut au moins ${minPlayers} joueurs pour lancer une partie avec ${impCount} imposteur(s) !` }));
         }
         
         const pairs = IMPOSTEUR_WORDS[theme] || IMPOSTEUR_WORDS.general;
         const pair = pairs[Math.floor(Math.random() * pairs.length)];
-        const impostorName = playersList[Math.floor(Math.random() * playersList.length)];
+        
+        // True random selection of N unique impostor names
+        const shuffledForImpostors = [...playersList];
+        for (let i = shuffledForImpostors.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledForImpostors[i], shuffledForImpostors[j]] = [shuffledForImpostors[j], shuffledForImpostors[i]];
+        }
+        const impostorNames = shuffledForImpostors.slice(0, impCount);
         
         // Randomly swap civil and impostor roles
         const shouldSwap = Math.random() < 0.5;
@@ -898,7 +909,7 @@ const server = http.createServer((req, res) => {
           p.isEliminated = false;
           p.votedFor = null;
           p.description = '';
-          if (name === impostorName) {
+          if (impostorNames.includes(name)) {
             p.isImpostor = true;
             p.word = impostorWord;
           } else {
@@ -909,10 +920,11 @@ const server = http.createServer((req, res) => {
         
         room.civilWord = civilWord;
         room.impostorWord = impostorWord;
-        room.impostorNickname = impostorName;
+        room.impostorNickname = impostorNames.join(', ');
         room.status = 'playing';
         room.theme = theme;
         room.winner = null;
+        room.impostorCount = impCount;
         
         if (descriptionRounds) {
           room.descriptionRounds = parseInt(descriptionRounds) || 1;
@@ -931,7 +943,7 @@ const server = http.createServer((req, res) => {
         
         checkAndAdvanceTurnIfOffline(room);
         
-        console.log(`Imposteur Game started in room ${roomId}. Impostor is ${impostorName}. Word A: ${pair.civil}, Word B: ${pair.impostor}`);
+        console.log(`Imposteur Game started in room ${roomId}. Impostors: ${room.impostorNickname}. Word A: ${pair.civil}, Word B: ${pair.impostor}`);
         
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
@@ -1139,7 +1151,11 @@ function advanceTurnAndCheckRoundEnd(room) {
           const eliminatedPlayer = room.players[eliminatedNickname];
           console.log(`Player ${eliminatedNickname} was eliminated in room ${roomId}`);
           
-          if (eliminatedPlayer.isImpostor) {
+          const remainingPlayers = Object.values(room.players).filter(p => !p.isEliminated);
+          const remainingImpostors = remainingPlayers.filter(p => p.isImpostor);
+          const remainingCitizens = remainingPlayers.filter(p => !p.isImpostor);
+
+          if (remainingImpostors.length === 0) {
             room.status = 'game_over';
             room.winner = 'civils';
             
@@ -1153,33 +1169,28 @@ function advanceTurnAndCheckRoundEnd(room) {
                 }
               }
             });
-          } else {
-            const remainingPlayers = Object.values(room.players).filter(p => !p.isEliminated);
-            const remainingImpostors = remainingPlayers.filter(p => p.isImpostor);
+          } else if (remainingCitizens.length <= remainingImpostors.length) {
+            room.status = 'game_over';
+            room.winner = 'impostor';
             
-            if (remainingImpostors.length > 0 && remainingPlayers.length <= 2) {
-              room.status = 'game_over';
-              room.winner = 'impostor';
-              
-              // Score system: +3 for the impostor
-              Object.values(room.players).forEach(p => {
-                if (p.isImpostor) {
-                  p.score = (p.score || 0) + 3;
-                }
-              });
-            } else {
-              room.status = 'playing';
-              room.currentTurnIndex = 0;
-              room.currentDescriptionRound = 1;
-              room.turnOrder = room.turnOrder.filter(name => !room.players[name].isEliminated);
-              
-              Object.keys(room.players).forEach(name => {
-                room.players[name].description = '';
-                room.players[name].votedFor = null;
-              });
-              
-              checkAndAdvanceTurnIfOffline(room);
-            }
+            // Score system: +3 for the impostor(s)
+            Object.values(room.players).forEach(p => {
+              if (p.isImpostor) {
+                p.score = (p.score || 0) + 3;
+              }
+            });
+          } else {
+            room.status = 'playing';
+            room.currentTurnIndex = 0;
+            room.currentDescriptionRound = 1;
+            room.turnOrder = room.turnOrder.filter(name => !room.players[name].isEliminated);
+            
+            Object.keys(room.players).forEach(name => {
+              room.players[name].description = '';
+              room.players[name].votedFor = null;
+            });
+            
+            checkAndAdvanceTurnIfOffline(room);
           }
         }
         
@@ -1197,21 +1208,24 @@ function advanceTurnAndCheckRoundEnd(room) {
     return;
   }
 
-  // Change Imposteur Settings (Description rounds)
+  // Change Imposteur Settings (Description rounds & impostor count)
   if (parsedUrl.pathname === '/api/imposteur/settings' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { roomId, descriptionRounds } = JSON.parse(body);
+        const { roomId, descriptionRounds, impostorCount } = JSON.parse(body);
         const room = rooms[roomId];
         if (!room || room.gameType !== 'imposteur') {
           res.writeHead(404); return res.end();
         }
-        if (descriptionRounds) {
+        if (descriptionRounds !== undefined) {
           room.descriptionRounds = parseInt(descriptionRounds) || 1;
         }
-        console.log(`Imposteur room ${roomId} set description rounds to ${room.descriptionRounds}`);
+        if (impostorCount !== undefined) {
+          room.impostorCount = parseInt(impostorCount) || 1;
+        }
+        console.log(`Imposteur room ${roomId} set description rounds to ${room.descriptionRounds}, impostor count to ${room.impostorCount}`);
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
           state: getFullImposteurState(room)
