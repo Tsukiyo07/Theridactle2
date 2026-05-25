@@ -1808,6 +1808,8 @@ function advanceTurnAndCheckRoundEnd(room) {
         roleRevealed = true;
       } else if (viewerIsWolf && p.role === 'loup') {
         roleRevealed = true;
+      } else if (viewer && viewer.role === 'voyante' && room.nightState.inspectedPlayers && room.nightState.inspectedPlayers.includes(name)) {
+        roleRevealed = true;
       }
 
       const isLoverWithViewer = viewerCoupleId && p.coupleId === viewerCoupleId;
@@ -1818,6 +1820,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         isConnected: p.isConnected,
         role: roleRevealed ? p.role : 'mystere',
         isLover: !!isLoverWithViewer,
+        isMayor: !!(room.nightState && room.nightState.mayor === name),
         votedFor: (room.status === 'day_vote') ? p.votedFor : null
       };
     });
@@ -1877,6 +1880,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         lovers: (room.status === 'game_over' || (viewer && viewer.coupleId)) ? room.nightState.lovers : [],
         protectedPlayer: (room.status === 'game_over' || (viewer && viewer.role === 'garde')) ? room.nightState.protectedPlayer : null
       },
+      voteTimerEndsAt: room.voteTimerEndsAt || null,
       privateActionData
     };
   }
@@ -1971,6 +1975,23 @@ function advanceTurnAndCheckRoundEnd(room) {
     resolveNight(room);
   }
 
+  function checkMayorDeathAndSuccession(room) {
+    if (room.rolesConfig && room.rolesConfig.useMayor && room.nightState && room.nightState.mayor) {
+      const currentMayor = room.players[room.nightState.mayor];
+      if (currentMayor && !currentMayor.isAlive) {
+        const alivePlayers = Object.keys(room.players).filter(name => room.players[name].isAlive);
+        if (alivePlayers.length > 0) {
+          const oldMayor = room.nightState.mayor;
+          const newMayor = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+          room.nightState.mayor = newMayor;
+          room.historyLogs.push(`👑 ${oldMayor} est mort ! Il transmet son écharpe de Maire à ${newMayor} !`);
+        } else {
+          room.nightState.mayor = null;
+        }
+      }
+    }
+  }
+
   function resolveNight(room) {
     room.status = 'day_announcements';
     console.log(`Loup-Garou room ${room.roomId} night ending. Processing casualties.`);
@@ -2013,6 +2034,19 @@ function advanceTurnAndCheckRoundEnd(room) {
       }
     }
 
+    // Initial Mayor election on Day 1
+    if (room.rolesConfig && room.rolesConfig.useMayor && (!room.nightState || !room.nightState.mayor)) {
+      const aliveList = Object.keys(room.players).filter(name => room.players[name].isAlive);
+      if (aliveList.length > 0) {
+        const firstMayor = aliveList[0];
+        room.nightState.mayor = firstMayor;
+        room.historyLogs.push(`👑 ${firstMayor} a été désigné d'office comme premier Maire du village !`);
+      }
+    }
+
+    // Check Mayor death and succession
+    checkMayorDeathAndSuccession(room);
+
     // Check if Hunter died and has a shot pending
     let hunterShotPending = false;
     if (room.rolesConfig.chasseur) {
@@ -2028,6 +2062,11 @@ function advanceTurnAndCheckRoundEnd(room) {
 
     if (!hunterShotPending) {
       room.status = 'day_vote';
+      if (room.rolesConfig && room.rolesConfig.voteTimer > 0) {
+        room.voteTimerEndsAt = Date.now() + room.rolesConfig.voteTimer * 1000;
+      } else {
+        room.voteTimerEndsAt = null;
+      }
       checkLoupGarouWin(room);
     }
   }
@@ -2346,6 +2385,10 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
         else if (actionType === 'voyante' && p.role === 'voyante') {
           room.nightState.seerTarget = targetName;
+          if (!room.nightState.inspectedPlayers) room.nightState.inspectedPlayers = [];
+          if (targetName && !room.nightState.inspectedPlayers.includes(targetName)) {
+            room.nightState.inspectedPlayers.push(targetName);
+          }
           room.nightActionsPerformed.push('voyante');
           advanceLoupGarouNight(room);
         }
@@ -2437,9 +2480,17 @@ function advanceTurnAndCheckRoundEnd(room) {
               room.historyLogs.push(`💔 ${loverA} s'est suicidé par chagrin d'amour pour ${loverB}.`);
             }
           }
+          
+          // Check Mayor death and succession
+          checkMayorDeathAndSuccession(room);
         }
 
         room.status = 'day_vote';
+        if (room.rolesConfig && room.rolesConfig.voteTimer > 0) {
+          room.voteTimerEndsAt = Date.now() + room.rolesConfig.voteTimer * 1000;
+        } else {
+          room.voteTimerEndsAt = null;
+        }
         checkLoupGarouWin(room);
         broadcastLoupGarouState(room);
 
@@ -2497,9 +2548,14 @@ function advanceTurnAndCheckRoundEnd(room) {
         const voteCounts = {};
         Object.values(room.players).forEach(p => {
           if (p.isAlive && p.votedFor) {
-            voteCounts[p.votedFor] = (voteCounts[p.votedFor] || 0) + 1;
+            const isMayor = room.nightState && room.nightState.mayor === p.nickname;
+            const weight = isMayor ? 2 : 1;
+            voteCounts[p.votedFor] = (voteCounts[p.votedFor] || 0) + weight;
           }
         });
+
+        // Reset timer
+        room.voteTimerEndsAt = null;
 
         let highestVotes = 0;
         let selectedChoice = null;
@@ -2533,6 +2589,9 @@ function advanceTurnAndCheckRoundEnd(room) {
               room.historyLogs.push(`💔 ${loverA} s'est suicidé par chagrin d'amour pour ${loverB}.`);
             }
           }
+
+          // Check Mayor death and succession
+          checkMayorDeathAndSuccession(room);
         }
 
         // Check Hunter
@@ -2563,6 +2622,7 @@ function advanceTurnAndCheckRoundEnd(room) {
             room.nightState.wolfTarget = null;
             room.nightState.witchHealedThisTurn = false;
             room.nightState.witchKilledThisTurn = null;
+            room.voteTimerEndsAt = null;
 
             Object.keys(room.players).forEach(name => {
               room.players[name].votedFor = null;

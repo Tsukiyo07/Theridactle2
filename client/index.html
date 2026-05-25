@@ -723,7 +723,33 @@
                 </div>
               </div>
  
-              <p class="theme-helper mt-15" style="font-size: 11px; color: var(--text-muted);">L'Hôte doit configurer un paquet de cartes égal au nombre de joueurs.</p>
+              <p class="theme-helper mt-15" style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">L'Hôte doit configurer un paquet de cartes égal au nombre de joueurs.</p>
+              
+              <!-- Settings Section for Extra Options (Mayor, Timer) -->
+              <div class="lobby-extra-settings" style="background: rgba(0,0,0,0.15); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px;">
+                <h5 style="margin: 0; color: #ef4444; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">⚙️ Options de la Partie</h5>
+                
+                <!-- Mayor Toggle Option -->
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #fff;">
+                  <label for="chk-loup-garou-mayor" style="cursor: pointer; display: flex; align-items: center; gap: 6px; user-select: none;">
+                    👑 Élection d'un Maire (Double vote)
+                  </label>
+                  <input type="checkbox" id="chk-loup-garou-mayor" style="cursor: pointer; width: 15px; height: 15px; accent-color: #ef4444;">
+                </div>
+                
+                <!-- Vote Timer Option -->
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #fff;">
+                  <span style="display: flex; align-items: center; gap: 6px;">⏱️ Timer pour le vote du village</span>
+                  <select id="sel-loup-garou-timer" class="theme-select" style="width: 80px; padding: 2px 4px; font-size: 11px; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); height: 26px;">
+                    <option value="0">Aucun</option>
+                    <option value="15">15s</option>
+                    <option value="30">30s</option>
+                    <option value="60">60s</option>
+                    <option value="90">90s</option>
+                    <option value="120">120s</option>
+                  </select>
+                </div>
+              </div>
             </div>
             
             <div class="lobby-start-box">
@@ -860,6 +886,11 @@
           <div class="panel-header">
             <h3>☀️ Le Village se Réveille</h3>
             <span class="badge" style="background: #e2e8f0; color: #0f172a;">Parlement Diurne</span>
+          </div>
+          
+          <!-- Real-time dynamic vote timer banner -->
+          <div id="lg-vote-timer-banner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 1.5rem; font-size: 13px; font-family: monospace;">
+            ⏱️ Temps restant pour délibérer et voter : --s
           </div>
           
           <!-- Real-time logs journal -->

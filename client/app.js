@@ -48,6 +48,7 @@ let geographieState = {
   leaderboard: []
 };
 let geoCountdownInterval = null;
+let loupGarouVoteInterval = null;
 
 // Loup-Garou State
 let loupGarouState = {
@@ -971,6 +972,42 @@ function init() {
   }
 
   const btnLgStart = document.getElementById('btn-loup-garou-start');
+
+  const chkLgMayor = document.getElementById('chk-loup-garou-mayor');
+  if (chkLgMayor) {
+    chkLgMayor.addEventListener('change', () => {
+      if (!loupGarouState.isHost) return;
+      if (!loupGarouState.rolesConfig) loupGarouState.rolesConfig = {};
+      loupGarouState.rolesConfig.useMayor = chkLgMayor.checked;
+      
+      fetch('/api/loup-garou/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          rolesConfig: loupGarouState.rolesConfig
+        })
+      });
+    });
+  }
+
+  const selLgTimer = document.getElementById('sel-loup-garou-timer');
+  if (selLgTimer) {
+    selLgTimer.addEventListener('change', () => {
+      if (!loupGarouState.isHost) return;
+      if (!loupGarouState.rolesConfig) loupGarouState.rolesConfig = {};
+      loupGarouState.rolesConfig.voteTimer = parseInt(selLgTimer.value, 10);
+      
+      fetch('/api/loup-garou/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          rolesConfig: loupGarouState.rolesConfig
+        })
+      });
+    });
+  }
   if (btnLgStart) {
     btnLgStart.addEventListener('click', () => {
       if (loupGarouState.isHost) {
@@ -2878,11 +2915,16 @@ function updateLoupGarouUI(state) {
       if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host"><span class="badge-emoji">⭐</span><span class="badge-text"> Hôte</span></span>`;
       
       if (!p.isAlive) {
-        badgeHtml += `<span class="badge-item badge-dead"><span class="badge-emoji">💀</span><span class="badge-text"> Mort (${p.role})</span></span>`;
+        const deadRoleObj = loupGarouAllRoles[p.role];
+        const deadRoleName = deadRoleObj ? deadRoleObj.name : p.role;
+        badgeHtml += `<span class="badge-item badge-dead"><span class="badge-emoji">💀</span><span class="badge-text"> Mort (${deadRoleName})</span></span>`;
       } else {
         badgeHtml += `<span class="badge-item badge-alive" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34d399;"><span class="badge-emoji">❤️</span><span class="badge-text"> En vie</span></span>`;
         if (p.isLover) {
           badgeHtml += `<span class="badge-item badge-voted" style="background: rgba(236,72,153,0.15); border-color: rgba(236,72,153,0.3); color: #f472b6;"><span class="badge-emoji">💞</span><span class="badge-text"> Amoureux</span></span>`;
+        }
+        if (p.isMayor) {
+          badgeHtml += `<span class="badge-item" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 2px; margin-left: 3px;"><span class="badge-emoji">👑</span><span class="badge-text"> Maire</span></span>`;
         }
       }
       
@@ -2895,12 +2937,19 @@ function updateLoupGarouUI(state) {
         kickBtnHtml = `<button class="btn-kick" onclick="kickLoupGarouPlayer('${name}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; white-space: nowrap; margin-left: 5px;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">Virer</button>`;
       }
       
+      let roleDisplayHtml = '';
+      if (p.role && p.role !== 'mystere') {
+        const rObj = loupGarouAllRoles[p.role];
+        const rName = rObj ? `${rObj.emoji} ${rObj.name}` : p.role;
+        roleDisplayHtml = `<span style="font-size: 10px; color: #38bdf8; font-weight: bold;">${rName}</span>`;
+      }
+
       li.innerHTML = `
         <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'}; display: flex; align-items: center; gap: 0.75rem;">
           <span class="player-avatar" style="background: ${p.isAlive ? 'var(--bg-card)' : 'rgba(255,255,255,0.05)'}; color: ${p.isAlive ? '#fff' : '#64748b'};">${name.charAt(0)}</span>
           <div style="display: flex; flex-direction: column;">
             <span class="player-name" style="margin: 0; line-height: 1.2; text-decoration: ${p.isAlive ? 'none' : 'line-through'}; color: ${p.isAlive ? '#f8fafc' : '#64748b'};">${name} ${name === myName ? '(Vous)' : ''}</span>
-            ${(p.role && p.role !== 'mystere') ? `<span style="font-size: 10px; color: #ef4444; font-weight: bold;">${p.role}</span>` : ''}
+            ${roleDisplayHtml}
           </div>
         </div>
         <div class="player-badges" style="display: flex; align-items: center; gap: 0.35rem;">
@@ -3079,18 +3128,19 @@ function updateLoupGarouUI(state) {
         }
       }
       if (startHelper) startHelper.style.display = 'none';
-    } else {
-      if (btnLgStart) btnLgStart.style.display = 'none';
-      if (startHelper) {
-        startHelper.style.display = 'block';
-        if (isCountValid) {
-          startHelper.textContent = "Le paquet est configuré ! Attente que l'hôte lance la partie...";
-          startHelper.style.color = '#34d399';
-        } else {
-          startHelper.textContent = `Configuration en cours par l'hôte (${activeCards.length}/${playersCount} joueurs)...`;
-          startHelper.style.color = 'var(--text-muted)';
-        }
       }
+    }
+
+    // Sync settings (Maire & Timer)
+    const chkLgMayor = document.getElementById('chk-loup-garou-mayor');
+    if (chkLgMayor) {
+      chkLgMayor.checked = !!(state.rolesConfig && state.rolesConfig.useMayor);
+      chkLgMayor.disabled = !isHost;
+    }
+    const selLgTimer = document.getElementById('sel-loup-garou-timer');
+    if (selLgTimer) {
+      selLgTimer.value = (state.rolesConfig && state.rolesConfig.voteTimer) !== undefined ? state.rolesConfig.voteTimer : 0;
+      selLgTimer.disabled = !isHost;
     }
   }
   // Night Sequential Phase
@@ -3392,6 +3442,54 @@ function updateLoupGarouUI(state) {
   else if (state.status === 'day_announcements' || state.status === 'day_vote') {
     showPanel(dayPanel);
     
+    // Ticking Vote Timer logic
+    const timerBanner = document.getElementById('lg-vote-timer-banner');
+    if (state.status === 'day_vote' && state.voteTimerEndsAt) {
+      if (timerBanner) timerBanner.style.display = 'block';
+      
+      if (window.lgVoteTimerEndsAt !== state.voteTimerEndsAt) {
+        window.lgVoteTimerEndsAt = state.voteTimerEndsAt;
+        
+        if (loupGarouVoteInterval) {
+          clearInterval(loupGarouVoteInterval);
+        }
+        
+        loupGarouVoteInterval = setInterval(() => {
+          const remaining = Math.max(0, Math.ceil((window.lgVoteTimerEndsAt - Date.now()) / 1000));
+          if (timerBanner) {
+            timerBanner.textContent = `⏱️ Temps restant pour délibérer et voter : ${remaining}s`;
+          }
+          
+          if (remaining <= 0) {
+            clearInterval(loupGarouVoteInterval);
+            loupGarouVoteInterval = null;
+            window.lgVoteTimerEndsAt = null;
+            // Trigger auto tally if host
+            if (isHost) {
+              fetch('/api/loup-garou/tally', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId: state.roomId })
+              });
+            }
+          }
+        }, 1000);
+        
+        // Immediate first tick
+        const initialRemaining = Math.max(0, Math.ceil((window.lgVoteTimerEndsAt - Date.now()) / 1000));
+        if (timerBanner) {
+          timerBanner.textContent = `⏱️ Temps restant pour délibérer et voter : ${initialRemaining}s`;
+        }
+      }
+    } else {
+      if (timerBanner) timerBanner.style.display = 'none';
+      if (loupGarouVoteInterval) {
+        clearInterval(loupGarouVoteInterval);
+        loupGarouVoteInterval = null;
+      }
+      window.lgVoteTimerEndsAt = null;
+    }
+    
     // History logs entries
     const historyJournal = document.getElementById('loup-garou-history-journal');
     if (historyJournal) {
@@ -3419,7 +3517,9 @@ function updateLoupGarouUI(state) {
         Object.keys(state.players).forEach(name => {
           const v = state.players[name].votedFor;
           if (v) {
-            voteTallies[v] = (voteTallies[v] || 0) + 1;
+            const isMayor = state.players[name].isMayor;
+            const weight = isMayor ? 2 : 1;
+            voteTallies[v] = (voteTallies[v] || 0) + weight;
           }
         });
         
@@ -3516,12 +3616,16 @@ function updateLoupGarouUI(state) {
     const revealList = document.getElementById('loup-garou-reveal-list');
     
     const winDetails = {
-      'village': { emoji: '🏡🏆', title: 'Victoire du Village !', subtitle: 'Tous les Loups-Garous ont été éliminés. La paix revient au village.' },
-      'loups': { emoji: '🐺🩸', title: 'Victoire des Loups !', subtitle: 'La meute a dévoré tous les villageois. La nuit régnera à jamais.' },
+      'villageois': { emoji: '🏡🏆', title: 'Victoire du Village !', subtitle: 'Tous les Loups-Garous ont été éliminés. La paix revient au village.' },
+      'loups': { emoji: '🐺🩸', title: 'Victoire des Loups-Garous !', subtitle: 'La meute a dévoré tous les villageois. La nuit régnera à jamais.' },
       'couple': { emoji: '💖🏆', title: 'Victoire des Amoureux !', subtitle: 'L\'amour éternel a surmonté la haine des factions. Seul le couple survit.' }
     };
     
-    const wins = winDetails[state.winner] || { emoji: '🏆', title: 'Fin de la Partie', subtitle: 'Le rituel s\'achève...' };
+    const wins = winDetails[state.winner] || { 
+      emoji: '🏆', 
+      title: `Victoire : ${state.winner ? state.winner.toUpperCase() : 'Fin de la Partie'} !`, 
+      subtitle: 'La partie est terminée. Le destin a parlé !' 
+    };
     if (emoji) emoji.textContent = wins.emoji;
     if (title) title.textContent = wins.title;
     if (subtitle) subtitle.textContent = wins.subtitle;
