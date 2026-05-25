@@ -648,81 +648,75 @@
               
               <!-- Active Cards List -->
               <div id="lg-active-cards-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; min-height: 60px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
-                <!-- active cards dynamically rendered -->
-              </div>
-
-              <h4>📜 Catalogue des Rôles (Ajouter au paquet)</h4>
-              <p class="theme-helper" style="margin-bottom: 1rem;">Ajoutez les cartes de rôles nécessaires dans le paquet :</p>
-              
-              <!-- Role Grid Catalog Builder -->
+                <!-- active               <!-- Role Grid Catalog Builder -->
               <div class="role-config-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; max-height: 250px; overflow-y: auto; padding-right: 5px;">
-                <div class="role-catalog-card" data-role="loup" style="border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; position: relative;">
+                <div class="role-catalog-card" data-role="loup" style="border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; position: relative; cursor: help;" title="Loup-Garou : Dévore un villageois chaque nuit." onclick="showRoleTooltip('loup')">
                   <div style="font-size: 1.5rem;">🐺</div>
                   <div style="font-size: 11px; font-weight: bold;">Loup-Garou</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('loup')" style="background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('loup')" style="background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="simple_villageois" style="border: 1px solid #94a3b8; background: rgba(148, 163, 184, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="simple_villageois" style="border: 1px solid #94a3b8; background: rgba(148, 163, 184, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Simple Villageois : N'a aucun pouvoir spécial, tente de démasquer les loups." onclick="showRoleTooltip('simple_villageois')">
                   <div style="font-size: 1.5rem;">👤</div>
                   <div style="font-size: 11px; font-weight: bold;">Simple Villageois</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('simple_villageois')" style="background: #94a3b8; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('simple_villageois')" style="background: #94a3b8; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="voyante" style="border: 1px solid #a78bfa; background: rgba(167, 139, 250, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="voyante" style="border: 1px solid #a78bfa; background: rgba(167, 139, 250, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Voyante : Voit secrètement le rôle d'un joueur chaque nuit." onclick="showRoleTooltip('voyante')">
                   <div style="font-size: 1.5rem;">👁️</div>
                   <div style="font-size: 11px; font-weight: bold;">Voyante</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('voyante')" style="background: #a78bfa; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('voyante')" style="background: #a78bfa; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="sorciere" style="border: 1px solid #34d399; background: rgba(52, 211, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="sorciere" style="border: 1px solid #34d399; background: rgba(52, 211, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Sorcière : Possède une potion de vie (soigner) et une de mort (tuer)." onclick="showRoleTooltip('sorciere')">
                   <div style="font-size: 1.5rem;">🧪</div>
                   <div style="font-size: 11px; font-weight: bold;">Sorcière</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('sorciere')" style="background: #34d399; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('sorciere')" style="background: #34d399; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="chasseur" style="border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="chasseur" style="border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Chasseur : Élimine un autre joueur avec son fusil lors de sa mort." onclick="showRoleTooltip('chasseur')">
                   <div style="font-size: 1.5rem;">🎯</div>
                   <div style="font-size: 11px; font-weight: bold;">Chasseur</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('chasseur')" style="background: #f59e0b; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('chasseur')" style="background: #f59e0b; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="cupidon" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="cupidon" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Cupidon : Lie deux joueurs amoureux éternels la première nuit." onclick="showRoleTooltip('cupidon')">
                   <div style="font-size: 1.5rem;">💘</div>
                   <div style="font-size: 11px; font-weight: bold;">Cupidon</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('cupidon')" style="background: #ec4899; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('cupidon')" style="background: #ec4899; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="garde" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="garde" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Garde : Protège un joueur de l'attaque des loups chaque nuit." onclick="showRoleTooltip('garde')">
                   <div style="font-size: 1.5rem;">🛡️</div>
                   <div style="font-size: 11px; font-weight: bold;">Garde</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('garde')" style="background: #3b82f6; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('garde')" style="background: #3b82f6; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="voleur" style="border: 1px solid #06b6d4; background: rgba(6, 182, 212, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="voleur" style="border: 1px solid #06b6d4; background: rgba(6, 182, 212, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Voleur : Peut échanger sa carte au milieu ou voler le rôle d'un joueur." onclick="showRoleTooltip('voleur')">
                   <div style="font-size: 1.5rem;">🪶</div>
                   <div style="font-size: 11px; font-weight: bold;">Voleur</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('voleur')" style="background: #06b6d4; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('voleur')" style="background: #06b6d4; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="petite_fille" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="petite_fille" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Petite Fille : Peut espionner secrètement les loups pendant la nuit." onclick="showRoleTooltip('petite_fille')">
                   <div style="font-size: 1.5rem;">👧</div>
                   <div style="font-size: 11px; font-weight: bold;">Petite Fille</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('petite_fille')" style="background: #ec4899; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('petite_fille')" style="background: #ec4899; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="bouc_emissaire" style="border: 1px solid #f97316; background: rgba(249, 115, 22, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="bouc_emissaire" style="border: 1px solid #f97316; background: rgba(249, 115, 22, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Bouc Émissaire : Meurt automatiquement en cas d'égalité au vote." onclick="showRoleTooltip('bouc_emissaire')">
                   <div style="font-size: 1.5rem;">🐐</div>
                   <div style="font-size: 11px; font-weight: bold;">Bouc Émissaire</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('bouc_emissaire')" style="background: #f97316; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('bouc_emissaire')" style="background: #f97316; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="idiot_du_village" style="border: 1px solid #84cc16; background: rgba(132, 204, 22, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="idiot_du_village" style="border: 1px solid #84cc16; background: rgba(132, 204, 22, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Idiot du Village : Si voté par le village, survit mais perd son vote." onclick="showRoleTooltip('idiot_du_village')">
                   <div style="font-size: 1.5rem;">🤪</div>
                   <div style="font-size: 11px; font-weight: bold;">Idiot du Village</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('idiot_du_village')" style="background: #84cc16; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('idiot_du_village')" style="background: #84cc16; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="montreur_d_ours" style="border: 1px solid #78716c; background: rgba(120, 113, 108, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="montreur_d_ours" style="border: 1px solid #78716c; background: rgba(120, 113, 108, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Montreur d'Ours : Son ours grogne au matin si un loup est à côté." onclick="showRoleTooltip('montreur_d_ours')">
                   <div style="font-size: 1.5rem;">🐻</div>
                   <div style="font-size: 11px; font-weight: bold;">Montreur d'Ours</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('montreur_d_ours')" style="background: #78716c; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('montreur_d_ours')" style="background: #78716c; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
-                <div class="role-catalog-card" data-role="ancien" style="border: 1px solid #a1a1aa; background: rgba(161, 161, 170, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
+                <div class="role-catalog-card" data-role="ancien" style="border: 1px solid #a1a1aa; background: rgba(161, 161, 170, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Ancien : Survit à une première attaque de loups." onclick="showRoleTooltip('ancien')">
                   <div style="font-size: 1.5rem;">👴</div>
                   <div style="font-size: 11px; font-weight: bold;">Ancien</div>
-                  <button class="btn-lg-add-role" onclick="addLoupGarouCard('ancien')" style="background: #a1a1aa; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+                  <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('ancien')" style="background: #a1a1aa; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
                 </div>
               </div>
-
+ 
               <p class="theme-helper mt-15" style="font-size: 11px; color: var(--text-muted);">L'Hôte doit configurer un paquet de cartes égal au nombre de joueurs.</p>
             </div>
             
@@ -732,12 +726,12 @@
             </div>
           </div>
         </div>
-
+ 
         <!-- PLAY PANEL (Night & Day Interactions) -->
         <div id="loup-garou-play-panel" class="glass-panel imposteur-panel view-hidden" style="border-color: #ef4444;">
           
           <!-- SECRET CARD DRAWER -->
-          <div class="glass-panel text-center" style="background: rgba(0,0,0,0.4); border-color: rgba(239, 68, 68, 0.3); padding: 1.5rem; border-radius: 14px; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+          <div onclick="showRoleTooltip(loupGarouState.myRole)" class="glass-panel text-center" style="background: rgba(0,0,0,0.4); border-color: rgba(239, 68, 68, 0.3); padding: 1.5rem; border-radius: 14px; margin-bottom: 1.5rem; position: relative; overflow: hidden; cursor: help;" title="Cliquez pour afficher la description complète !">
             <div style="font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.5); letter-spacing: 1px; margin-bottom: 0.5rem;">Votre Identité Secrète</div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
               <span id="loup-garou-my-role-emoji" style="font-size: 2.2rem;">👤</span>
@@ -762,10 +756,17 @@
           <!-- 1B. VOLEUR ACTIONS -->
           <div id="loup-garou-voleur-window" class="view-hidden">
             <h4 style="margin-bottom: 1rem; color: #06b6d4; display: flex; align-items: center; gap: 6px;">🪶 Pouvoir du Voleur</h4>
-            <p class="theme-helper" style="margin-bottom: 1rem;">Choisissez l'une des deux cartes du milieu pour échanger votre rôle secrètement :</p>
+            <p class="theme-helper" style="margin-bottom: 1rem;">Option 1 : Choisissez l'une des deux cartes du milieu pour échanger votre rôle secrètement :</p>
             <div id="loup-garou-voleur-cards-box" style="display: flex; gap: 15px; justify-content: center; margin-bottom: 1.5rem;">
               <!-- voleur choices buttons will be injected -->
             </div>
+            
+            <p class="theme-helper" style="margin-bottom: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem;">Option 2 : Voler le rôle d'un autre joueur du village :</p>
+            <div class="theme-select-wrapper" style="margin-bottom: 1rem;">
+              <select id="loup-garou-voleur-target" class="theme-select"></select>
+            </div>
+            <button id="btn-loup-garou-voleur-steal" class="btn btn-accent btn-block" style="background: #06b6d4; border-color: #06b6d4; margin-bottom: 1.5rem;">Voler le rôle de ce joueur 🪶</button>
+            
             <button id="btn-loup-garou-voleur-skip" class="btn btn-quit btn-block" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">Garder mon rôle actuel 🥱</button>
           </div>
 

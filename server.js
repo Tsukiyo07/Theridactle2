@@ -2318,6 +2318,17 @@ function advanceTurnAndCheckRoundEnd(room) {
           room.nightActionsPerformed.push('voleur');
           advanceLoupGarouNight(room);
         }
+        else if (actionType === 'voleur_steal' && p.role === 'voleur' && room.currentNight === 1) {
+          const targetPlayer = room.players[targetName];
+          if (targetPlayer && targetPlayer.nickname !== nickname) {
+            const targetOriginalRole = targetPlayer.role;
+            targetPlayer.role = p.role;
+            p.role = targetOriginalRole;
+            room.historyLogs.push(`🪶 Le Voleur a secrètement dérobé le rôle de ${targetName}.`);
+          }
+          room.nightActionsPerformed.push('voleur');
+          advanceLoupGarouNight(room);
+        }
         else if (actionType === 'cupidon' && p.role === 'cupidon' && room.currentNight === 1) {
           if (targetName && targetName2) {
             room.nightState.lovers = [targetName, targetName2];
@@ -2369,10 +2380,14 @@ function advanceTurnAndCheckRoundEnd(room) {
         else if (actionType === 'sorciere_heal' && p.role === 'sorciere') {
           room.nightState.witchHealed = true;
           room.nightState.witchHealedThisTurn = true;
+          room.nightActionsPerformed.push('sorciere');
+          advanceLoupGarouNight(room);
         }
         else if (actionType === 'sorciere_kill' && p.role === 'sorciere') {
           room.nightState.witchKilled = true;
           room.nightState.witchKilledThisTurn = targetName;
+          room.nightActionsPerformed.push('sorciere');
+          advanceLoupGarouNight(room);
         }
         else if (actionType === 'sorciere_skip' && p.role === 'sorciere') {
           room.nightActionsPerformed.push('sorciere');

@@ -949,6 +949,27 @@ function init() {
     });
   }
 
+  const btnLgVoleurSteal = document.getElementById('btn-loup-garou-voleur-steal');
+  if (btnLgVoleurSteal) {
+    btnLgVoleurSteal.addEventListener('click', () => {
+      const targetName = document.getElementById('loup-garou-voleur-target').value;
+      if (!targetName) {
+        alert("Veuillez sélectionner un joueur à voler !");
+        return;
+      }
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'voleur_steal',
+          targetName
+        })
+      });
+    });
+  }
+
   const btnLgStart = document.getElementById('btn-loup-garou-start');
   if (btnLgStart) {
     btnLgStart.addEventListener('click', () => {
@@ -2626,6 +2647,29 @@ const loupGarouAllRoles = {
 
 window.prevLoupGarouStatus = null;
 
+window.showRoleTooltip = function(role) {
+  const roleDetails = {
+    'loup': { emoji: '🐺', name: 'Loup-Garou', desc: 'Dévore un villageois chaque nuit avec la meute.' },
+    'voyante': { emoji: '👁️', name: 'Voyante', desc: 'Observe secrètement le rôle d\'un joueur chaque nuit.' },
+    'sorciere': { emoji: '🧪', name: 'Sorcière', desc: 'Possède deux potions : une de vie (soigner) et une de mort (tuer).' },
+    'chasseur': { emoji: '🎯', name: 'Chasseur', desc: 'En mourant, tire son coup de fusil de vengeance pour éliminer une cible.' },
+    'cupidon': { emoji: '💘', name: 'Cupidon', desc: 'Unie deux amoureux éternels la première nuit de la partie.' },
+    'garde': { emoji: '🛡️', name: 'Garde', desc: 'Protège un joueur des attaques nocturnes des loups-garous.' },
+    'voleur': { emoji: '🪶', name: 'Voleur', desc: 'Choisit entre deux cartes du milieu ou vole le rôle d\'un joueur.' },
+    'simple_villageois': { emoji: '👤', name: 'Simple Villageois', desc: 'N\'a aucun pouvoir spécial, tente de démasquer les loups de jour.' },
+    'petite_fille': { emoji: '👧', name: 'Petite Fille', desc: 'Peut espionner les loups durant la nuit mais doit rester discrète.' },
+    'bouc_emissaire': { emoji: '🐐', name: 'Bouc Émissaire', desc: 'En cas d\'égalité des votes diurnes, est désigné victime d\'office.' },
+    'idiot_du_village': { emoji: '🤪', name: 'Idiot du Village', desc: 'Gracié par le village s\'il est voté, mais perd son droit de vote.' },
+    'montreur_d_ours': { emoji: '🐻', name: "Montreur d'Ours", desc: 'Son ours grogne le matin si un loup-garou est assis à ses côtés.' },
+    'ancien': { emoji: '👴', name: 'Ancien', desc: 'Survit à la première attaque nocturne des loups-garous.' }
+  };
+  
+  const detail = roleDetails[role];
+  if (detail) {
+    showToast(`${detail.emoji} <strong>${detail.name}</strong> : ${detail.desc}`);
+  }
+};
+
 window.speakLoupGarouVoice = function(text) {
   const ttsEnabled = localStorage.getItem('loup-garou-tts-enabled') !== 'false';
   if (!ttsEnabled) return;
@@ -3147,6 +3191,15 @@ function updateLoupGarouUI(state) {
                 cardsBox.appendChild(cardBtn);
               });
             }
+          }
+          const voleurTargetSelect = document.getElementById('loup-garou-voleur-target');
+          if (voleurTargetSelect) {
+            voleurTargetSelect.innerHTML = '<option value="">-- Choisissez qui voler --</option>';
+            alivePlayers.filter(name => name !== myName).forEach(name => {
+              const opt = document.createElement('option');
+              opt.value = name; opt.textContent = name;
+              voleurTargetSelect.appendChild(opt);
+            });
           }
         }
       }
