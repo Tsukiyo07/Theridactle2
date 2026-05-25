@@ -2605,8 +2605,6 @@ function updateGeographieUI(state) {
   }
 }
 
-}
-
 // --- Loup-Garou Client Logic ---
 
 function showLgMenuError(msg) {
