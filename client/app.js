@@ -2675,11 +2675,14 @@ window.addLoupGarouCard = function(role) {
   });
 };
 
-window.removeLoupGarouCard = function(index) {
+window.removeLoupGarouCard = function(role) {
   if (!loupGarouState.isHost) return;
   if (!loupGarouState.rolesConfig || !loupGarouState.rolesConfig.activeCards) return;
   
-  loupGarouState.rolesConfig.activeCards.splice(index, 1);
+  const index = loupGarouState.rolesConfig.activeCards.indexOf(role);
+  if (index !== -1) {
+    loupGarouState.rolesConfig.activeCards.splice(index, 1);
+  }
   
   fetch('/api/loup-garou/settings', {
     method: 'POST',
@@ -2947,7 +2950,14 @@ function updateLoupGarouUI(state) {
       if (activeCards.length === 0) {
         activeCardsList.innerHTML = '<span style="color: rgba(255,255,255,0.3); font-size: 11px; margin: auto;">Aucun rôle sélectionné. Ajoutez des rôles ci-dessous !</span>';
       } else {
-        activeCards.forEach((role, index) => {
+        // Group cards by role to display stacked quantities
+        const cardCounts = {};
+        activeCards.forEach(role => {
+          cardCounts[role] = (cardCounts[role] || 0) + 1;
+        });
+
+        Object.keys(cardCounts).forEach(role => {
+          const count = cardCounts[role];
           const meta = loupGarouAllRoles[role] || { emoji: '👤', name: role };
           const chip = document.createElement('div');
           chip.style.display = 'inline-flex';
@@ -2962,10 +2972,11 @@ function updateLoupGarouUI(state) {
           
           let removeBtn = '';
           if (isHost) {
-            removeBtn = `<button onclick="removeLoupGarouCard(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 0 0 4px; display: flex; align-items: center;">&times;</button>`;
+            removeBtn = `<button onclick="removeLoupGarouCard('${role}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 0 0 4px; display: flex; align-items: center;">&times;</button>`;
           }
           
-          chip.innerHTML = `<span>${meta.emoji} ${meta.name}</span>${removeBtn}`;
+          const countText = (count > 1 || role === 'loup' || role === 'simple_villageois') ? ` <span style="color: #ef4444; font-weight: bold; margin-left: 2px;">x${count}</span>` : '';
+          chip.innerHTML = `<span>${meta.emoji} ${meta.name}${countText}</span>${removeBtn}`;
           activeCardsList.appendChild(chip);
         });
       }

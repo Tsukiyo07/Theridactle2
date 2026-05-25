@@ -2269,6 +2269,7 @@ function advanceTurnAndCheckRoundEnd(room) {
           [shuffledList[i], shuffledList[j]] = [shuffledList[j], shuffledList[i]];
         }
         room.turnOrder = shuffledList;
+        room.status = 'night_actions';
 
         advanceLoupGarouNight(room);
 
