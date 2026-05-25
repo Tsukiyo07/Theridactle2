@@ -73,6 +73,17 @@
           <button class="btn btn-card" style="background: var(--neon-cyan); border-color: var(--neon-cyan); color: #000; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); text-shadow: none; font-weight: 700;">Rejoindre l'Expédition</button>
         </div>
       </div>
+
+      <!-- Game Card 4: Loup-Garou -->
+      <div class="game-card card-loup-garou" id="card-loup-garou" style="border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);">
+        <div class="card-glow" style="background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 70%);"></div>
+        <div class="card-content">
+          <div class="card-icon">🐺</div>
+          <h2 class="card-title">Loup-Garou</h2>
+          <p class="card-desc">Le légendaire jeu de rôle de Thiercelieux. Configurez vos rôles favoris (Voyante, Sorcière, Chasseur...) et survivez au massacre nocturne !</p>
+          <button class="btn btn-card" style="background: #ef4444; border-color: #ef4444; color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); font-weight: 700;">Hurler à la Lune</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -576,6 +587,264 @@
             <h4>👥 Explorateurs (<span id="geographie-players-count">0</span>)</h4>
           </div>
           <ul class="imposteur-players-list" id="geographie-players-list">
+            <!-- Dynamic players list -->
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- 3.7. LOUP-GAROU MENU VIEW -->
+  <section id="loup-garou-menu-view" class="menu-container view-hidden">
+    <div class="glass-panel menu-panel" style="border-color: #ef4444; box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.15);">
+      <button class="btn-back" id="btn-back-loup-garou">← Retour</button>
+      <div class="menu-header">
+        <span class="badge" style="background: #ef4444; color: #fff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); font-weight: 700;">Jeu de Rôle Stratégique</span>
+        <h2>Loup-Garou</h2>
+        <p>Entrez votre pseudo pour créer ou rejoindre un village.</p>
+      </div>
+
+      <div class="menu-inputs">
+        <div class="input-group">
+          <label for="loup-garou-nickname">Votre Pseudo</label>
+          <input type="text" id="loup-garou-nickname" placeholder="Entrez un pseudo courageux" maxlength="15" autocomplete="off">
+        </div>
+
+        <div class="menu-actions" style="margin-top: 1.5rem;">
+          <button id="btn-loup-garou-create" class="btn btn-block" style="background: #ef4444; border-color: #ef4444; color: #fff; font-weight: 700; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);">Créer un Village</button>
+          
+          <div class="divider"><span>OU REJOINDRE</span></div>
+          
+          <div class="join-box">
+            <input type="text" id="loup-garou-join-code" placeholder="Code (ex: WXYZ)" autocomplete="off">
+            <button id="btn-loup-garou-join" class="btn" style="background: #ef4444; border-color: #ef4444; color: #fff; font-weight: 700; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);">Rejoindre</button>
+          </div>
+        </div>
+      </div>
+      <div id="loup-garou-menu-error" class="error-msg" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- 6. LOUP-GAROU GAME VIEW -->
+  <main class="app-container view-hidden" id="loup-garou-game-view">
+    <div class="imposteur-layout">
+      
+      <!-- Left: Game Area -->
+      <section class="imposteur-main-section">
+        
+        <!-- LOBBY STATE PANEL -->
+        <div id="loup-garou-lobby-panel" class="glass-panel imposteur-panel" style="border-color: #ef4444;">
+          <div class="panel-header">
+            <h3>🏠 Place du Village (Attente)</h3>
+            <span class="badge badge-accent" style="background: #ef4444;">Configuration de la meute</span>
+          </div>
+          <div class="lobby-content">
+            <div class="lobby-settings-box">
+              <h4>Rôles Spéciaux du Village</h4>
+              <p class="theme-helper" style="margin-bottom: 1rem;">Activez les cartes de rôles que vous souhaitez distribuer :</p>
+              
+              <!-- Role Grid Configurator -->
+              <div class="role-config-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem;">
+                <div class="role-config-card active" data-role="voyante" style="border: 1px solid #a78bfa; background: rgba(167, 139, 250, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; transition: all 0.2s;">
+                  <div style="font-size: 1.5rem; margin-bottom: 4px;">👁️</div>
+                  <div style="font-size: 11px;">Voyante</div>
+                </div>
+                <div class="role-config-card active" data-role="sorciere" style="border: 1px solid #34d399; background: rgba(52, 211, 153, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; transition: all 0.2s;">
+                  <div style="font-size: 1.5rem; margin-bottom: 4px;">🧪</div>
+                  <div style="font-size: 11px;">Sorcière</div>
+                </div>
+                <div class="role-config-card active" data-role="chasseur" style="border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; transition: all 0.2s;">
+                  <div style="font-size: 1.5rem; margin-bottom: 4px;">🎯</div>
+                  <div style="font-size: 11px;">Chasseur</div>
+                </div>
+                <div class="role-config-card active" data-role="cupidon" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; transition: all 0.2s;">
+                  <div style="font-size: 1.5rem; margin-bottom: 4px;">💘</div>
+                  <div style="font-size: 11px;">Cupidon</div>
+                </div>
+                <div class="role-config-card active" data-role="garde" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; transition: all 0.2s;">
+                  <div style="font-size: 1.5rem; margin-bottom: 4px;">🛡️</div>
+                  <div style="font-size: 11px;">Garde</div>
+                </div>
+              </div>
+
+              <h4>Nombre de Loups-Garous</h4>
+              <div class="theme-select-wrapper">
+                <select id="loup-garou-wolves-select" class="theme-select">
+                  <option value="1" selected>1 Loup-Garou</option>
+                  <option value="2">2 Loups-Garous</option>
+                  <option value="3">3 Loups-Garous</option>
+                </select>
+              </div>
+
+              <p class="theme-helper mt-15">Seul l'Hôte du village peut lancer le rituel ou modifier les cartes.</p>
+            </div>
+            
+            <div class="lobby-start-box">
+              <button id="btn-loup-garou-start" class="btn btn-large" style="display:none; background: #ef4444; color: #fff; font-weight: bold;">Fermer les Yeux (Lancer) !</button>
+              <div id="loup-garou-start-helper" class="helper-text" style="color: var(--text-muted);">Attente de joueurs...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAY PANEL (Night & Day Interactions) -->
+        <div id="loup-garou-play-panel" class="glass-panel imposteur-panel view-hidden" style="border-color: #ef4444;">
+          
+          <!-- SECRET CARD DRAWER -->
+          <div class="glass-panel text-center" style="background: rgba(0,0,0,0.4); border-color: rgba(239, 68, 68, 0.3); padding: 1.5rem; border-radius: 14px; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+            <div style="font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.5); letter-spacing: 1px; margin-bottom: 0.5rem;">Votre Identité Secrète</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+              <span id="loup-garou-my-role-emoji" style="font-size: 2.2rem;">👤</span>
+              <span id="loup-garou-my-role-name" style="font-size: 1.5rem; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.4); text-transform: uppercase;">CHARGEMENT...</span>
+            </div>
+            <div id="loup-garou-my-role-desc" style="font-size: 12px; color: var(--text-muted); margin-top: 0.5rem; font-style: italic;">Description du rôle...</div>
+            <div id="loup-garou-my-couple-badge" class="badge-item" style="display:none; background: rgba(236,72,153,0.15); border: 1px solid rgba(236,72,153,0.3); color: #f472b6; font-size: 10px; margin: 8px auto 0 auto; width: fit-content; padding: 2px 8px; border-radius: 4px;">💞 Amoureux</div>
+          </div>
+
+          <!-- TURN STATE BAR -->
+          <div id="loup-garou-turn-bar" class="imposteur-turn-bar text-center" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; min-height: 50px;">
+            <strong id="loup-garou-turn-status-text" style="font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Le village dort paisiblement... 😴</strong>
+          </div>
+
+          <!-- 1. SLEEP WINDOW (For sleeping players) -->
+          <div id="loup-garou-sleep-window" class="text-center" style="padding: 3rem 1rem;">
+            <div class="sleep-moon" style="font-size: 5rem; animation: pulse-moon 4s infinite ease-in-out;">🌙</div>
+            <h3 style="margin-top: 1.5rem; color: rgba(255,255,255,0.9);">La Nuit est Sombre...</h3>
+            <p style="color: var(--text-muted); font-size: 13px; font-style: italic; max-width: 320px; margin: 0.5rem auto 0 auto;">Gardez les yeux fermés. Les forces de l'ombre et du bien accomplissent leur destin.</p>
+          </div>
+
+          <!-- 2. CUPIDON ACTIONS -->
+          <div id="loup-garou-cupidon-window" class="view-hidden">
+            <h4 style="margin-bottom: 1rem; color: #f472b6; display: flex; align-items: center; gap: 6px;">💘 Choisissez deux Âmes Sœurs</h4>
+            <p class="theme-helper" style="margin-bottom: 1rem;">Liez éternellement deux villageois d'un amour passionnel :</p>
+            <div class="theme-select-wrapper" style="margin-bottom: 10px;">
+              <select id="loup-garou-cupid-lover1" class="theme-select"></select>
+            </div>
+            <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+              <select id="loup-garou-cupid-lover2" class="theme-select"></select>
+            </div>
+            <button id="btn-loup-garou-cupid-submit" class="btn btn-accent btn-block" style="background: #f472b6; border-color: #f472b6;">Déclarer leur amour 💞</button>
+          </div>
+
+          <!-- 3. GARDE ACTIONS -->
+          <div id="loup-garou-garde-window" class="view-hidden">
+            <h4 style="margin-bottom: 1rem; color: #60a5fa; display: flex; align-items: center; gap: 6px;">🛡️ Protégez un Habitant</h4>
+            <p class="theme-helper" style="margin-bottom: 1rem;">Choisissez un joueur à abriter du courroux des loups pour cette nuit :</p>
+            <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+              <select id="loup-garou-garde-target" class="theme-select"></select>
+            </div>
+            <button id="btn-loup-garou-garde-submit" class="btn btn-accent btn-block" style="background: #3b82f6; border-color: #3b82f6;">Activer le Bouclier 🛡️</button>
+          </div>
+
+          <!-- 4. VOYANTE ACTIONS -->
+          <div id="loup-garou-voyante-window" class="view-hidden">
+            <h4 style="margin-bottom: 1rem; color: #c084fc; display: flex; align-items: center; gap: 6px;">👁️ Révélation Psychique</h4>
+            <p class="theme-helper" style="margin-bottom: 1rem;">Choisissez un joueur dont vous voulez sonder la véritable nature :</p>
+            <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+              <select id="loup-garou-voyante-target" class="theme-select"></select>
+            </div>
+            <button id="btn-loup-garou-voyante-submit" class="btn btn-accent btn-block" style="background: #a78bfa; border-color: #a78bfa;">Scruter la boule de cristal 🔮</button>
+            <div id="loup-garou-seer-result" class="text-center mt-15" style="display:none; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(167, 139, 250, 0.4);">
+              <span id="loup-garou-seer-result-text" style="font-weight: bold; font-size: 14px;">...</span>
+            </div>
+          </div>
+
+          <!-- 5. LOUPS-GAROUS ACTIONS -->
+          <div id="loup-garou-wolves-window" class="view-hidden">
+            <h4 style="margin-bottom: 1rem; color: #ef4444; display: flex; align-items: center; gap: 6px;">🐺 Hurlez et Dévorez</h4>
+            <p class="theme-helper" style="margin-bottom: 1rem;">Votez avec la meute pour désigner le citoyen à dévorer cette nuit :</p>
+            <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+              <select id="loup-garou-wolf-target" class="theme-select"></select>
+            </div>
+            <button id="btn-loup-garou-wolf-submit" class="btn btn-accent btn-block" style="background: #ef4444; border-color: #ef4444;">Valider la Cible 🥩</button>
+            <div id="loup-garou-wolf-votes-list" class="mt-15" style="font-size: 11px; color: var(--text-muted);"></div>
+          </div>
+
+          <!-- 6. SORCIERE ACTIONS -->
+          <div id="loup-garou-sorciere-window" class="view-hidden">
+            <h4 style="margin-bottom: 1rem; color: #34d399; display: flex; align-items: center; gap: 6px;">🧪 Chaudron de Potion</h4>
+            <div id="loup-garou-witch-victim-banner" class="mt-10 mb-15" style="padding: 0.75rem; border-radius: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-weight: bold; font-size: 12px; text-align: center;"></div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+              <button id="btn-loup-garou-witch-heal" class="btn btn-accent" style="flex: 1; background: #10b981; border-color: #10b981; font-size: 11px; padding: 0.75rem 0.25rem;">🧪 Potion de Vie (Soigner)</button>
+              <button id="btn-loup-garou-witch-kill" class="btn btn-accent" style="flex: 1; background: #ef4444; border-color: #ef4444; font-size: 11px; padding: 0.75rem 0.25rem;">💀 Potion de Mort (Tuer)</button>
+            </div>
+            
+            <div id="loup-garou-witch-kill-select-box" class="view-hidden" style="margin-bottom: 1.5rem;">
+              <label for="loup-garou-witch-kill-target" style="font-size: 11px; display: block; margin-bottom: 4px;">Cible de l'empoisonnement :</label>
+              <div class="theme-select-wrapper">
+                <select id="loup-garou-witch-kill-target" class="theme-select"></select>
+              </div>
+            </div>
+
+            <button id="btn-loup-garou-witch-skip" class="btn btn-quit btn-block">Ne rien faire et passer 🥱</button>
+          </div>
+
+          <!-- 7. CHASSEUR RITUAL (Vengeance) -->
+          <div id="loup-garou-hunter-window" class="view-hidden">
+            <h4 style="margin-bottom: 1rem; color: #f59e0b; display: flex; align-items: center; gap: 6px;">🎯 Coup de Fusil Vengeur</h4>
+            <p class="theme-helper" style="margin-bottom: 1rem;">Vous êtes éliminé, mais dans un dernier souffle, vous abattez la cible de votre choix !</p>
+            <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+              <select id="loup-garou-hunter-target" class="theme-select"></select>
+            </div>
+            <button id="btn-loup-garou-hunter-submit" class="btn btn-accent btn-block" style="background: #f59e0b; border-color: #f59e0b;">FEU 🎯 !</button>
+          </div>
+
+        </div>
+
+        <!-- DAY LOGS & SUSPECT VOTE PANEL -->
+        <div id="loup-garou-day-panel" class="glass-panel imposteur-panel view-hidden" style="border-color: #ef4444;">
+          <div class="panel-header">
+            <h3>☀️ Le Village se Réveille</h3>
+            <span class="badge" style="background: #e2e8f0; color: #0f172a;">Parlement Diurne</span>
+          </div>
+          
+          <!-- Real-time logs journal -->
+          <div id="loup-garou-history-journal" style="background: rgba(0,0,0,0.3); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); max-height: 180px; overflow-y: auto; font-family: monospace; font-size: 12px; line-height: 1.5; color: #cbd5e1; margin-bottom: 1.5rem;">
+            <!-- dynamic logs entries -->
+          </div>
+
+          <!-- Voting view -->
+          <div id="loup-garou-voting-area" class="view-hidden">
+            <h4>🗳️ Conseil Municipal (Vote)</h4>
+            <p class="theme-helper mb-15">Choisissez un citoyen suspecté d'être un Loup-Garou :</p>
+            <div class="voting-grid" id="loup-garou-voting-grid">
+              <!-- dynamic voting grid -->
+            </div>
+            
+            <div id="loup-garou-tally-box" style="margin-top: 1.5rem; text-align: center; display: none;">
+              <button id="btn-loup-garou-tally" class="btn btn-accent btn-large" style="background: #ef4444; border-color: #ef4444; font-weight: bold;">Dépouiller les votes 🗳️</button>
+              <div id="loup-garou-tally-helper" class="helper-text">Attente que l'hôte ferme le scrutin.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS / GAME OVER PANEL -->
+        <div id="loup-garou-results-panel" class="glass-panel imposteur-panel view-hidden text-center" style="border-color: #ef4444;">
+          <div class="results-emoji" id="loup-garou-results-emoji" style="font-size: 4rem;">🏆</div>
+          <h2 class="text-gradient" id="loup-garou-results-title" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Fin de la Partie</h2>
+          <p class="results-subtext" id="loup-garou-results-subtitle" style="margin-bottom: 2rem;">...</p>
+
+          <div class="glass-panel" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); text-align: left; padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem;">
+            <h4 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; color: #ef4444; display: flex; align-items: center; gap: 4px;">🕵️‍♂️ Identités secrètes révélées</h4>
+            <div id="loup-garou-reveal-list" style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 13px;">
+              <!-- dynamic revealed player list -->
+            </div>
+          </div>
+
+          <button id="btn-loup-garou-restart" class="btn btn-large" style="display:none; background: #ef4444; color: #fff; font-weight: bold; margin: 0 auto;">Relancer un Rituel</button>
+          <div id="loup-garou-restart-helper" class="helper-text" style="display:none;">Attente que l'hôte relance un rituel...</div>
+        </div>
+
+      </section>
+
+      <!-- Right: Players Sidebar -->
+      <aside class="imposteur-sidebar">
+        <div class="glass-panel imposteur-sidebar-panel" style="border-color: #ef4444; box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.15);">
+          <div class="sidebar-header">
+            <h4>👥 Villageois (<span id="loup-garou-players-count">0</span>)</h4>
+          </div>
+          <ul class="imposteur-players-list" id="loup-garou-players-list">
             <!-- Dynamic players list -->
           </ul>
         </div>

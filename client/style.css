@@ -2289,3 +2289,86 @@ h1, h2, h3, h4, .logo {
   border-color: rgba(52, 211, 153, 0.4);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(52, 211, 153, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
+
+/* ==========================================
+   LOUP-GAROU THEMES & LAYOUTS
+   ========================================== */
+
+/* Night sleep moon pulse animation */
+@keyframes pulse-moon {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 30px rgba(239, 68, 68, 0.4));
+  }
+}
+
+.sleep-moon {
+  user-select: none;
+}
+
+/* Role Config Grid elements */
+.role-config-card {
+  opacity: 0.5;
+  filter: grayscale(80%);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.role-config-card.active {
+  opacity: 1;
+  filter: none;
+}
+
+.role-config-card.active[data-role="voyante"] {
+  border-color: #a78bfa !important;
+  background: rgba(167, 139, 250, 0.15) !important;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.3);
+}
+
+.role-config-card.active[data-role="sorciere"] {
+  border-color: #34d399 !important;
+  background: rgba(52, 211, 153, 0.15) !important;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
+}
+
+.role-config-card.active[data-role="chasseur"] {
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.15) !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+.role-config-card.active[data-role="cupidon"] {
+  border-color: #ec4899 !important;
+  background: rgba(236, 72, 153, 0.15) !important;
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+}
+
+.role-config-card.active[data-role="garde"] {
+  border-color: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.15) !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+}
+
+/* History Logs entry rules */
+#loup-garou-history-journal::-webkit-scrollbar {
+  width: 4px;
+}
+#loup-garou-history-journal::-webkit-scrollbar-thumb {
+  background: rgba(239, 68, 68, 0.2);
+  border-radius: 4px;
+}
+
+.history-log-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  animation: slideLeft 0.3s ease-out;
+}
+
+.premium-toast.error {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(239, 68, 68, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}

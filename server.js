@@ -1789,6 +1789,821 @@ function advanceTurnAndCheckRoundEnd(room) {
   }
 
   // ==========================================
+  // LOUP-GAROU HELPERS & ENDPOINTS
+  // ==========================================
+
+  function getSanitizedLoupGarouPlayers(room, forNickname) {
+    const sanitized = {};
+    const viewer = room.players[forNickname];
+    const viewerIsWolf = viewer && viewer.role === 'loup';
+    const viewerCoupleId = room.players[forNickname] ? room.players[forNickname].coupleId : null;
+
+    Object.keys(room.players).forEach(name => {
+      const p = room.players[name];
+      let roleRevealed = false;
+      
+      if (!p.isAlive || room.status === 'game_over') {
+        roleRevealed = true;
+      } else if (name === forNickname) {
+        roleRevealed = true;
+      } else if (viewerIsWolf && p.role === 'loup') {
+        roleRevealed = true;
+      }
+
+      const isLoverWithViewer = viewerCoupleId && p.coupleId === viewerCoupleId;
+
+      sanitized[name] = {
+        nickname: p.nickname,
+        isAlive: p.isAlive,
+        isConnected: p.isConnected,
+        role: roleRevealed ? p.role : 'mystere',
+        isLover: !!isLoverWithViewer,
+        votedFor: (room.status === 'day_vote') ? p.votedFor : null
+      };
+    });
+    return sanitized;
+  }
+
+  function getFullLoupGarouState(room, forNickname) {
+    const viewer = room.players[forNickname];
+    const isAlive = viewer ? viewer.isAlive : false;
+    
+    let privateActionData = null;
+    if (viewer && isAlive) {
+      if (viewer.role === 'voyante' && room.nightState.seerTarget) {
+        const target = room.players[room.nightState.seerTarget];
+        privateActionData = {
+          seerTarget: room.nightState.seerTarget,
+          seerTargetRole: target ? target.role : null
+        };
+      }
+      else if (viewer.role === 'sorciere' && room.status === 'night_witch') {
+        privateActionData = {
+          wolfTarget: room.nightState.wolfTarget,
+          hasHealPotion: !room.nightState.witchHealed,
+          hasKillPotion: !room.nightState.witchKilled
+        };
+      }
+      else if (viewer.role === 'loup' && room.status === 'night_actions') {
+        const wolfVotes = {};
+        Object.values(room.players).forEach(p => {
+          if (p.role === 'loup' && p.votedFor && p.isAlive) {
+            wolfVotes[p.nickname] = p.votedFor;
+          }
+        });
+        privateActionData = {
+          wolfVotes
+        };
+      }
+    }
+
+    return {
+      status: room.status,
+      roomId: room.roomId,
+      players: getSanitizedLoupGarouPlayers(room, forNickname),
+      turnOrder: room.turnOrder || [],
+      winner: room.winner || null,
+      historyLogs: room.historyLogs || [],
+      rolesConfig: room.rolesConfig,
+      myRole: viewer ? viewer.role : null,
+      myAlive: isAlive,
+      myCouple: viewer && viewer.coupleId ? true : false,
+      nightState: {
+        lovers: (room.status === 'game_over' || (viewer && viewer.coupleId)) ? room.nightState.lovers : [],
+        protectedPlayer: (room.status === 'game_over' || (viewer && viewer.role === 'garde')) ? room.nightState.protectedPlayer : null
+      },
+      privateActionData
+    };
+  }
+
+  function broadcastLoupGarouState(room) {
+    room.clients.forEach(client => {
+      try {
+        client.res.write(`data: ${JSON.stringify({
+          type: 'LOUP_GAROU_STATE',
+          state: getFullLoupGarouState(room, client.nickname)
+        })}\n\n`);
+      } catch (err) {}
+    });
+  }
+
+  function checkNightPart1End(room) {
+    if (room.status !== 'night_actions') return;
+
+    // Check Cupidon
+    if (room.rolesConfig.cupidon && room.currentNight === 1) {
+      const cupidAlive = Object.values(room.players).some(p => p.role === 'cupidon' && p.isAlive);
+      if (cupidAlive && room.nightState.lovers.length === 0) {
+        return; // Wait for Cupidon
+      }
+    }
+
+    // Check Garde
+    if (room.rolesConfig.garde) {
+      const gardeAlive = Object.values(room.players).some(p => p.role === 'garde' && p.isAlive);
+      if (gardeAlive && !room.nightState.protectedPlayer) {
+        return; // Wait for Garde
+      }
+    }
+
+    // Check Voyante
+    if (room.rolesConfig.voyante) {
+      const voyanteAlive = Object.values(room.players).some(p => p.role === 'voyante' && p.isAlive);
+      if (voyanteAlive && !room.nightState.seerTarget) {
+        return; // Wait for Voyante
+      }
+    }
+
+    // Check Loups-Garous
+    const aliveWolves = Object.values(room.players).filter(p => p.role === 'loup' && p.isAlive);
+    const votesForTarget = {};
+    let wolfVotesCount = 0;
+    aliveWolves.forEach(w => {
+      if (w.votedFor) {
+        votesForTarget[w.votedFor] = (votesForTarget[w.votedFor] || 0) + 1;
+        wolfVotesCount++;
+      }
+    });
+
+    if (wolfVotesCount < aliveWolves.length) {
+      return; // Not all wolves have voted yet
+    }
+
+    // Check if wolves agreed on a single target (majority or consensus)
+    let consensusTarget = null;
+    Object.keys(votesForTarget).forEach(target => {
+      if (votesForTarget[target] >= aliveWolves.length / 2) {
+        consensusTarget = target;
+      }
+    });
+
+    if (!consensusTarget && aliveWolves.length > 0) {
+      return; // Wolves haven't agreed on a target
+    }
+
+    room.nightState.wolfTarget = consensusTarget;
+
+    // Part 1 ends. Transition to Witch or resolve Night directly
+    const witchAlive = Object.values(room.players).some(p => p.role === 'sorciere' && p.isAlive);
+    const witchHasPotions = !room.nightState.witchHealed || !room.nightState.witchKilled;
+
+    if (room.rolesConfig.sorciere && witchAlive && witchHasPotions) {
+      room.status = 'night_witch';
+      console.log(`Loup-Garou room ${room.roomId} night part 1 completed. Waking up Sorciere.`);
+    } else {
+      resolveNight(room);
+    }
+    broadcastLoupGarouState(room);
+  }
+
+  function resolveNight(room) {
+    room.status = 'day_announcements';
+    console.log(`Loup-Garou room ${room.roomId} night ending. Processing casualties.`);
+
+    const wolfVictim = room.nightState.wolfTarget;
+    let wolfVictimDied = false;
+
+    // Check Garde protection
+    const isProtected = wolfVictim && room.nightState.protectedPlayer === wolfVictim;
+    
+    // Check Witch heal
+    const isHealed = wolfVictim && room.nightState.witchHealedThisTurn;
+
+    if (wolfVictim && !isProtected && !isHealed) {
+      wolfVictimDied = true;
+      room.players[wolfVictim].isAlive = false;
+      room.historyLogs.push(`🐺 ${wolfVictim} a été dévoré par les Loups-Garous.`);
+    }
+
+    // Check Witch kill
+    const witchVictim = room.nightState.witchKilledThisTurn;
+    if (witchVictim) {
+      room.players[witchVictim].isAlive = false;
+      room.historyLogs.push(`🧪 ${witchVictim} a été empoisonné par la Sorcière.`);
+    }
+
+    if (!wolfVictimDied && !witchVictim) {
+      room.historyLogs.push(`🌅 Une nuit calme s'achève. Personne n'est mort cette nuit !`);
+    }
+
+    // Lovers (Cupidon Couple) check
+    if (room.nightState.lovers.length === 2) {
+      const [loverA, loverB] = room.nightState.lovers;
+      if (!room.players[loverA].isAlive && room.players[loverB].isAlive) {
+        room.players[loverB].isAlive = false;
+        room.historyLogs.push(`💔 ${loverB} s'est suicidé par chagrin d'amour pour ${loverA}.`);
+      } else if (!room.players[loverB].isAlive && room.players[loverA].isAlive) {
+        room.players[loverA].isAlive = false;
+        room.historyLogs.push(`💔 ${loverA} s'est suicidé par chagrin d'amour pour ${loverB}.`);
+      }
+    }
+
+    // Check if Hunter died and has a shot pending
+    let hunterShotPending = false;
+    if (room.rolesConfig.chasseur) {
+      Object.values(room.players).forEach(p => {
+        if (p.role === 'chasseur' && !p.isAlive && !p.hasShot) {
+          room.status = 'day_hunter';
+          room.hunterPendingNickname = p.nickname;
+          hunterShotPending = true;
+          room.historyLogs.push(`🎯 Le Chasseur (${p.nickname}) va rendre son dernier soupir. Il charge son fusil !`);
+        }
+      });
+    }
+
+    if (!hunterShotPending) {
+      room.status = 'day_vote';
+      checkLoupGarouWin(room);
+    }
+  }
+
+  function checkLoupGarouWin(room) {
+    const alivePlayers = Object.values(room.players).filter(p => p.isAlive);
+    const aliveWolves = alivePlayers.filter(p => p.role === 'loup');
+    const aliveVillagers = alivePlayers.filter(p => p.role !== 'loup');
+
+    // Couple mixed win check
+    if (room.nightState.lovers.length === 2) {
+      const [loverA, loverB] = room.nightState.lovers;
+      const loverAPlayer = room.players[loverA];
+      const loverBPlayer = room.players[loverB];
+      
+      if (loverAPlayer.isAlive && loverBPlayer.isAlive && alivePlayers.length === 2) {
+        const hasMixedRoles = (loverAPlayer.role === 'loup' && loverBPlayer.role !== 'loup') ||
+                             (loverBPlayer.role === 'loup' && loverAPlayer.role !== 'loup');
+        if (hasMixedRoles) {
+          room.status = 'game_over';
+          room.winner = 'couple';
+          room.historyLogs.push(`🏆 Victoire Royale ! Les Amoureux (${loverA} et ${loverB}) remportent la partie !`);
+          return true;
+        }
+      }
+    }
+
+    if (aliveWolves.length === 0) {
+      room.status = 'game_over';
+      room.winner = 'villageois';
+      room.historyLogs.push(`🏆 Victoire du Village ! Tous les Loups-Garous ont été éliminés.`);
+      return true;
+    }
+
+    if (aliveWolves.length >= aliveVillagers.length) {
+      room.status = 'game_over';
+      room.winner = 'loups';
+      room.historyLogs.push(`🏆 Victoire des Loups-Garous ! Ils ont dévoré tout le village.`);
+      return true;
+    }
+
+    return false;
+  }
+
+  // CREATE ROOM
+  if (parsedUrl.pathname === '/api/loup-garou/room/create' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { nickname } = JSON.parse(body);
+        const name = nickname.trim();
+        if (!name) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Pseudo requis' }));
+        }
+
+        const roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
+        rooms[roomId] = {
+          roomId,
+          gameType: 'loup_garou',
+          clients: [],
+          status: 'lobby',
+          players: {
+            [name]: { nickname: name, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false }
+          },
+          rolesConfig: {
+            loupCount: 1,
+            voyante: true,
+            sorciere: true,
+            chasseur: true,
+            cupidon: true,
+            garde: true
+          },
+          nightState: {
+            lovers: [],
+            protectedPlayer: null,
+            seerTarget: null,
+            wolfTarget: null,
+            witchHealed: false,
+            witchKilled: null,
+            witchHealedThisTurn: false,
+            witchKilledThisTurn: null
+          },
+          historyLogs: [],
+          currentNight: 0
+        };
+
+        console.log(`Loup-Garou room created: ${roomId} by ${name}`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, roomId, nickname: name }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // JOIN ROOM
+  if (parsedUrl.pathname === '/api/loup-garou/room/join' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname } = JSON.parse(body);
+        const id = (roomId || '').toUpperCase();
+        const name = nickname.trim();
+
+        if (!rooms[id] || rooms[id].gameType !== 'loup_garou') {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Salon introuvable' }));
+        }
+        if (!name) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Pseudo requis' }));
+        }
+        if (name.length > 15) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Le pseudo ne doit pas dépasser 15 caractères' }));
+        }
+
+        const room = rooms[id];
+
+        // Reconnection logic
+        if (room.players[name]) {
+          room.players[name].isConnected = true;
+          console.log(`Player ${name} reconnected to Loup-Garou room ${id}`);
+          broadcastLoupGarouState(room);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ success: true, roomId: id, nickname: name }));
+        }
+
+        if (room.status !== 'lobby') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Partie déjà commencée' }));
+        }
+
+        room.players[name] = { nickname: name, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false };
+        console.log(`Player ${name} joined Loup-Garou room ${id}`);
+        broadcastLoupGarouState(room);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, roomId: id, nickname: name }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // SAVE SETTINGS
+  if (parsedUrl.pathname === '/api/loup-garou/settings' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, rolesConfig } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou') {
+          res.writeHead(404); return res.end();
+        }
+        if (rolesConfig) {
+          room.rolesConfig = rolesConfig;
+        }
+        console.log(`Loup-Garou room ${roomId} updated settings:`, room.rolesConfig);
+        broadcastLoupGarouState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // START GAME
+  if (parsedUrl.pathname === '/api/loup-garou/start' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou') {
+          res.writeHead(404); return res.end();
+        }
+
+        const playersList = Object.keys(room.players);
+        const config = room.rolesConfig;
+        
+        // Count total roles requested
+        let rolesPool = [];
+        for (let i = 0; i < (config.loupCount || 1); i++) rolesPool.push('loup');
+        if (config.voyante) rolesPool.push('voyante');
+        if (config.sorciere) rolesPool.push('sorciere');
+        if (config.chasseur) rolesPool.push('chasseur');
+        if (config.cupidon) rolesPool.push('cupidon');
+        if (config.garde) rolesPool.push('garde');
+
+        if (playersList.length < rolesPool.length) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: `Pas assez de joueurs (${playersList.length}) pour les rôles sélectionnés (${rolesPool.length}) !` }));
+        }
+
+        // Fill remaining with simple villagers
+        while (rolesPool.length < playersList.length) {
+          rolesPool.push('simple_villageois');
+        }
+
+        // Shuffle roles
+        for (let i = rolesPool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [rolesPool[i], rolesPool[j]] = [rolesPool[j], rolesPool[i]];
+        }
+
+        // Assign roles
+        playersList.forEach((name, index) => {
+          const p = room.players[name];
+          p.role = rolesPool[index];
+          p.isAlive = true;
+          p.votedFor = null;
+          p.coupleId = null;
+          p.hasShot = false;
+        });
+
+        // Initialize state
+        room.status = 'night_actions';
+        room.currentNight = 1;
+        room.historyLogs = [`🌒 La Nuit n°1 tombe sur le village de Thiercelieux... Les rôles se réveillent en secret.`];
+        room.nightState = {
+          lovers: [],
+          protectedPlayer: null,
+          seerTarget: null,
+          wolfTarget: null,
+          witchHealed: false,
+          witchKilled: null,
+          witchHealedThisTurn: false,
+          witchKilledThisTurn: null
+        };
+
+        // Shuffle turn order (who votes first)
+        const shuffledList = [...playersList];
+        for (let i = shuffledList.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledList[i], shuffledList[j]] = [shuffledList[j], shuffledList[i]];
+        }
+        room.turnOrder = shuffledList;
+
+        console.log(`Loup-Garou room ${roomId} game started successfully!`);
+        broadcastLoupGarouState(room);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // NIGHT ACTION
+  if (parsedUrl.pathname === '/api/loup-garou/night-action' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname, actionType, targetName, targetName2 } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou') {
+          res.writeHead(404); return res.end();
+        }
+
+        const p = room.players[nickname];
+        if (!p || !p.isAlive) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Action impossible ou joueur éliminé' }));
+        }
+
+        if (actionType === 'cupidon' && p.role === 'cupidon' && room.currentNight === 1) {
+          if (targetName && targetName2) {
+            room.nightState.lovers = [targetName, targetName2];
+            room.players[targetName].coupleId = 'couple_1';
+            room.players[targetName2].coupleId = 'couple_1';
+            room.historyLogs.push(`💘 Cupidon a lié deux cœurs d'un amour indestructible.`);
+          }
+        }
+        else if (actionType === 'garde' && p.role === 'garde') {
+          room.nightState.protectedPlayer = targetName;
+        }
+        else if (actionType === 'voyante' && p.role === 'voyante') {
+          room.nightState.seerTarget = targetName;
+        }
+        else if (actionType === 'loup' && p.role === 'loup') {
+          p.votedFor = targetName; // save individual wolf vote
+        }
+        else if (actionType === 'sorciere_heal' && p.role === 'sorciere') {
+          room.nightState.witchHealed = true;
+          room.nightState.witchHealedThisTurn = true;
+        }
+        else if (actionType === 'sorciere_kill' && p.role === 'sorciere') {
+          room.nightState.witchKilled = true;
+          room.nightState.witchKilledThisTurn = targetName;
+        }
+        else if (actionType === 'sorciere_skip' && p.role === 'sorciere') {
+          // Witch does nothing
+        }
+
+        // Trigger condition checks
+        if (room.status === 'night_actions') {
+          checkNightPart1End(room);
+        }
+        else if (room.status === 'night_witch' && actionType.startsWith('sorciere')) {
+          resolveNight(room);
+        }
+
+        broadcastLoupGarouState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // HUNTER VENGEANCE SHOT
+  if (parsedUrl.pathname === '/api/loup-garou/hunter-shot' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname, targetName } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou' || room.status !== 'day_hunter') {
+          res.writeHead(404); return res.end();
+        }
+
+        const p = room.players[nickname];
+        if (!p || p.role !== 'chasseur' || p.hasShot) {
+          res.writeHead(400); return res.end();
+        }
+
+        p.hasShot = true;
+        if (targetName && room.players[targetName]) {
+          room.players[targetName].isAlive = false;
+          room.historyLogs.push(`💥 PAN ! Le Chasseur venge sa mort en éliminant ${targetName}.`);
+
+          // Couple suicide checks
+          if (room.nightState.lovers.length === 2) {
+            const [loverA, loverB] = room.nightState.lovers;
+            if (!room.players[loverA].isAlive && room.players[loverB].isAlive) {
+              room.players[loverB].isAlive = false;
+              room.historyLogs.push(`💔 ${loverB} s'est suicidé par chagrin d'amour pour ${loverA}.`);
+            } else if (!room.players[loverB].isAlive && room.players[loverA].isAlive) {
+              room.players[loverA].isAlive = false;
+              room.historyLogs.push(`💔 ${loverA} s'est suicidé par chagrin d'amour pour ${loverB}.`);
+            }
+          }
+        }
+
+        room.status = 'day_vote';
+        checkLoupGarouWin(room);
+        broadcastLoupGarouState(room);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // DAY VOTE
+  if (parsedUrl.pathname === '/api/loup-garou/vote' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname, votedNickname } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou' || room.status !== 'day_vote') {
+          res.writeHead(404); return res.end();
+        }
+
+        const p = room.players[nickname];
+        if (!p || !p.isAlive) {
+          res.writeHead(400); return res.end();
+        }
+
+        p.votedFor = votedNickname === 'skip' ? 'skip' : votedNickname;
+        broadcastLoupGarouState(room);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // TALLY DAY VOTES
+  if (parsedUrl.pathname === '/api/loup-garou/tally' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou' || room.status !== 'day_vote') {
+          res.writeHead(404); return res.end();
+        }
+
+        // Count votes
+        const voteCounts = {};
+        Object.values(room.players).forEach(p => {
+          if (p.isAlive && p.votedFor) {
+            voteCounts[p.votedFor] = (voteCounts[p.votedFor] || 0) + 1;
+          }
+        });
+
+        let highestVotes = 0;
+        let selectedChoice = null;
+        let isTie = false;
+
+        Object.keys(voteCounts).forEach(choice => {
+          if (voteCounts[choice] > highestVotes) {
+            highestVotes = voteCounts[choice];
+            selectedChoice = choice;
+            isTie = false;
+          } else if (voteCounts[choice] === highestVotes) {
+            isTie = true;
+          }
+        });
+
+        if (!selectedChoice || selectedChoice === 'skip' || isTie) {
+          room.historyLogs.push(`🌅 Le village n'a désigné aucun coupable lors du conseil municipal.`);
+        } else {
+          // Eliminate
+          room.players[selectedChoice].isAlive = false;
+          room.historyLogs.push(`⚖️ Le conseil du village a voté l'élimination de ${selectedChoice} (était : ${room.players[selectedChoice].role.toUpperCase()}).`);
+
+          // Lovers couple check
+          if (room.nightState.lovers.length === 2) {
+            const [loverA, loverB] = room.nightState.lovers;
+            if (!room.players[loverA].isAlive && room.players[loverB].isAlive) {
+              room.players[loverB].isAlive = false;
+              room.historyLogs.push(`💔 ${loverB} s'est suicidé par chagrin d'amour pour ${loverA}.`);
+            } else if (!room.players[loverB].isAlive && room.players[loverA].isAlive) {
+              room.players[loverA].isAlive = false;
+              room.historyLogs.push(`💔 ${loverA} s'est suicidé par chagrin d'amour pour ${loverB}.`);
+            }
+          }
+        }
+
+        // Check Hunter
+        let hunterShotPending = false;
+        if (room.rolesConfig.chasseur) {
+          Object.values(room.players).forEach(p => {
+            if (p.role === 'chasseur' && !p.isAlive && !p.hasShot) {
+              room.status = 'day_hunter';
+              room.hunterPendingNickname = p.nickname;
+              hunterShotPending = true;
+              room.historyLogs.push(`🎯 Le Chasseur (${p.nickname}) charge son fusil avant de mourir !`);
+            }
+          });
+        }
+
+        // Transition back to night if not game over and no hunter pending
+        if (!hunterShotPending) {
+          const gameOver = checkLoupGarouWin(room);
+          if (!gameOver) {
+            // Re-init for next Night
+            room.currentNight++;
+            room.status = 'night_actions';
+            room.historyLogs.push(`🌒 La nuit n°${room.currentNight} retombe sur le village de Thiercelieux...`);
+            
+            // Clean temp states
+            room.nightState.protectedPlayer = null;
+            room.nightState.seerTarget = null;
+            room.nightState.wolfTarget = null;
+            room.nightState.witchHealedThisTurn = false;
+            room.nightState.witchKilledThisTurn = null;
+
+            Object.keys(room.players).forEach(name => {
+              room.players[name].votedFor = null;
+            });
+          }
+        }
+
+        broadcastLoupGarouState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // RESTART
+  if (parsedUrl.pathname === '/api/loup-garou/restart' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou') {
+          res.writeHead(404); return res.end();
+        }
+
+        room.status = 'lobby';
+        room.currentNight = 0;
+        room.historyLogs = [];
+        room.winner = null;
+        room.nightState = {
+          lovers: [],
+          protectedPlayer: null,
+          seerTarget: null,
+          wolfTarget: null,
+          witchHealed: false,
+          witchKilled: null,
+          witchHealedThisTurn: false,
+          witchKilledThisTurn: null
+        };
+
+        Object.keys(room.players).forEach(name => {
+          const p = room.players[name];
+          p.role = 'simple_villageois';
+          p.votedFor = null;
+          p.isAlive = true;
+          p.coupleId = null;
+          p.hasShot = false;
+        });
+
+        console.log(`Loup-Garou room ${roomId} returned to lobby.`);
+        broadcastLoupGarouState(room);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // KICK LOUP-GAROU PLAYER
+  if (parsedUrl.pathname === '/api/loup-garou/kick' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, targetNickname } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou') {
+          res.writeHead(404); return res.end();
+        }
+
+        if (room.players[targetNickname]) {
+          delete room.players[targetNickname];
+
+          room.clients = room.clients.filter(client => {
+            if (client.nickname === targetNickname) {
+              try { client.res.end(); } catch(err) {}
+              return false;
+            }
+            return true;
+          });
+
+          console.log(`Kicked ${targetNickname} from Loup-Garou room ${roomId}`);
+
+          if (room.status !== 'lobby') {
+            checkLoupGarouWin(room);
+          }
+
+          broadcastLoupGarouState(room);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true }));
+        } else {
+          res.writeHead(404); res.end();
+        }
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // ==========================================
   // SSE CONNECTION
   // ==========================================
   
@@ -1841,6 +2656,16 @@ function advanceTurnAndCheckRoundEnd(room) {
           leaderboard: getGeoLeaderboard(room)
         }
       })}\n\n`);
+    } else if (room.gameType === 'loup_garou') {
+      if (nickname && room.players[nickname]) {
+        room.players[nickname].isConnected = true;
+        console.log(`Player ${nickname} marked connected in Loup-Garou room ${roomId}`);
+        broadcastLoupGarouState(room);
+      }
+      res.write(`data: ${JSON.stringify({ 
+        type: 'LOUP_GAROU_STATE', 
+        state: getFullLoupGarouState(room, nickname)
+      })}\n\n`);
     } else {
       res.write(`data: ${JSON.stringify({ type: 'STATE', state: { 
         guesses: room.guesses, 
@@ -1873,6 +2698,17 @@ function advanceTurnAndCheckRoundEnd(room) {
           delete room.players[nickname];
           console.log(`Player ${nickname} left Geographie room ${roomId} (connection closed)`);
           broadcastGeoState(room);
+        }
+      } else if (room.gameType === 'loup_garou') {
+        if (nickname && room.players[nickname]) {
+          if (room.status === 'lobby') {
+            delete room.players[nickname];
+            console.log(`Player ${nickname} left Loup-Garou room ${roomId} (connection closed)`);
+          } else {
+            room.players[nickname].isConnected = false;
+            console.log(`Player ${nickname} disconnected from Loup-Garou room ${roomId}`);
+          }
+          broadcastLoupGarouState(room);
         }
       }
       

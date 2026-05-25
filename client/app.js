@@ -48,6 +48,23 @@ let geographieState = {
   leaderboard: []
 };
 let geoCountdownInterval = null;
+
+// Loup-Garou State
+let loupGarouState = {
+  nickname: '',
+  roomId: '',
+  isHost: false,
+  status: 'lobby',
+  players: {},
+  historyLogs: [],
+  rolesConfig: {},
+  myRole: null,
+  myAlive: false,
+  myCouple: false,
+  nightState: {},
+  winner: null,
+  privateActionData: null
+};
 let geoTimeRemaining = 15;
 
 // DOM Cache
@@ -142,6 +159,11 @@ const dom = {
 
   impPlayersCount: document.getElementById('imposteur-players-count'),
   impPlayersList: document.getElementById('imposteur-players-list'),
+
+  cardLoupGarou: document.getElementById('card-loup-garou'),
+  btnBackLoupGarou: document.getElementById('btn-back-loup-garou'),
+  lgMenuView: document.getElementById('loup-garou-menu-view'),
+  lgGameView: document.getElementById('loup-garou-game-view'),
 };
 
 const views = {
@@ -149,9 +171,11 @@ const views = {
   theriMenu: dom.theriMenuView,
   impMenu: dom.impMenuView,
   geoMenu: dom.geoMenuView,
+  lgMenu: document.getElementById('loup-garou-menu-view'),
   theriGame: dom.theriGameView,
   impGame: dom.impGameView,
-  geoGame: dom.geoGameView
+  geoGame: dom.geoGameView,
+  lgGame: document.getElementById('loup-garou-game-view')
 };
 
 // --- View Router ---
@@ -182,6 +206,7 @@ function confirmLeave() {
   const isTheriActive = views.theriGame && !views.theriGame.classList.contains('view-hidden');
   const isImpActive = views.impGame && !views.impGame.classList.contains('view-hidden');
   const isGeoActive = views.geoGame && !views.geoGame.classList.contains('view-hidden');
+  const isLgActive = views.lgGame && !views.lgGame.classList.contains('view-hidden');
 
   if (isTheriActive) {
     if (confirm("Voulez-vous quitter la partie coopérative de Theridactle en cours ?")) {
@@ -194,6 +219,10 @@ function confirmLeave() {
   } else if (isGeoActive) {
     if (confirm("Voulez-vous quitter le salon ou la partie en cours du Quiz Géographie ?")) {
       leaveGeographieRoom();
+    }
+  } else if (isLgActive) {
+    if (confirm("Voulez-vous quitter le village ou la partie en cours de Loup-Garou ?")) {
+      leaveLoupGarouRoom();
     }
   } else {
     showView('portal');
@@ -656,7 +685,7 @@ function init() {
     });
   }
 
-  // Auto-reconnect
+  // 1. Silent Auto-reconnect for L'Imposteur
   const activeRoomId = localStorage.getItem('imposteur-roomId');
   const activeNickname = localStorage.getItem('imposteur-nickname');
   if (activeRoomId && activeNickname) {
@@ -677,48 +706,447 @@ function init() {
     .catch(() => console.log('Reconnection failed'));
   }
 
-  // Invitation link detection
+  // 2. Silent Auto-reconnect for Loup-Garou
+  const lgActiveRoomId = localStorage.getItem('loup-garou-roomId');
+  const lgActiveNickname = localStorage.getItem('loup-garou-nickname');
+  if (lgActiveRoomId && lgActiveNickname) {
+    console.log(`Silent auto-reconnection to Loup-Garou room ${lgActiveRoomId} as ${lgActiveNickname}`);
+    fetch('/api/loup-garou/room/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId: lgActiveRoomId, nickname: lgActiveNickname })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        startPlayingLoupGarou(data.roomId, lgActiveNickname);
+      } else {
+        localStorage.removeItem('loup-garou-roomId');
+      }
+    })
+    .catch(() => console.log('Loup-Garou reconnection failed'));
+  }
+
+  // Helper function to handle manual routing with neon glows
+  function routeToManualJoin(gameType, code) {
+    if (gameType === 'imposteur') {
+      showView('impMenu');
+      if (dom.impJoinCodeInput) {
+        dom.impJoinCodeInput.value = code;
+      }
+      const nickInput = dom.impNicknameInput;
+      if (nickInput) {
+        nickInput.focus();
+        nickInput.style.borderColor = 'var(--neon-pink)';
+        nickInput.style.boxShadow = '0 0 15px rgba(236, 72, 153, 0.5)';
+      }
+    } else if (gameType === 'geographie') {
+      showView('geoMenu');
+      const geoInput = document.getElementById('geographie-join-code');
+      if (geoInput) {
+        geoInput.value = code;
+      }
+      const nickInput = document.getElementById('geographie-nickname');
+      if (nickInput) {
+        nickInput.focus();
+        nickInput.style.borderColor = 'var(--neon-cyan)';
+        nickInput.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.5)';
+      }
+    } else if (gameType === 'loup_garou') {
+      showView('lgMenu');
+      const lgInput = document.getElementById('loup-garou-join-code');
+      if (lgInput) {
+        lgInput.value = code;
+      }
+      const nickInput = document.getElementById('loup-garou-nickname');
+      if (nickInput) {
+        nickInput.focus();
+        nickInput.style.borderColor = '#ef4444';
+        nickInput.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.5)';
+      }
+    }
+  }
+
+  // 3. Invitation link detection & auto-join correction
   const urlParams = new URLSearchParams(window.location.search);
   const inviteRoom = urlParams.get('room');
   if (inviteRoom) {
     const code = inviteRoom.trim().toUpperCase();
-    if (activeRoomId && activeRoomId.toUpperCase() === code && activeNickname) {
-      console.log('Invite link matches active room, let silent-reconnect handle it.');
-    } else {
-      fetch(`/api/room/check?roomId=${code}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            if (data.gameType === 'imposteur') {
-              showView('impMenu');
-              if (dom.impJoinCodeInput) {
-                dom.impJoinCodeInput.value = code;
-                dom.impJoinCodeInput.focus();
-                dom.impJoinCodeInput.style.borderColor = 'var(--neon-pink)';
-                dom.impJoinCodeInput.style.boxShadow = '0 0 15px rgba(236, 72, 153, 0.5)';
+    
+    // Clean URL query parameters immediately using replaceState to prevent reload loops
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    fetch(`/api/room/check?roomId=${code}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const gameType = data.gameType;
+          
+          let savedNickname = '';
+          if (gameType === 'imposteur') {
+            savedNickname = localStorage.getItem('imposteur-nickname');
+          } else if (gameType === 'geographie') {
+            savedNickname = localStorage.getItem('geographie-nickname');
+          } else if (gameType === 'loup_garou') {
+            savedNickname = localStorage.getItem('loup-garou-nickname');
+          }
+          
+          if (savedNickname && gameType !== 'theridactle') {
+            console.log(`Auto-joining room ${code} as ${savedNickname} for game ${gameType}`);
+            fetch(`/api/${gameType}/room/join`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ roomId: code, nickname: savedNickname })
+            })
+            .then(res => res.json())
+            .then(joinData => {
+              if (joinData.success) {
+                localStorage.setItem(`${gameType}-roomId`, code);
+                if (gameType === 'imposteur') {
+                  startPlayingImposteur(code, savedNickname);
+                } else if (gameType === 'geographie') {
+                  startPlayingGeographie(code, savedNickname);
+                } else if (gameType === 'loup_garou') {
+                  startPlayingLoupGarou(code, savedNickname);
+                }
+                showToast("Reconnexion automatique réussie !");
+              } else {
+                routeToManualJoin(gameType, code);
               }
-            } else if (data.gameType === 'geographie') {
-              showView('geoMenu');
-              const geoInput = document.getElementById('geographie-join-code');
-              if (geoInput) {
-                geoInput.value = code;
-                geoInput.focus();
-                geoInput.style.borderColor = 'var(--neon-cyan)';
-                geoInput.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.5)';
-              }
-            } else if (data.gameType === 'theridactle') {
-              showView('theriMenu');
-              if (dom.joinRoomInput) {
-                dom.joinRoomInput.value = code;
-                dom.joinRoomInput.focus();
-                dom.joinRoomInput.style.borderColor = 'var(--accent)';
-                dom.joinRoomInput.style.boxShadow = '0 0 15px rgba(167, 139, 250, 0.5)';
-              }
+            })
+            .catch(() => routeToManualJoin(gameType, code));
+          } else {
+            if (gameType === 'theridactle') {
+              joinTheridactleRoom(code);
+            } else {
+              routeToManualJoin(gameType, code);
             }
           }
+        } else {
+          showToast("Ce salon n'existe plus ou a expiré.", "error");
+          localStorage.removeItem('imposteur-roomId');
+          localStorage.removeItem('loup-garou-roomId');
+        }
+      })
+      .catch(err => {
+        console.error('Check invitation failed', err);
+        showToast("Erreur lors de la vérification du salon.", "error");
+      });
+  }
+
+  // --- Loup-Garou Menu Actions ---
+  if (dom.cardLoupGarou) {
+    dom.cardLoupGarou.addEventListener('click', () => {
+      showView('lgMenu');
+      const saved = localStorage.getItem('loup-garou-nickname');
+      if (saved) {
+        const nickInput = document.getElementById('loup-garou-nickname');
+        if (nickInput) nickInput.value = saved;
+      }
+    });
+  }
+  
+  if (dom.btnBackLoupGarou) {
+    dom.btnBackLoupGarou.addEventListener('click', () => showView('portal'));
+  }
+
+  const btnLgCreate = document.getElementById('btn-loup-garou-create');
+  if (btnLgCreate) {
+    btnLgCreate.addEventListener('click', () => {
+      const nicknameInput = document.getElementById('loup-garou-nickname');
+      const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+      if (!nickname) {
+        showLgMenuError('Veuillez saisir un pseudo pour créer un village !');
+        return;
+      }
+      showLgMenuError('');
+      fetch('/api/loup-garou/room/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.roomId) {
+          localStorage.setItem('loup-garou-nickname', nickname);
+          localStorage.setItem('loup-garou-roomId', data.roomId);
+          startPlayingLoupGarou(data.roomId, nickname);
+        } else {
+          showLgMenuError(data.error || 'Erreur lors de la création du village.');
+        }
+      })
+      .catch(() => showLgMenuError('Impossible de joindre le serveur.'));
+    });
+  }
+
+  const btnLgJoin = document.getElementById('btn-loup-garou-join');
+  if (btnLgJoin) {
+    btnLgJoin.addEventListener('click', () => {
+      const nicknameInput = document.getElementById('loup-garou-nickname');
+      const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+      const codeInput = document.getElementById('loup-garou-join-code');
+      const code = codeInput ? codeInput.value.trim().toUpperCase() : '';
+      
+      if (!nickname) {
+        showLgMenuError('Veuillez saisir un pseudo pour rejoindre un village !');
+        return;
+      }
+      if (!code || code.length < 4) {
+        showLgMenuError('Veuillez entrer un code de village valide (ex: WXYZ).');
+        return;
+      }
+      showLgMenuError('');
+      fetch('/api/loup-garou/room/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: code, nickname })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem('loup-garou-nickname', nickname);
+          localStorage.setItem('loup-garou-roomId', data.roomId);
+          startPlayingLoupGarou(data.roomId, nickname);
+        } else {
+          showLgMenuError(data.error || 'Village introuvable, déjà complet ou pseudo pris.');
+        }
+      })
+      .catch(() => showLgMenuError('Impossible de joindre le serveur.'));
+    });
+  }
+
+  const wolvesSelect = document.getElementById('loup-garou-wolves-select');
+  if (wolvesSelect) {
+    wolvesSelect.addEventListener('change', () => {
+      if (loupGarouState.isHost) {
+        const loupCount = parseInt(wolvesSelect.value);
+        fetch('/api/loup-garou/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: loupGarouState.roomId, loupCount })
+        });
+      }
+    });
+  }
+
+  document.querySelectorAll('.role-config-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (loupGarouState.isHost) {
+        card.classList.toggle('active');
+        const role = card.getAttribute('data-role');
+        const active = card.classList.contains('active');
+        
+        const updates = {};
+        updates[role] = active;
+        
+        fetch('/api/loup-garou/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: loupGarouState.roomId, rolesConfig: updates })
+        });
+      }
+    });
+  });
+
+  const btnLgStart = document.getElementById('btn-loup-garou-start');
+  if (btnLgStart) {
+    btnLgStart.addEventListener('click', () => {
+      if (loupGarouState.isHost) {
+        fetch('/api/loup-garou/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: loupGarouState.roomId })
         })
-        .catch(err => console.log('Check invitation failed', err));
-    }
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) {
+            alert(data.error || "Impossible de lancer la partie.");
+          }
+        });
+      }
+    });
+  }
+
+  const btnLgTally = document.getElementById('btn-loup-garou-tally');
+  if (btnLgTally) {
+    btnLgTally.addEventListener('click', () => {
+      if (loupGarouState.isHost) {
+        fetch('/api/loup-garou/tally', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: loupGarouState.roomId })
+        });
+      }
+    });
+  }
+
+  const btnLgRestart = document.getElementById('btn-loup-garou-restart');
+  if (btnLgRestart) {
+    btnLgRestart.addEventListener('click', () => {
+      if (loupGarouState.isHost) {
+        fetch('/api/loup-garou/restart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomId: loupGarouState.roomId })
+        });
+      }
+    });
+  }
+
+  const btnLgCupid = document.getElementById('btn-loup-garou-cupid-submit');
+  if (btnLgCupid) {
+    btnLgCupid.addEventListener('click', () => {
+      const targetName = document.getElementById('loup-garou-cupid-lover1').value;
+      const targetName2 = document.getElementById('loup-garou-cupid-lover2').value;
+      if (targetName === targetName2) {
+        alert("Cupidon doit choisir deux personnes différentes !");
+        return;
+      }
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'cupidon',
+          targetName,
+          targetName2
+        })
+      });
+    });
+  }
+
+  const btnLgGarde = document.getElementById('btn-loup-garou-garde-submit');
+  if (btnLgGarde) {
+    btnLgGarde.addEventListener('click', () => {
+      const targetName = document.getElementById('loup-garou-garde-target').value;
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'garde',
+          targetName
+        })
+      });
+    });
+  }
+
+  const btnLgVoyante = document.getElementById('btn-loup-garou-voyante-submit');
+  if (btnLgVoyante) {
+    btnLgVoyante.addEventListener('click', () => {
+      const targetName = document.getElementById('loup-garou-voyante-target').value;
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'voyante',
+          targetName
+        })
+      });
+    });
+  }
+
+  const btnLgWolf = document.getElementById('btn-loup-garou-wolf-submit');
+  if (btnLgWolf) {
+    btnLgWolf.addEventListener('click', () => {
+      const targetName = document.getElementById('loup-garou-wolf-target').value;
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'loup',
+          targetName
+        })
+      });
+    });
+  }
+
+  const btnLgWitchHeal = document.getElementById('btn-loup-garou-witch-heal');
+  if (btnLgWitchHeal) {
+    btnLgWitchHeal.addEventListener('click', () => {
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'sorciere_heal'
+        })
+      }).then(() => {
+        btnLgWitchHeal.disabled = true;
+        btnLgWitchHeal.style.opacity = '0.5';
+      });
+    });
+  }
+
+  const btnLgWitchKill = document.getElementById('btn-loup-garou-witch-kill');
+  if (btnLgWitchKill) {
+    btnLgWitchKill.addEventListener('click', () => {
+      const selectBox = document.getElementById('loup-garou-witch-kill-select-box');
+      if (selectBox) {
+        selectBox.classList.remove('view-hidden');
+      }
+    });
+  }
+
+  const btnLgWitchSkip = document.getElementById('btn-loup-garou-witch-skip');
+  if (btnLgWitchSkip) {
+    btnLgWitchSkip.addEventListener('click', () => {
+      fetch('/api/loup-garou/night-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          actionType: 'sorciere_skip'
+        })
+      });
+    });
+  }
+
+  const witchKillTargetSelect = document.getElementById('loup-garou-witch-kill-target');
+  if (witchKillTargetSelect) {
+    witchKillTargetSelect.addEventListener('change', () => {
+      const targetName = witchKillTargetSelect.value;
+      if (targetName && confirm(`Voulez-vous vraiment empoisonner ${targetName} ?`)) {
+        fetch('/api/loup-garou/night-action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomId: loupGarouState.roomId,
+            nickname: loupGarouState.nickname,
+            actionType: 'sorciere_kill',
+            targetName
+          })
+        }).then(() => {
+          const selectBox = document.getElementById('loup-garou-witch-kill-select-box');
+          if (selectBox) selectBox.classList.add('view-hidden');
+        });
+      }
+    });
+  }
+
+  const btnLgHunter = document.getElementById('btn-loup-garou-hunter-submit');
+  if (btnLgHunter) {
+    btnLgHunter.addEventListener('click', () => {
+      const targetName = document.getElementById('loup-garou-hunter-target').value;
+      if (!targetName) return;
+      fetch('/api/loup-garou/hunter-shot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: loupGarouState.roomId,
+          nickname: loupGarouState.nickname,
+          targetName
+        })
+      });
+    });
   }
 }
 
@@ -2173,6 +2601,625 @@ function updateGeographieUI(state) {
       btnRestart.style.display = 'none';
       helper.style.display = 'block';
       helper.textContent = "Attente que l'hôte relance une nouvelle partie...";
+    }
+  }
+}
+
+}
+
+// --- Loup-Garou Client Logic ---
+
+function showLgMenuError(msg) {
+  const err = document.getElementById('loup-garou-menu-error');
+  if (err) {
+    err.textContent = msg;
+    err.style.display = msg ? 'block' : 'none';
+  }
+}
+
+function startPlayingLoupGarou(roomId, nickname) {
+  showView('lgGame');
+  dom.roomDisplay.style.display = 'inline-block';
+  dom.roomCodeSpan.textContent = roomId;
+  
+  loupGarouState.roomId = roomId;
+  loupGarouState.nickname = nickname;
+  
+  connectLoupGarouSSE(roomId, nickname);
+}
+
+function connectLoupGarouSSE(roomId, nickname) {
+  if (evtSource) evtSource.close();
+  evtSource = new EventSource(`/api/events?roomId=${roomId}&nickname=${encodeURIComponent(nickname)}`);
+  
+  evtSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === 'LOUP_GAROU_STATE') {
+      updateLoupGarouUI(data.state);
+    }
+  };
+}
+
+function leaveLoupGarouRoom() {
+  if (evtSource) evtSource.close();
+  loupGarouState = {
+    nickname: '',
+    roomId: '',
+    isHost: false,
+    status: 'lobby',
+    players: {},
+    historyLogs: [],
+    rolesConfig: {},
+    myRole: null,
+    myAlive: false,
+    myCouple: false,
+    nightState: {},
+    winner: null,
+    privateActionData: null
+  };
+  
+  localStorage.removeItem('loup-garou-roomId');
+  showView('portal');
+  const joinInput = document.getElementById('loup-garou-join-code');
+  if (joinInput) joinInput.value = '';
+  
+  // reset panel visibility
+  document.getElementById('loup-garou-lobby-panel').classList.remove('view-hidden');
+  document.getElementById('loup-garou-play-panel').classList.add('view-hidden');
+  document.getElementById('loup-garou-day-panel').classList.add('view-hidden');
+  document.getElementById('loup-garou-results-panel').classList.add('view-hidden');
+}
+
+window.kickLoupGarouPlayer = function(targetNickname) {
+  if (confirm(`Voulez-vous vraiment exclure ${targetNickname} du village ?`)) {
+    fetch('/api/loup-garou/kick', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId: loupGarouState.roomId, targetNickname })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast(`❌ ${targetNickname} a été exclu.`);
+      }
+    })
+    .catch(err => console.error('Failed to kick player', err));
+  }
+};
+
+window.submitLoupGarouVote = function(votedNickname) {
+  fetch('/api/loup-garou/vote', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      roomId: loupGarouState.roomId,
+      nickname: loupGarouState.nickname,
+      votedNickname
+    })
+  });
+};
+
+function updateLoupGarouUI(state) {
+  loupGarouState.status = state.status;
+  loupGarouState.players = state.players;
+  loupGarouState.historyLogs = state.historyLogs || [];
+  loupGarouState.rolesConfig = state.rolesConfig;
+  loupGarouState.myRole = state.myRole;
+  loupGarouState.myAlive = state.myAlive;
+  loupGarouState.myCouple = state.myCouple;
+  loupGarouState.nightState = state.nightState || {};
+  loupGarouState.winner = state.winner;
+  loupGarouState.privateActionData = state.privateActionData;
+  
+  const playerNames = Object.keys(state.players);
+  const myName = loupGarouState.nickname;
+  
+  // Host detection
+  const isHost = playerNames.length > 0 && playerNames[0] === myName;
+  loupGarouState.isHost = isHost;
+  
+  // Sidebar player list rendering
+  const lgPlayersCount = document.getElementById('loup-garou-players-count');
+  if (lgPlayersCount) lgPlayersCount.textContent = playerNames.length;
+  
+  const lgPlayersList = document.getElementById('loup-garou-players-list');
+  if (lgPlayersList) {
+    lgPlayersList.innerHTML = '';
+    playerNames.forEach(name => {
+      const p = state.players[name];
+      const li = document.createElement('li');
+      li.className = 'player-item';
+      
+      const isPlayerHost = playerNames[0] === name;
+      let badgeHtml = '';
+      if (isPlayerHost) badgeHtml += `<span class="badge-item badge-host"><span class="badge-emoji">⭐</span><span class="badge-text"> Hôte</span></span>`;
+      
+      if (!p.isAlive) {
+        badgeHtml += `<span class="badge-item badge-dead"><span class="badge-emoji">💀</span><span class="badge-text"> Mort (${p.role})</span></span>`;
+      } else {
+        badgeHtml += `<span class="badge-item badge-alive" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34d399;"><span class="badge-emoji">❤️</span><span class="badge-text"> En vie</span></span>`;
+        if (p.isLover) {
+          badgeHtml += `<span class="badge-item badge-voted" style="background: rgba(236,72,153,0.15); border-color: rgba(236,72,153,0.3); color: #f472b6;"><span class="badge-emoji">💞</span><span class="badge-text"> Amoureux</span></span>`;
+        }
+      }
+      
+      if (p.isConnected === false) {
+        badgeHtml += `<span class="badge-item badge-dead" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;"><span class="badge-emoji">📡</span><span class="badge-text"> Déco</span></span>`;
+      }
+      
+      let kickBtnHtml = '';
+      if (isHost && name !== myName && p.isConnected === false) {
+        kickBtnHtml = `<button class="btn-kick" onclick="kickLoupGarouPlayer('${name}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; white-space: nowrap; margin-left: 5px;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">Virer</button>`;
+      }
+      
+      li.innerHTML = `
+        <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'}; display: flex; align-items: center; gap: 0.75rem;">
+          <span class="player-avatar" style="background: ${p.isAlive ? 'var(--bg-card)' : 'rgba(255,255,255,0.05)'}; color: ${p.isAlive ? '#fff' : '#64748b'};">${name.charAt(0)}</span>
+          <div style="display: flex; flex-direction: column;">
+            <span class="player-name" style="margin: 0; line-height: 1.2; text-decoration: ${p.isAlive ? 'none' : 'line-through'}; color: ${p.isAlive ? '#f8fafc' : '#64748b'};">${name} ${name === myName ? '(Vous)' : ''}</span>
+            ${(p.role && p.role !== 'mystere') ? `<span style="font-size: 10px; color: #ef4444; font-weight: bold;">${p.role}</span>` : ''}
+          </div>
+        </div>
+        <div class="player-badges" style="display: flex; align-items: center; gap: 0.35rem;">
+          ${badgeHtml}
+          ${kickBtnHtml}
+        </div>
+      `;
+      lgPlayersList.appendChild(li);
+    });
+  }
+  
+  // Update state panel views
+  const lobbyPanel = document.getElementById('loup-garou-lobby-panel');
+  const playPanel = document.getElementById('loup-garou-play-panel');
+  const dayPanel = document.getElementById('loup-garou-day-panel');
+  const resultsPanel = document.getElementById('loup-garou-results-panel');
+  
+  // Helper to toggle panels
+  function showPanel(panel) {
+    [lobbyPanel, playPanel, dayPanel, resultsPanel].forEach(p => {
+      if (p) {
+        if (p === panel) p.classList.remove('view-hidden');
+        else p.classList.add('view-hidden');
+      }
+    });
+  }
+
+  // Lobby Phase
+  if (state.status === 'lobby') {
+    showPanel(lobbyPanel);
+    
+    // Config toggles
+    document.querySelectorAll('.role-config-card').forEach(card => {
+      const role = card.getAttribute('data-role');
+      const isActive = state.rolesConfig[role];
+      if (isActive) {
+        card.classList.add('active');
+        card.style.background = 'rgba(239, 68, 68, 0.15)';
+      } else {
+        card.classList.remove('active');
+        card.style.background = 'rgba(255, 255, 255, 0.02)';
+      }
+    });
+    
+    const wolvesSelect = document.getElementById('loup-garou-wolves-select');
+    if (wolvesSelect) {
+      wolvesSelect.value = state.rolesConfig.loupCount || 1;
+      wolvesSelect.disabled = !isHost;
+    }
+    
+    const btnLgStart = document.getElementById('btn-loup-garou-start');
+    const startHelper = document.getElementById('loup-garou-start-helper');
+    if (isHost) {
+      if (btnLgStart) btnLgStart.style.display = 'block';
+      if (startHelper) startHelper.style.display = 'none';
+    } else {
+      if (btnLgStart) btnLgStart.style.display = 'none';
+      if (startHelper) {
+        startHelper.style.display = 'block';
+        startHelper.textContent = "Attente que l'hôte lance le rituel...";
+      }
+    }
+  }
+  // Night Action / Night Witch Phase
+  else if (state.status === 'night_actions' || state.status === 'night_witch') {
+    showPanel(playPanel);
+    
+    // Private Secret Card Drawer
+    const emojiSpan = document.getElementById('loup-garou-my-role-emoji');
+    const nameSpan = document.getElementById('loup-garou-my-role-name');
+    const descDiv = document.getElementById('loup-garou-my-role-desc');
+    const coupleBadge = document.getElementById('loup-garou-my-couple-badge');
+    
+    const roleDetails = {
+      'loup': { emoji: '🐺', name: 'Loup-Garou', desc: 'Vous êtes un cruel Loup-Garou. Dévoilez-vous la nuit pour dévorer des villageois avec vos semblables.' },
+      'voyante': { emoji: '👁️', name: 'Voyante', desc: "Vous êtes la Voyante. Chaque nuit, observez secrètement l'identité d'un villageois dans votre boule de cristal." },
+      'sorciere': { emoji: '🧪', name: 'Sorcière', desc: 'Vous êtes la Sorcière. Vous possédez deux fioles uniques : une de guérison et un poison mortel.' },
+      'chasseur': { emoji: '🎯', name: 'Chasseur', desc: 'Vous êtes le Chasseur. Si vous perdez la vie, votre coup de fusil de vengeance éliminera instantanément un autre joueur.' },
+      'cupidon': { emoji: '💘', name: 'Cupidon', desc: 'Vous êtes Cupidon. La première nuit de la partie, vous devez unir deux destins amoureux inséparables.' },
+      'garde': { emoji: '🛡️', name: 'Garde', desc: 'Vous êtes le Garde. Chaque nuit, placez votre bouclier protecteur sur un villageois pour lui éviter d\'être dévoré.' },
+      'simple_villageois': { emoji: '👤', name: 'Simple Villageois', desc: 'Vous êtes un Simple Villageois. Votre seule arme est votre intuition diurne pour démasquer les loups.' }
+    };
+    
+    const details = roleDetails[state.myRole] || { emoji: '👤', name: 'Inconnu', desc: 'Rôle mystère...' };
+    if (emojiSpan) emojiSpan.textContent = details.emoji;
+    if (nameSpan) nameSpan.textContent = details.name;
+    if (descDiv) descDiv.textContent = details.desc;
+    if (coupleBadge) coupleBadge.style.display = state.myCouple ? 'block' : 'none';
+    
+    const turnStatusText = document.getElementById('loup-garou-turn-status-text');
+    if (turnStatusText) {
+      turnStatusText.textContent = state.status === 'night_actions' 
+        ? "La Nuit est tombée. Les rôles mystiques s'éveillent... 🌙" 
+        : "La meute s'est rendormie. La Sorcière s'éveille et concocte ses philtres... 🧪";
+    }
+    
+    // Default sleep windows
+    const sleepWindow = document.getElementById('loup-garou-sleep-window');
+    const cupidonWindow = document.getElementById('loup-garou-cupidon-window');
+    const gardeWindow = document.getElementById('loup-garou-garde-window');
+    const voyanteWindow = document.getElementById('loup-garou-voyante-window');
+    const wolvesWindow = document.getElementById('loup-garou-wolves-window');
+    const sorciereWindow = document.getElementById('loup-garou-sorciere-window');
+    const hunterWindow = document.getElementById('loup-garou-hunter-window');
+    
+    [sleepWindow, cupidonWindow, gardeWindow, voyanteWindow, wolvesWindow, sorciereWindow, hunterWindow].forEach(w => {
+      if (w) w.classList.add('view-hidden');
+    });
+    
+    let waken = false;
+    
+    if (state.myAlive) {
+      const alivePlayers = Object.keys(state.players).filter(name => state.players[name].isAlive);
+      
+      // Cupidon wakes
+      if (state.myRole === 'cupidon' && state.status === 'night_actions' && state.nightState.lovers.length === 0) {
+        waken = true;
+        if (cupidonWindow) {
+          cupidonWindow.classList.remove('view-hidden');
+          const lover1Select = document.getElementById('loup-garou-cupid-lover1');
+          const lover2Select = document.getElementById('loup-garou-cupid-lover2');
+          if (lover1Select && lover2Select) {
+            lover1Select.innerHTML = '';
+            lover2Select.innerHTML = '';
+            alivePlayers.forEach(name => {
+              const opt1 = document.createElement('option');
+              opt1.value = name; opt1.textContent = name;
+              lover1Select.appendChild(opt1);
+              
+              const opt2 = document.createElement('option');
+              opt2.value = name; opt2.textContent = name;
+              lover2Select.appendChild(opt2);
+            });
+          }
+        }
+      }
+      // Garde wakes
+      else if (state.myRole === 'garde' && state.status === 'night_actions') {
+        waken = true;
+        if (gardeWindow) {
+          gardeWindow.classList.remove('view-hidden');
+          const targetSelect = document.getElementById('loup-garou-garde-target');
+          if (targetSelect) {
+            targetSelect.innerHTML = '';
+            alivePlayers.forEach(name => {
+              const opt = document.createElement('option');
+              opt.value = name; opt.textContent = name;
+              targetSelect.appendChild(opt);
+            });
+          }
+        }
+      }
+      // Voyante wakes
+      else if (state.myRole === 'voyante' && state.status === 'night_actions') {
+        waken = true;
+        if (voyanteWindow) {
+          voyanteWindow.classList.remove('view-hidden');
+          const targetSelect = document.getElementById('loup-garou-voyante-target');
+          const resultBox = document.getElementById('loup-garou-seer-result');
+          const resultText = document.getElementById('loup-garou-seer-result-text');
+          const voyanteBtn = document.getElementById('btn-loup-garou-voyante-submit');
+          
+          if (targetSelect) {
+            targetSelect.innerHTML = '';
+            alivePlayers.filter(n => n !== myName).forEach(name => {
+              const opt = document.createElement('option');
+              opt.value = name; opt.textContent = name;
+              targetSelect.appendChild(opt);
+            });
+          }
+          
+          if (state.privateActionData && state.privateActionData.seerTarget) {
+            if (resultBox) resultBox.style.display = 'block';
+            if (resultText) resultText.textContent = `${state.privateActionData.seerTarget} est ${state.privateActionData.seerTargetRole.toUpperCase()} ! 🔮`;
+            if (voyanteBtn) voyanteBtn.disabled = true;
+            if (targetSelect) targetSelect.disabled = true;
+          } else {
+            if (resultBox) resultBox.style.display = 'none';
+            if (voyanteBtn) voyanteBtn.disabled = false;
+            if (targetSelect) targetSelect.disabled = false;
+          }
+        }
+      }
+      // Wolves wake
+      else if (state.myRole === 'loup' && state.status === 'night_actions') {
+        waken = true;
+        if (wolvesWindow) {
+          wolvesWindow.classList.remove('view-hidden');
+          const targetSelect = document.getElementById('loup-garou-wolf-target');
+          const votesList = document.getElementById('loup-garou-wolf-votes-list');
+          
+          if (targetSelect) {
+            targetSelect.innerHTML = '';
+            alivePlayers.forEach(name => {
+              const opt = document.createElement('option');
+              opt.value = name; opt.textContent = name;
+              targetSelect.appendChild(opt);
+            });
+          }
+          
+          if (votesList && state.privateActionData && state.privateActionData.wolfVotes) {
+            votesList.innerHTML = '<strong>Votes en cours de la meute :</strong><br>';
+            Object.keys(state.privateActionData.wolfVotes).forEach(wolf => {
+              votesList.innerHTML += `🐾 ${wolf} cible 👉 ${state.privateActionData.wolfVotes[wolf]}<br>`;
+            });
+          }
+        }
+      }
+      // Witch wakes
+      else if (state.myRole === 'sorciere' && state.status === 'night_witch') {
+        waken = true;
+        if (sorciereWindow) {
+          sorciereWindow.classList.remove('view-hidden');
+          const victimBanner = document.getElementById('loup-garou-witch-victim-banner');
+          const healBtn = document.getElementById('btn-loup-garou-witch-heal');
+          const killBtn = document.getElementById('btn-loup-garou-witch-kill');
+          const killTargetSelect = document.getElementById('loup-garou-witch-kill-target');
+          
+          const wolfTarget = state.privateActionData ? state.privateActionData.wolfTarget : null;
+          if (victimBanner) {
+            victimBanner.textContent = wolfTarget 
+              ? `Les Loups ont choisi de dévorer : ${wolfTarget} 🩸` 
+              : `La meute n'a fait aucune victime cette nuit.`;
+          }
+          
+          if (healBtn) {
+            const canHeal = state.privateActionData && state.privateActionData.hasHealPotion && wolfTarget;
+            healBtn.disabled = !canHeal;
+            healBtn.style.opacity = canHeal ? '1' : '0.4';
+          }
+          
+          if (killBtn) {
+            const canKill = state.privateActionData && state.privateActionData.hasKillPotion;
+            killBtn.disabled = !canKill;
+            killBtn.style.opacity = canKill ? '1' : '0.4';
+          }
+          
+          if (killTargetSelect) {
+            killTargetSelect.innerHTML = '<option value="">-- Choisissez qui empoisonner --</option>';
+            alivePlayers.forEach(name => {
+              const opt = document.createElement('option');
+              opt.value = name; opt.textContent = name;
+              killTargetSelect.appendChild(opt);
+            });
+          }
+        }
+      }
+    }
+    
+    if (!waken && sleepWindow) {
+      sleepWindow.classList.remove('view-hidden');
+    }
+  }
+  // Hunter Vengeance Phase
+  else if (state.status === 'day_hunter') {
+    showPanel(playPanel);
+    const sleepWindow = document.getElementById('loup-garou-sleep-window');
+    const hunterWindow = document.getElementById('loup-garou-hunter-window');
+    
+    [sleepWindow, hunterWindow].forEach(w => { if (w) w.classList.add('view-hidden'); });
+    
+    let activeHunter = null;
+    Object.keys(state.players).forEach(name => {
+      const p = state.players[name];
+      if (p.role === 'chasseur' && !p.isAlive && !p.hasShot) {
+        activeHunter = name;
+      }
+    });
+    
+    const turnStatusText = document.getElementById('loup-garou-turn-status-text');
+    if (turnStatusText) turnStatusText.textContent = "Le Chasseur tire son coup de fusil de vengeance ! 🔫";
+    
+    if (activeHunter === myName) {
+      if (hunterWindow) {
+        hunterWindow.classList.remove('view-hidden');
+        const hunterTargetSelect = document.getElementById('loup-garou-hunter-target');
+        if (hunterTargetSelect) {
+          hunterTargetSelect.innerHTML = '';
+          Object.keys(state.players).filter(n => state.players[n].isAlive).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name; opt.textContent = name;
+            hunterTargetSelect.appendChild(opt);
+          });
+        }
+      }
+    } else {
+      if (sleepWindow) {
+        sleepWindow.classList.remove('view-hidden');
+        const h3 = sleepWindow.querySelector('h3');
+        const p = sleepWindow.querySelector('p');
+        if (h3) h3.textContent = "Bruit de fusil... 💥";
+        if (p) p.textContent = "Le village retient son souffle pendant que le Chasseur ajuste sa cible...";
+      }
+    }
+  }
+  // Day / Debates & Votes Phase
+  else if (state.status === 'day_announcements' || state.status === 'day_vote') {
+    showPanel(dayPanel);
+    
+    // History logs entries
+    const historyJournal = document.getElementById('loup-garou-history-journal');
+    if (historyJournal) {
+      historyJournal.innerHTML = '';
+      state.historyLogs.forEach(log => {
+        const div = document.createElement('div');
+        div.style.marginBottom = '6px';
+        div.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+        div.style.paddingBottom = '4px';
+        div.textContent = log;
+        historyJournal.appendChild(div);
+      });
+      historyJournal.scrollTop = historyJournal.scrollHeight;
+    }
+    
+    const votingArea = document.getElementById('loup-garou-voting-area');
+    if (state.status === 'day_vote') {
+      if (votingArea) votingArea.classList.remove('view-hidden');
+      
+      const votingGrid = document.getElementById('loup-garou-voting-grid');
+      if (votingGrid) {
+        votingGrid.innerHTML = '';
+        
+        const voteTallies = {};
+        Object.keys(state.players).forEach(name => {
+          const v = state.players[name].votedFor;
+          if (v) {
+            voteTallies[v] = (voteTallies[v] || 0) + 1;
+          }
+        });
+        
+        const myPlayer = state.players[myName];
+        const canVote = myPlayer && myPlayer.isAlive;
+        const myVote = myPlayer ? myPlayer.votedFor : null;
+        
+        // Render card for each alive player
+        Object.keys(state.players).filter(n => state.players[n].isAlive).forEach(name => {
+          const card = document.createElement('div');
+          card.className = `vote-card ${myVote === name ? 'active' : ''}`;
+          card.style.border = myVote === name ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.08)';
+          card.style.background = myVote === name ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.02)';
+          card.style.padding = '12px';
+          card.style.borderRadius = '10px';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.alignItems = 'center';
+          card.style.position = 'relative';
+          
+          const voteCount = voteTallies[name] || 0;
+          let tallyBadge = '';
+          if (voteCount > 0) {
+            tallyBadge = `<span style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff; font-size: 10px; font-weight: bold; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(239,68,68,0.5);">${voteCount}</span>`;
+          }
+          
+          card.innerHTML = `
+            ${tallyBadge}
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">👤</div>
+            <div style="font-weight: bold; font-size: 13px; text-align: center; color: #fff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${name}</div>
+            <button class="btn btn-accent btn-small" ${canVote ? '' : 'disabled'} onclick="submitLoupGarouVote('${name}')" style="margin-top: 10px; width: 100%; font-size: 10px; padding: 4px 8px; ${myVote === name ? 'background: #3b82f6; border-color: #3b82f6;' : 'background: #ef4444; border-color: #ef4444;'}">
+              ${myVote === name ? 'Voté !' : 'Accuser'}
+            </button>
+          `;
+          votingGrid.appendChild(card);
+        });
+        
+        // Skip le vote option card
+        const skipCard = document.createElement('div');
+        skipCard.className = `vote-card ${myVote === 'skip' ? 'active' : ''}`;
+        skipCard.style.border = myVote === 'skip' ? '2px solid #64748b' : '1px solid rgba(255,255,255,0.08)';
+        skipCard.style.background = myVote === 'skip' ? 'rgba(100, 116, 139, 0.15)' : 'rgba(255,255,255,0.02)';
+        skipCard.style.padding = '12px';
+        skipCard.style.borderRadius = '10px';
+        skipCard.style.display = 'flex';
+        skipCard.style.flexDirection = 'column';
+        skipCard.style.alignItems = 'center';
+        skipCard.style.position = 'relative';
+        
+        const skipCount = voteTallies['skip'] || 0;
+        let skipBadge = '';
+        if (skipCount > 0) {
+          skipBadge = `<span style="position: absolute; top: -6px; right: -6px; background: #64748b; color: #fff; font-size: 10px; font-weight: bold; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${skipCount}</span>`;
+        }
+        
+        skipCard.innerHTML = `
+          ${skipBadge}
+          <div style="font-size: 1.5rem; margin-bottom: 6px;">🥱</div>
+          <div style="font-weight: bold; font-size: 13px; text-align: center; color: #64748b;">Passer le vote</div>
+          <button class="btn btn-small" ${canVote ? '' : 'disabled'} onclick="submitLoupGarouVote('skip')" style="margin-top: 10px; width: 100%; font-size: 10px; padding: 4px 8px; background: #64748b; border-color: #64748b; color: #fff;">
+            ${myVote === 'skip' ? 'Voté Skip' : 'Skip'}
+          </button>
+        `;
+        votingGrid.appendChild(skipCard);
+      }
+      
+      const tallyBox = document.getElementById('loup-garou-tally-box');
+      const tallyBtn = document.getElementById('btn-loup-garou-tally');
+      const tallyHelper = document.getElementById('loup-garou-tally-helper');
+      if (tallyBox) {
+        tallyBox.style.display = 'block';
+        if (isHost) {
+          if (tallyBtn) tallyBtn.style.display = 'inline-block';
+          if (tallyHelper) tallyHelper.style.display = 'none';
+        } else {
+          if (tallyBtn) tallyBtn.style.display = 'none';
+          if (tallyHelper) {
+            tallyHelper.style.display = 'block';
+            tallyHelper.textContent = "Attente que l'hôte ferme le scrutin...";
+          }
+        }
+      }
+    } else {
+      if (votingArea) votingArea.classList.add('view-hidden');
+    }
+  }
+  // Game Over Phase
+  else if (state.status === 'game_over') {
+    showPanel(resultsPanel);
+    
+    const emoji = document.getElementById('loup-garou-results-emoji');
+    const title = document.getElementById('loup-garou-results-title');
+    const subtitle = document.getElementById('loup-garou-results-subtitle');
+    const revealList = document.getElementById('loup-garou-reveal-list');
+    
+    const winDetails = {
+      'village': { emoji: '🏡🏆', title: 'Victoire du Village !', subtitle: 'Tous les Loups-Garous ont été éliminés. La paix revient au village.' },
+      'loups': { emoji: '🐺🩸', title: 'Victoire des Loups !', subtitle: 'La meute a dévoré tous les villageois. La nuit régnera à jamais.' },
+      'couple': { emoji: '💖🏆', title: 'Victoire des Amoureux !', subtitle: 'L\'amour éternel a surmonté la haine des factions. Seul le couple survit.' }
+    };
+    
+    const wins = winDetails[state.winner] || { emoji: '🏆', title: 'Fin de la Partie', subtitle: 'Le rituel s\'achève...' };
+    if (emoji) emoji.textContent = wins.emoji;
+    if (title) title.textContent = wins.title;
+    if (subtitle) subtitle.textContent = wins.subtitle;
+    
+    if (revealList) {
+      revealList.innerHTML = '';
+      Object.keys(state.players).forEach(name => {
+        const p = state.players[name];
+        const isLoverText = p.isLover ? ' (💞 Amoureux)' : '';
+        const item = document.createElement('div');
+        item.style.padding = '8px';
+        item.style.borderBottom = '1px solid rgba(255,255,255,0.04)';
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.innerHTML = `
+          <span>👤 <strong>${name}</strong>${isLoverText}</span>
+          <span style="font-weight: bold; color: #ef4444;">${p.role.toUpperCase()} ${p.isAlive ? '❤️ En vie' : '💀 Mort'}</span>
+        `;
+        revealList.appendChild(item);
+      });
+    }
+    
+    const restartBtn = document.getElementById('btn-loup-garou-restart');
+    const restartHelper = document.getElementById('loup-garou-restart-helper');
+    if (isHost) {
+      if (restartBtn) restartBtn.style.display = 'block';
+      if (restartHelper) restartHelper.style.display = 'none';
+    } else {
+      if (restartBtn) restartBtn.style.display = 'none';
+      if (restartHelper) {
+        restartHelper.style.display = 'block';
+        restartHelper.textContent = "Attente que l'hôte lance un nouveau rituel...";
+      }
     }
   }
 }
