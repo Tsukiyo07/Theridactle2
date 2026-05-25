@@ -456,6 +456,7 @@ function getSanitizedPlayers(room) {
     const p = room.players[name];
     sanitized[name] = {
       nickname: p.nickname,
+      avatar: p.avatar || '🦖',
       votedFor: p.votedFor,
       hasVoted: p.votedFor !== null,
       isEliminated: p.isEliminated,
@@ -676,6 +677,18 @@ const server = http.createServer((req, res) => {
         
         if (rootWord === getRoot(normTitle) || allTitleWordsGuessed) {
             room.isWon = true;
+            
+            // Record game stats
+            const playersData = room.clients.map(c => {
+              return {
+                nickname: c.nickname || 'Anonyme',
+                avatar: c.avatar || '🦖',
+                isWinner: true,
+                score: 10,
+                role: 'coop'
+              };
+            });
+            recordGameStats('theridactle', playersData);
         }
 
         broadcast(room, { type: 'GUESS', word: displayWord, hits, isWon: room.isWon, root: rootWord, raw: rawNormWord });
@@ -701,6 +714,18 @@ const server = http.createServer((req, res) => {
         if (room && room.gameType === 'theridactle' && !room.isWon) {
           room.isWon = true;
           broadcast(room, { type: 'GIVE_UP', state: { guesses: room.guesses, guessHistory: room.guessHistory, isWon: true } });
+          
+          // Record game stats (loss)
+          const playersData = room.clients.map(c => {
+            return {
+              nickname: c.nickname || 'Anonyme',
+              avatar: c.avatar || '🦖',
+              isWinner: false,
+              score: 0,
+              role: 'coop'
+            };
+          });
+          recordGameStats('theridactle', playersData);
         }
         res.writeHead(200);
         res.end(JSON.stringify({ success: true }));
@@ -721,7 +746,7 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { nickname } = JSON.parse(body);
+        const { nickname, avatar, avatarIsPhoto } = JSON.parse(body);
         const name = nickname.trim();
         if (!name) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -743,7 +768,7 @@ const server = http.createServer((req, res) => {
           currentDescriptionRound: 1,
           descriptionHistory: [],
           players: {
-            [name]: { nickname: name, word: '', isImpostor: false, votedFor: null, isEliminated: false, score: 0, isConnected: true }
+            [name]: { nickname: name, avatar: avatar || '🦖', avatarIsPhoto: avatarIsPhoto || false, word: '', isImpostor: false, votedFor: null, isEliminated: false, score: 0, isConnected: true }
           },
           turnOrder: [],
           currentTurnIndex: 0,
@@ -766,7 +791,7 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { roomId, nickname } = JSON.parse(body);
+        const { roomId, nickname, avatar, avatarIsPhoto } = JSON.parse(body);
         const id = (roomId || '').toUpperCase();
         const name = nickname.trim();
         
@@ -789,6 +814,7 @@ const server = http.createServer((req, res) => {
         const existingPlayer = room.players[name];
         if (existingPlayer) {
           existingPlayer.isConnected = true;
+          if (avatar) existingPlayer.avatar = avatar;
           console.log(`Player ${name} reconnected to Imposteur room ${id}`);
           
           broadcast(room, {
@@ -804,12 +830,8 @@ const server = http.createServer((req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Partie déjà commencée' }));
         }
-        if (room.players[name]) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(JSON.stringify({ error: 'Pseudo déjà utilisé dans ce salon' }));
-        }
         
-        room.players[name] = { nickname: name, word: '', isImpostor: false, votedFor: null, isEliminated: false, score: 0, isConnected: true };
+        room.players[name] = { nickname: name, avatar: avatar || '🦖', avatarIsPhoto: avatarIsPhoto || false, word: '', isImpostor: false, votedFor: null, isEliminated: false, score: 0, isConnected: true };
         
         console.log(`Player ${name} joined Imposteur room ${id}`);
         
@@ -1169,6 +1191,20 @@ function advanceTurnAndCheckRoundEnd(room) {
                 }
               }
             });
+
+            // Record stats
+            const playersData = Object.values(room.players).map(p => {
+              const isWinner = !p.isImpostor;
+              return {
+                nickname: p.nickname,
+                avatar: p.avatar || '🦖',
+                avatarIsPhoto: p.avatarIsPhoto || false,
+                isWinner,
+                score: p.score || 0,
+                role: p.isImpostor ? 'imposteur' : 'civil'
+              };
+            });
+            recordGameStats('imposteur', playersData);
           } else if (remainingCitizens.length <= remainingImpostors.length) {
             room.status = 'game_over';
             room.winner = 'impostor';
@@ -1179,6 +1215,20 @@ function advanceTurnAndCheckRoundEnd(room) {
                 p.score = (p.score || 0) + 3;
               }
             });
+
+            // Record stats
+            const playersData = Object.values(room.players).map(p => {
+              const isWinner = p.isImpostor;
+              return {
+                nickname: p.nickname,
+                avatar: p.avatar || '🦖',
+                avatarIsPhoto: p.avatarIsPhoto || false,
+                isWinner,
+                score: p.score || 0,
+                role: p.isImpostor ? 'imposteur' : 'civil'
+              };
+            });
+            recordGameStats('imposteur', playersData);
           } else {
             room.status = 'playing';
             room.currentTurnIndex = 0;
@@ -1396,6 +1446,7 @@ function advanceTurnAndCheckRoundEnd(room) {
       const p = room.players[name];
       sanitized[name] = {
         nickname: p.nickname,
+        avatar: p.avatar || '🦖',
         score: p.score,
         hasAnswered: p.currentAnswer !== null,
         currentAnswer: (room.status === 'correction' || room.status === 'game_over') ? p.currentAnswer : null,
@@ -1462,7 +1513,7 @@ function advanceTurnAndCheckRoundEnd(room) {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { nickname } = JSON.parse(body);
+        const { nickname, avatar, avatarIsPhoto } = JSON.parse(body);
         const name = nickname.trim();
         if (!name) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -1485,7 +1536,7 @@ function advanceTurnAndCheckRoundEnd(room) {
           currentQuestionIndex: 0,
           questions: [],
           players: {
-            [name]: { nickname: name, score: 0, currentAnswer: null, isCorrect: false, pointsEarned: 0 }
+            [name]: { nickname: name, avatar: avatar || '🦖', avatarIsPhoto: avatarIsPhoto || false, score: 0, currentAnswer: null, isCorrect: false, pointsEarned: 0 }
           },
           clients: []
         };
@@ -1506,7 +1557,7 @@ function advanceTurnAndCheckRoundEnd(room) {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { roomId, nickname } = JSON.parse(body);
+        const { roomId, nickname, avatar, avatarIsPhoto } = JSON.parse(body);
         const id = (roomId || '').toUpperCase();
         const name = nickname.trim();
         
@@ -1533,7 +1584,7 @@ function advanceTurnAndCheckRoundEnd(room) {
           return res.end(JSON.stringify({ error: 'Pseudo déjà utilisé dans ce salon' }));
         }
         
-        room.players[name] = { nickname: name, score: 0, currentAnswer: null, isCorrect: false, pointsEarned: 0 };
+        room.players[name] = { nickname: name, avatar: avatar || '🦖', avatarIsPhoto: avatarIsPhoto || false, score: 0, currentAnswer: null, isCorrect: false, pointsEarned: 0 };
         
         console.log(`Player ${name} joined Geographie room ${id}`);
         broadcastGeoState(room);
@@ -1740,6 +1791,22 @@ function advanceTurnAndCheckRoundEnd(room) {
         room.currentQuestionIndex++;
         if (room.currentQuestionIndex >= room.questions.length) {
           room.status = 'game_over';
+          
+          // Record game stats
+          const leaderboard = getGeoLeaderboard(room);
+          const highestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
+          
+          const playersData = Object.values(room.players).map(p => {
+            const isWinner = p.score === highestScore && highestScore > 0;
+            return {
+              nickname: p.nickname,
+              avatar: p.avatar || '🦖',
+              isWinner,
+              score: p.score,
+              role: 'joueur'
+            };
+          });
+          recordGameStats('geographie', playersData);
         } else {
           room.status = 'question';
           room.questionStartTime = Date.now();
@@ -1816,6 +1883,7 @@ function advanceTurnAndCheckRoundEnd(room) {
 
       sanitized[name] = {
         nickname: p.nickname,
+        avatar: p.avatar || '🦖',
         isAlive: p.isAlive,
         isConnected: p.isConnected,
         role: roleRevealed ? p.role : 'mystere',
@@ -2076,6 +2144,26 @@ function advanceTurnAndCheckRoundEnd(room) {
     const aliveWolves = alivePlayers.filter(p => p.role === 'loup');
     const aliveVillagers = alivePlayers.filter(p => p.role !== 'loup');
 
+    // Helper to log stats
+    function logLoupGarouGameStats() {
+      const playersData = Object.values(room.players).map(p => {
+        let isWinner = false;
+        if (room.winner === 'villageois' && p.role !== 'loup') isWinner = true;
+        else if (room.winner === 'loups' && p.role === 'loup') isWinner = true;
+        else if (room.winner === 'couple' && room.nightState.lovers.includes(p.nickname)) isWinner = true;
+        
+        return {
+          nickname: p.nickname,
+          avatar: p.avatar || '🦖',
+          avatarIsPhoto: p.avatarIsPhoto || false,
+          isWinner,
+          score: isWinner ? 3 : 0,
+          role: p.role
+        };
+      });
+      recordGameStats('loup_garou', playersData);
+    }
+
     // Couple mixed win check
     if (room.nightState.lovers.length === 2) {
       const [loverA, loverB] = room.nightState.lovers;
@@ -2089,6 +2177,7 @@ function advanceTurnAndCheckRoundEnd(room) {
           room.status = 'game_over';
           room.winner = 'couple';
           room.historyLogs.push(`🏆 Victoire Royale ! Les Amoureux (${loverA} et ${loverB}) remportent la partie !`);
+          logLoupGarouGameStats();
           return true;
         }
       }
@@ -2098,6 +2187,7 @@ function advanceTurnAndCheckRoundEnd(room) {
       room.status = 'game_over';
       room.winner = 'villageois';
       room.historyLogs.push(`🏆 Victoire du Village ! Tous les Loups-Garous ont été éliminés.`);
+      logLoupGarouGameStats();
       return true;
     }
 
@@ -2105,6 +2195,7 @@ function advanceTurnAndCheckRoundEnd(room) {
       room.status = 'game_over';
       room.winner = 'loups';
       room.historyLogs.push(`🏆 Victoire des Loups-Garous ! Ils ont dévoré tout le village.`);
+      logLoupGarouGameStats();
       return true;
     }
 
@@ -2117,7 +2208,7 @@ function advanceTurnAndCheckRoundEnd(room) {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { nickname } = JSON.parse(body);
+        const { nickname, avatar, avatarIsPhoto } = JSON.parse(body);
         const name = nickname.trim();
         if (!name) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -2131,7 +2222,7 @@ function advanceTurnAndCheckRoundEnd(room) {
           clients: [],
           status: 'lobby',
           players: {
-            [name]: { nickname: name, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false }
+            [name]: { nickname: name, avatar: avatar || '🦖', avatarIsPhoto: avatarIsPhoto || false, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false }
           },
           rolesConfig: {
             activeCards: ['loup', 'simple_villageois', 'voyante', 'sorciere', 'chasseur']
@@ -2166,7 +2257,7 @@ function advanceTurnAndCheckRoundEnd(room) {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       try {
-        const { roomId, nickname } = JSON.parse(body);
+        const { roomId, nickname, avatar, avatarIsPhoto } = JSON.parse(body);
         const id = (roomId || '').toUpperCase();
         const name = nickname.trim();
 
@@ -2188,6 +2279,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         // Reconnection logic
         if (room.players[name]) {
           room.players[name].isConnected = true;
+          if (avatar) room.players[name].avatar = avatar;
           console.log(`Player ${name} reconnected to Loup-Garou room ${id}`);
           broadcastLoupGarouState(room);
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2199,7 +2291,7 @@ function advanceTurnAndCheckRoundEnd(room) {
           return res.end(JSON.stringify({ error: 'Partie déjà commencée' }));
         }
 
-        room.players[name] = { nickname: name, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false };
+        room.players[name] = { nickname: name, avatar: avatar || '🦖', avatarIsPhoto: avatarIsPhoto || false, role: 'simple_villageois', votedFor: null, isAlive: true, isConnected: true, coupleId: null, hasShot: false };
         console.log(`Player ${name} joined Loup-Garou room ${id}`);
         broadcastLoupGarouState(room);
 
@@ -2730,12 +2822,146 @@ function advanceTurnAndCheckRoundEnd(room) {
   }
 
   // ==========================================
+  // STATISTICS SYSTEM & PERSISTENCY
+  // ==========================================
+  const fs = require('fs');
+  const path = require('path');
+  const STATS_FILE = path.join(__dirname, 'stats.json');
+
+  function loadStats() {
+    try {
+      if (fs.existsSync(STATS_FILE)) {
+        return JSON.parse(fs.readFileSync(STATS_FILE, 'utf8'));
+      }
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    }
+    return { logs: [] };
+  }
+
+  function saveStats(stats) {
+    try {
+      fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), 'utf8');
+    } catch (err) {
+      console.error('Failed to save stats:', err);
+    }
+  }
+
+  function recordGameStats(gameType, playersData) {
+    const stats = loadStats();
+    stats.logs.push({
+      game: gameType,
+      timestamp: Date.now(),
+      players: playersData // [{ nickname, avatar, isWinner, score, role }]
+    });
+    saveStats(stats);
+  }
+
+  // Statistics API Endpoints
+  if (parsedUrl.pathname === '/api/stats/leaderboard') {
+    const game = parsedUrl.query.game; // 'theridactle', 'imposteur', 'geographie', 'loup_garou'
+    const period = parsedUrl.query.period || 'all'; // 'week', 'month', 'year', 'all'
+    
+    const stats = loadStats();
+    const now = Date.now();
+    let cutoff = 0;
+    if (period === 'week') cutoff = now - 7 * 24 * 3600 * 1000;
+    else if (period === 'month') cutoff = now - 30 * 24 * 3600 * 1000;
+    else if (period === 'year') cutoff = now - 365 * 24 * 3600 * 1000;
+
+    const filteredLogs = stats.logs.filter(log => {
+      if (game && log.game !== game) return false;
+      if (cutoff > 0 && log.timestamp < cutoff) return false;
+      return true;
+    });
+
+    const playerAggregates = {};
+    filteredLogs.forEach(log => {
+      log.players.forEach(p => {
+        const key = p.nickname;
+        if (!playerAggregates[key]) {
+          playerAggregates[key] = {
+            nickname: p.nickname,
+            avatar: p.avatar || '🦖',
+            gamesPlayed: 0,
+            wins: 0,
+            score: 0
+          };
+        }
+        const agg = playerAggregates[key];
+        agg.gamesPlayed++;
+        if (p.isWinner) agg.wins++;
+        agg.score += (p.score || 0);
+        if (p.avatar) agg.avatar = p.avatar; // Keep latest avatar
+      });
+    });
+
+    const leaderboard = Object.values(playerAggregates).map(agg => {
+      return {
+        ...agg,
+        winRate: agg.gamesPlayed > 0 ? Math.round((agg.wins / agg.gamesPlayed) * 100) : 0
+      };
+    });
+
+    // Sort by wins first, then score
+    leaderboard.sort((a, b) => b.wins - a.wins || b.score - a.score);
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ leaderboard }));
+    return;
+  }
+
+  if (parsedUrl.pathname === '/api/stats/user') {
+    const nickname = parsedUrl.query.nickname || '';
+    const stats = loadStats();
+
+    const games = ['theridactle', 'imposteur', 'geographie', 'loup_garou'];
+    const userStats = {};
+
+    games.forEach(g => {
+      // Calculate leaderboard for this game (All-Time) to get rank
+      const filteredLogs = stats.logs.filter(log => log.game === g);
+      const aggregates = {};
+      filteredLogs.forEach(log => {
+        log.players.forEach(p => {
+          const key = p.nickname;
+          if (!aggregates[key]) {
+            aggregates[key] = { nickname: p.nickname, wins: 0, score: 0, gamesPlayed: 0 };
+          }
+          aggregates[key].gamesPlayed++;
+          if (p.isWinner) aggregates[key].wins++;
+          aggregates[key].score += (p.score || 0);
+        });
+      });
+
+      const sortedList = Object.values(aggregates).sort((a, b) => b.wins - a.wins || b.score - a.score);
+      const userIndex = sortedList.findIndex(x => x.nickname === nickname);
+      const rank = userIndex !== -1 ? userIndex + 1 : null;
+      const userAgg = aggregates[nickname] || { wins: 0, score: 0, gamesPlayed: 0 };
+
+      userStats[g] = {
+        gamesPlayed: userAgg.gamesPlayed,
+        wins: userAgg.wins,
+        score: userAgg.score,
+        winRate: userAgg.gamesPlayed > 0 ? Math.round((userAgg.wins / userAgg.gamesPlayed) * 100) : 0,
+        rank: rank,
+        totalPlayers: sortedList.length
+      };
+    });
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ nickname, stats: userStats }));
+    return;
+  }
+
+  // ==========================================
   // SSE CONNECTION
   // ==========================================
   
   if (parsedUrl.pathname === '/api/events') {
     const roomId = parsedUrl.query.roomId;
     const nickname = parsedUrl.query.nickname;
+    const avatar = parsedUrl.query.avatar;
     const room = rooms[roomId];
     
     if (!room) {
@@ -2749,13 +2975,14 @@ function advanceTurnAndCheckRoundEnd(room) {
       'Connection': 'keep-alive'
     });
     
-    const client = { id: Date.now(), nickname, res };
+    const client = { id: Date.now(), nickname, avatar: avatar || '🦖', res };
     room.clients.push(client);
     
     // Send initial state depending on gameType
     if (room.gameType === 'imposteur') {
       if (nickname && room.players[nickname]) {
         room.players[nickname].isConnected = true;
+        if (avatar) room.players[nickname].avatar = avatar;
         console.log(`Player ${nickname} marked connected in Imposteur room ${roomId}`);
         
         broadcast(room, {
@@ -2769,6 +2996,9 @@ function advanceTurnAndCheckRoundEnd(room) {
         state: getFullImposteurState(room)
       })}\n\n`);
     } else if (room.gameType === 'geographie') {
+      if (nickname && room.players[nickname] && avatar) {
+        room.players[nickname].avatar = avatar;
+      }
       res.write(`data: ${JSON.stringify({ 
         type: 'GEOGRAPHIE_STATE', 
         state: { 
@@ -2785,6 +3015,7 @@ function advanceTurnAndCheckRoundEnd(room) {
     } else if (room.gameType === 'loup_garou') {
       if (nickname && room.players[nickname]) {
         room.players[nickname].isConnected = true;
+        if (avatar) room.players[nickname].avatar = avatar;
         console.log(`Player ${nickname} marked connected in Loup-Garou room ${roomId}`);
         broadcastLoupGarouState(room);
       }

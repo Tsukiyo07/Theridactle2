@@ -66,6 +66,41 @@ let loupGarouState = {
   winner: null,
   privateActionData: null
 };
+
+// Profile State
+let currentProfile = { nickname: '', avatar: '🦖', avatarIsPhoto: false };
+
+// Stats View State
+let statsViewState = { game: 'all', period: 'week' };
+
+// Load profile from localStorage on startup
+function loadProfile() {
+  const saved = localStorage.getItem('caraQuiz-profile');
+  if (saved) {
+    try { currentProfile = JSON.parse(saved); } catch(e) {}
+  }
+}
+
+function saveProfile(profile) {
+  localStorage.setItem('caraQuiz-profile', JSON.stringify(profile));
+  currentProfile = profile;
+  updateNavAvatar();
+}
+
+function updateNavAvatar() {
+  const navAvatarEl = document.getElementById('nav-profile-avatar');
+  const navNameEl = document.getElementById('nav-profile-name');
+  if (navAvatarEl) {
+    if (currentProfile.avatarIsPhoto && currentProfile.avatar) {
+      navAvatarEl.innerHTML = `<img src="${currentProfile.avatar}" class="nav-avatar-img" alt="avatar">`;
+    } else {
+      navAvatarEl.textContent = currentProfile.avatar || '🦖';
+    }
+  }
+  if (navNameEl) {
+    navNameEl.textContent = currentProfile.nickname || 'Mon Compte';
+  }
+}
 let geoTimeRemaining = 15;
 
 // DOM Cache
@@ -173,6 +208,7 @@ const views = {
   impMenu: dom.impMenuView,
   geoMenu: dom.geoMenuView,
   lgMenu: document.getElementById('loup-garou-menu-view'),
+  statsMenu: document.getElementById('stats-view'),
   theriGame: dom.theriGameView,
   impGame: dom.impGameView,
   geoGame: dom.geoGameView,
@@ -192,7 +228,8 @@ function showView(viewName) {
   });
 
   // Top Nav updates
-  if (viewName === 'portal' || viewName === 'theriMenu' || viewName === 'impMenu' || viewName === 'geoMenu') {
+  const menuViews = ['portal', 'theriMenu', 'impMenu', 'geoMenu', 'lgMenu', 'statsMenu'];
+  if (menuViews.includes(viewName)) {
     dom.navHome.classList.add('active');
     dom.roomDisplay.style.display = 'none';
     dom.btnLeaveNav.style.display = 'none';
@@ -371,7 +408,7 @@ function init() {
       fetch('/api/imposteur/room/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname })
+        body: JSON.stringify({ nickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
       })
       .then(res => res.json())
       .then(data => {
@@ -403,7 +440,7 @@ function init() {
       fetch('/api/imposteur/room/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: code, nickname })
+        body: JSON.stringify({ roomId: code, nickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
       })
       .then(res => res.json())
       .then(data => {
@@ -558,7 +595,7 @@ function init() {
       fetch('/api/geographie/room/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname })
+        body: JSON.stringify({ nickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
       })
       .then(res => res.json())
       .then(data => {
@@ -591,7 +628,7 @@ function init() {
       fetch('/api/geographie/room/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: code, nickname })
+        body: JSON.stringify({ roomId: code, nickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
       })
       .then(res => res.json())
       .then(data => {
@@ -864,7 +901,7 @@ function init() {
       fetch('/api/loup-garou/room/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname })
+        body: JSON.stringify({ nickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
       })
       .then(res => res.json())
       .then(data => {
@@ -900,7 +937,7 @@ function init() {
       fetch('/api/loup-garou/room/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: code, nickname })
+        body: JSON.stringify({ roomId: code, nickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
       })
       .then(res => res.json())
       .then(data => {
@@ -1207,6 +1244,342 @@ function init() {
       });
     });
   }
+  // --- Profile Button & Stats Card ---
+  const btnProfile = document.getElementById('btn-profile');
+  if (btnProfile) {
+    btnProfile.addEventListener('click', () => openProfileModal());
+  }
+
+  const cardStatistiques = document.getElementById('card-statistiques');
+  if (cardStatistiques) {
+    cardStatistiques.addEventListener('click', () => {
+      showView('statsMenu');
+      loadStatsView();
+    });
+  }
+
+  const btnBackStats = document.getElementById('btn-back-stats');
+  if (btnBackStats) {
+    btnBackStats.addEventListener('click', () => showView('portal'));
+  }
+
+  // Stats game tabs
+  document.querySelectorAll('.stats-game-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stats-game-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statsViewState.game = btn.dataset.game;
+      loadStatsView();
+    });
+  });
+
+  // Stats period tabs
+  document.querySelectorAll('.stats-period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stats-period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statsViewState.period = btn.dataset.period;
+      loadStatsView();
+    });
+  });
+
+  // Load profile
+  loadProfile();
+  updateNavAvatar();
+  initProfileModal();
+}
+
+// ==========================================
+// STATS VIEW SYSTEM
+// ==========================================
+
+function loadStatsView() {
+  const { game, period } = statsViewState;
+  const listEl = document.getElementById('stats-leaderboard-list');
+  const podiumEl = document.getElementById('stats-podium');
+  if (!listEl) return;
+
+  listEl.innerHTML = '<div class="stats-loading">⏳ Chargement...</div>';
+  if (podiumEl) podiumEl.innerHTML = '';
+
+  const gameParam = game === 'all' ? '' : game;
+  fetch(`/api/stats/leaderboard?game=${gameParam}&period=${period}`)
+    .then(r => r.json())
+    .then(data => {
+      const lb = data.leaderboard || [];
+      if (lb.length === 0) {
+        listEl.innerHTML = `<div class="stats-empty"><div class="stats-empty-emoji">🏜️</div><p>Aucune statistique disponible pour cette période.</p></div>`;
+        if (podiumEl) podiumEl.innerHTML = '';
+        return;
+      }
+
+      // Build podium (top 3, arranged: 2nd, 1st, 3rd)
+      if (podiumEl && lb.length >= 1) {
+        const podiumOrder = lb.length >= 3
+          ? [lb[1], lb[0], lb[2]]
+          : lb.length >= 2
+            ? [lb[1], lb[0]]
+            : [lb[0]];
+        const podiumRanks = lb.length >= 3 ? [2, 1, 3] : lb.length >= 2 ? [2, 1] : [1];
+
+        podiumEl.innerHTML = podiumOrder.map((p, i) => {
+          const rank = podiumRanks[i];
+          const avatarHtml = p.avatarIsPhoto && p.avatar
+            ? `<img src="${p.avatar}" alt="${p.nickname}">`
+            : p.avatar || '🦖';
+          const rankEmojis = { 1: '🥇', 2: '🥈', 3: '🥉' };
+          const barClass = `rank-${rank}`;
+
+          return `
+            <div class="podium-player">
+              ${rank === 1 ? '<div class="podium-crown">👑</div>' : ''}
+              <div class="podium-avatar ${barClass}">${avatarHtml}</div>
+              <div class="podium-nickname">${escapeHtml(p.nickname)}</div>
+              <div class="podium-wins">${p.wins} victoire${p.wins !== 1 ? 's' : ''}</div>
+              <div class="podium-bar ${barClass}">${rankEmojis[rank]}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Build full table
+      const myNickname = currentProfile.nickname;
+      listEl.innerHTML = lb.map((p, idx) => {
+        const rank = idx + 1;
+        const rankClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : '';
+        const rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+        const avatarHtml = p.avatarIsPhoto && p.avatar
+          ? `<img src="${p.avatar}" alt="${p.nickname}">`
+          : p.avatar || '🦖';
+        const isMe = p.nickname === myNickname;
+
+        return `
+          <div class="stats-leaderboard-item ${isMe ? 'highlighted' : ''}">
+            <div class="stats-rank-badge ${rankClass}">${rankDisplay}</div>
+            <div class="stats-player-avatar">${avatarHtml}</div>
+            <div class="stats-player-info">
+              <div class="stats-player-name">${escapeHtml(p.nickname)}${isMe ? ' <span style="font-size:11px;color:#a78bfa;">(Vous)</span>' : ''}</div>
+              <div class="stats-player-sub">${p.gamesPlayed} partie${p.gamesPlayed !== 1 ? 's' : ''} · ${p.winRate}% victoires</div>
+            </div>
+            <div class="stats-player-metrics">
+              <div class="stats-metric">
+                <div class="stats-metric-value">${p.wins}</div>
+                <div class="stats-metric-label">Victoires</div>
+              </div>
+              <div class="stats-metric">
+                <div class="stats-metric-value">${p.score || 0}</div>
+                <div class="stats-metric-label">Score</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      if (listEl) listEl.innerHTML = '<div class="stats-empty"><div class="stats-empty-emoji">⚠️</div><p>Impossible de charger les stats.</p></div>';
+    });
+}
+
+// ==========================================
+// PROFILE MODAL SYSTEM
+// ==========================================
+
+const PROFILE_EMOJIS = [
+  '🦖','🐺','🕵️','🌍','🎮','👑','🦁','🐯','🦊','🐻',
+  '🐸','🦋','🐳','🐉','🦄','🦑','🦀','🐧','🦅','🦚',
+  '😎','🤠','🥷','👨‍🚀','🧙','🧟','🧛','🦸','🧜','🧝',
+  '⚡','🔥','💎','🌙','🌟','🎯','🎪','🎭','🏆','⚔️'
+];
+
+let tempProfileAvatar = null;
+let tempProfileAvatarIsPhoto = false;
+
+function initProfileModal() {
+  const emojiGrid = document.getElementById('profile-emoji-grid');
+  if (emojiGrid) {
+    emojiGrid.innerHTML = PROFILE_EMOJIS.map(e => `
+      <button class="profile-emoji-btn" data-emoji="${e}">${e}</button>
+    `).join('');
+
+    emojiGrid.querySelectorAll('.profile-emoji-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        emojiGrid.querySelectorAll('.profile-emoji-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        tempProfileAvatar = btn.dataset.emoji;
+        tempProfileAvatarIsPhoto = false;
+        const preview = document.getElementById('profile-avatar-preview');
+        if (preview) preview.innerHTML = tempProfileAvatar;
+      });
+    });
+  }
+
+  const photoInput = document.getElementById('profile-photo-upload');
+  if (photoInput) {
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        tempProfileAvatar = ev.target.result;
+        tempProfileAvatarIsPhoto = true;
+        const preview = document.getElementById('profile-avatar-preview');
+        if (preview) preview.innerHTML = `<img src="${tempProfileAvatar}" alt="avatar">`;
+        // Deselect all emoji buttons
+        document.querySelectorAll('.profile-emoji-btn').forEach(b => b.classList.remove('selected'));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Save button
+  const btnSave = document.getElementById('btn-save-profile');
+  if (btnSave) {
+    btnSave.addEventListener('click', () => {
+      const nicknameInput = document.getElementById('profile-nickname-input');
+      const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+      if (!nickname) {
+        nicknameInput.style.borderColor = '#ef4444';
+        return;
+      }
+      const newProfile = {
+        nickname,
+        avatar: tempProfileAvatar || currentProfile.avatar || '🦖',
+        avatarIsPhoto: tempProfileAvatarIsPhoto || (tempProfileAvatar === null && currentProfile.avatarIsPhoto)
+      };
+      saveProfile(newProfile);
+      const msgEl = document.getElementById('profile-save-msg');
+      if (msgEl) {
+        msgEl.textContent = '✅ Profil sauvegardé !';
+        msgEl.style.display = 'block';
+        setTimeout(() => { msgEl.style.display = 'none'; }, 2500);
+      }
+    });
+  }
+
+  // Close button
+  const btnClose = document.getElementById('btn-close-profile');
+  if (btnClose) {
+    btnClose.addEventListener('click', () => closeProfileModal());
+  }
+
+  // Click outside to close
+  const overlay = document.getElementById('profile-modal');
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeProfileModal();
+    });
+  }
+
+  // Profile modal tabs
+  document.querySelectorAll('.profile-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.profile-tab-content').forEach(c => c.style.display = 'none');
+      const tabName = tab.dataset.tab;
+      const tabContent = document.getElementById(`profile-tab-${tabName}`);
+      if (tabContent) tabContent.style.display = 'flex';
+
+      if (tabName === 'stats' && currentProfile.nickname) {
+        loadProfileStats(currentProfile.nickname);
+      }
+    });
+  });
+}
+
+function openProfileModal() {
+  const modal = document.getElementById('profile-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+
+  // Pre-fill form with current profile
+  const nicknameInput = document.getElementById('profile-nickname-input');
+  if (nicknameInput) nicknameInput.value = currentProfile.nickname || '';
+
+  const preview = document.getElementById('profile-avatar-preview');
+  if (preview) {
+    if (currentProfile.avatarIsPhoto && currentProfile.avatar) {
+      preview.innerHTML = `<img src="${currentProfile.avatar}" alt="avatar">`;
+    } else {
+      preview.innerHTML = currentProfile.avatar || '🦖';
+    }
+  }
+
+  // Mark selected emoji
+  const emojiGrid = document.getElementById('profile-emoji-grid');
+  if (emojiGrid && !currentProfile.avatarIsPhoto) {
+    emojiGrid.querySelectorAll('.profile-emoji-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.emoji === currentProfile.avatar);
+    });
+  }
+
+  // Reset temp values
+  tempProfileAvatar = currentProfile.avatar;
+  tempProfileAvatarIsPhoto = currentProfile.avatarIsPhoto;
+
+  // Update stats header
+  const statsAvatar = document.getElementById('profile-stats-avatar');
+  const statsName = document.getElementById('profile-stats-name');
+  if (statsAvatar) {
+    statsAvatar.innerHTML = currentProfile.avatarIsPhoto && currentProfile.avatar
+      ? `<img src="${currentProfile.avatar}" alt="avatar">`
+      : currentProfile.avatar || '🦖';
+  }
+  if (statsName) statsName.textContent = currentProfile.nickname || '—';
+}
+
+function closeProfileModal() {
+  const modal = document.getElementById('profile-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function loadProfileStats(nickname) {
+  const contentEl = document.getElementById('profile-stats-content');
+  if (!contentEl || !nickname) return;
+  contentEl.innerHTML = '<div class="stats-loading">⏳ Chargement...</div>';
+
+  const statsAvatar = document.getElementById('profile-stats-avatar');
+  const statsName = document.getElementById('profile-stats-name');
+  if (statsAvatar) {
+    statsAvatar.innerHTML = currentProfile.avatarIsPhoto && currentProfile.avatar
+      ? `<img src="${currentProfile.avatar}" alt="avatar">`
+      : currentProfile.avatar || '🦖';
+  }
+  if (statsName) statsName.textContent = nickname;
+
+  fetch(`/api/stats/user?nickname=${encodeURIComponent(nickname)}`)
+    .then(r => r.json())
+    .then(data => {
+      const stats = data.stats || {};
+      const gameInfo = [
+        { key: 'theridactle', label: '🦖 Theridactle' },
+        { key: 'imposteur', label: '🕵️ L\'Imposteur' },
+        { key: 'geographie', label: '🌍 Géographie' },
+        { key: 'loup_garou', label: '🐺 Loup-Garou' }
+      ];
+
+      contentEl.innerHTML = gameInfo.map(g => {
+        const s = stats[g.key] || { gamesPlayed: 0, wins: 0, score: 0, winRate: 0, rank: null, totalPlayers: 0 };
+        const rankText = s.rank ? `#${s.rank} / ${s.totalPlayers}` : '—';
+        return `
+          <div class="profile-stats-card">
+            <div class="profile-stats-card-title">${g.label}</div>
+            <div class="profile-stat-row"><span>Parties</span><span>${s.gamesPlayed}</span></div>
+            <div class="profile-stat-row"><span>Victoires</span><span>${s.wins}</span></div>
+            <div class="profile-stat-row"><span>Win Rate</span><span>${s.winRate}%</span></div>
+            <div class="profile-stat-row"><span>Classement</span><span>${rankText}</span></div>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      if (contentEl) contentEl.innerHTML = '<div class="stats-loading">Erreur de chargement</div>';
+    });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // --- Theridactle APIs ---
@@ -1497,7 +1870,7 @@ function updateImposteurUI(state) {
     
     li.innerHTML = `
       <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'}; display: flex; align-items: center; gap: 0.75rem;">
-        <span class="player-avatar">${name.charAt(0)}</span>
+        <span class="player-avatar">${p.avatarIsPhoto && p.avatar ? `<img src="${p.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (p.avatar && !p.avatarIsPhoto ? p.avatar : name.charAt(0))}</span>
         <div style="display: flex; flex-direction: column;">
           <span class="player-name" style="margin: 0; line-height: 1.2;">${name} ${name === myName ? '(Vous)' : ''}</span>
           <span style="color: var(--neon-pink); font-size: 11px; font-weight: bold; margin-top: 2px;">${p.score || 0} pts</span>
@@ -2944,9 +3317,13 @@ function updateLoupGarouUI(state) {
         roleDisplayHtml = `<span style="font-size: 10px; color: #38bdf8; font-weight: bold;">${rName}</span>`;
       }
 
+      const avatarContent = p.avatarIsPhoto && p.avatar 
+        ? `<img src="${p.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : (p.avatar && !p.avatarIsPhoto ? p.avatar : name.charAt(0));
+
       li.innerHTML = `
         <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'}; display: flex; align-items: center; gap: 0.75rem;">
-          <span class="player-avatar" style="background: ${p.isAlive ? 'var(--bg-card)' : 'rgba(255,255,255,0.05)'}; color: ${p.isAlive ? '#fff' : '#64748b'};">${name.charAt(0)}</span>
+          <span class="player-avatar" style="background: ${p.isAlive ? 'var(--bg-card)' : 'rgba(255,255,255,0.05)'}; color: ${p.isAlive ? '#fff' : '#64748b'}; overflow: hidden;">${avatarContent}</span>
           <div style="display: flex; flex-direction: column;">
             <span class="player-name" style="margin: 0; line-height: 1.2; text-decoration: ${p.isAlive ? 'none' : 'line-through'}; color: ${p.isAlive ? '#f8fafc' : '#64748b'};">${name} ${name === myName ? '(Vous)' : ''}</span>
             ${roleDisplayHtml}
@@ -3128,6 +3505,17 @@ function updateLoupGarouUI(state) {
         }
       }
       if (startHelper) startHelper.style.display = 'none';
+    } else {
+      if (btnLgStart) btnLgStart.style.display = 'none';
+      if (startHelper) {
+        startHelper.style.display = 'block';
+        if (isCountValid) {
+          startHelper.textContent = "Le paquet est configuré ! Attente que l'hôte lance la partie...";
+          startHelper.style.color = '#34d399';
+        } else {
+          startHelper.textContent = `Configuration en cours par l'hôte (${activeCards.length}/${playersCount} joueurs)...`;
+          startHelper.style.color = 'var(--text-muted)';
+        }
       }
     }
 
