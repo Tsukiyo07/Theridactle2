@@ -3,6 +3,34 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const crypto = require('crypto');
+
+const USERS_FILE = path.join(__dirname, 'users.json');
+
+// --- Users & Stats DB ---
+function loadUsers() {
+  if (fs.existsSync(USERS_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    } catch (e) {
+      console.error("Erreur de lecture de users.json", e);
+      return {};
+    }
+  }
+  return {};
+}
+
+function saveUsers(users) {
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+  } catch (e) {
+    console.error("Erreur d'écriture dans users.json", e);
+  }
+}
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 const PORT = process.env.PORT || 3000;
 
@@ -471,6 +499,7 @@ function getFullImposteurState(room) {
   return {
     status: room.status,
     theme: room.theme,
+    gameId: room.gameId || null,
     descriptionRounds: room.descriptionRounds || 1,
     impostorCount: room.impostorCount || 1,
     currentDescriptionRound: room.currentDescriptionRound || 1,
@@ -947,6 +976,7 @@ const server = http.createServer((req, res) => {
         room.theme = theme;
         room.winner = null;
         room.impostorCount = impCount;
+        room.gameId = generateRoomId();
         
         if (descriptionRounds) {
           room.descriptionRounds = parseInt(descriptionRounds) || 1;
@@ -1336,6 +1366,8 @@ function advanceTurnAndCheckRoundEnd(room) {
         room.civilWord = null;
         room.impostorWord = null;
         room.impostorNickname = null;
+        room.descriptionHistory = [];
+        room.gameId = null;
         
         Object.keys(room.players).forEach(name => {
           room.players[name].word = '';
@@ -1347,13 +1379,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         
         broadcast(room, {
           type: 'IMPOSTEUR_STATE',
-          state: {
-            status: room.status,
-            theme: room.theme,
-            players: getSanitizedPlayers(room),
-            turnOrder: room.turnOrder,
-            currentTurnIndex: room.currentTurnIndex
-          }
+          state: getFullImposteurState(room)
         });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -1864,12 +1890,13 @@ function advanceTurnAndCheckRoundEnd(room) {
     const viewer = room.players[forNickname];
     const viewerIsWolf = viewer && viewer.role === 'loup';
     const viewerCoupleId = room.players[forNickname] ? room.players[forNickname].coupleId : null;
+    const isHost = Object.keys(room.players)[0] === forNickname;
 
     Object.keys(room.players).forEach(name => {
       const p = room.players[name];
       let roleRevealed = false;
       
-      if (!p.isAlive || room.status === 'game_over') {
+      if (!p.isAlive || room.status === 'game_over' || isHost) {
         roleRevealed = true;
       } else if (name === forNickname) {
         roleRevealed = true;
@@ -1898,38 +1925,48 @@ function advanceTurnAndCheckRoundEnd(room) {
   function getFullLoupGarouState(room, forNickname) {
     const viewer = room.players[forNickname];
     const isAlive = viewer ? viewer.isAlive : false;
+    const isHost = Object.keys(room.players)[0] === forNickname;
     
     let privateActionData = null;
-    if (viewer && isAlive) {
-      if (viewer.role === 'voyante' && room.nightState.seerTarget) {
-        const target = room.players[room.nightState.seerTarget];
-        privateActionData = {
-          seerTarget: room.nightState.seerTarget,
-          seerTargetRole: target ? target.role : null
-        };
+    
+    if (isHost || (viewer && isAlive)) {
+      if (room.status === 'night_voyante') {
+        if (isHost || viewer.role === 'voyante') {
+          const target = room.players[room.nightState.seerTarget];
+          privateActionData = {
+            seerTarget: room.nightState.seerTarget,
+            seerTargetRole: target ? target.role : null
+          };
+        }
       }
-      else if (viewer.role === 'sorciere' && room.status === 'night_sorciere') {
-        privateActionData = {
-          wolfTarget: room.nightState.wolfTarget,
-          hasHealPotion: !room.nightState.witchHealed,
-          hasKillPotion: !room.nightState.witchKilled
-        };
+      else if (room.status === 'night_sorciere') {
+        if (isHost || viewer.role === 'sorciere') {
+          privateActionData = {
+            wolfTarget: room.nightState.wolfTarget,
+            hasHealPotion: !room.nightState.witchHealed,
+            hasKillPotion: !room.nightState.witchKilled
+          };
+        }
       }
-      else if (viewer.role === 'loup' && room.status === 'night_loup') {
-        const wolfVotes = {};
-        Object.values(room.players).forEach(p => {
-          if (p.role === 'loup' && p.votedFor && p.isAlive) {
-            wolfVotes[p.nickname] = p.votedFor;
-          }
-        });
-        privateActionData = {
-          wolfVotes
-        };
+      else if (room.status === 'night_loup') {
+        if (isHost || viewer.role === 'loup') {
+          const wolfVotes = {};
+          Object.values(room.players).forEach(p => {
+            if (p.role === 'loup' && p.votedFor && p.isAlive) {
+              wolfVotes[p.nickname] = p.votedFor;
+            }
+          });
+          privateActionData = {
+            wolfVotes
+          };
+        }
       }
-      else if (viewer.role === 'voleur' && room.status === 'night_voleur') {
-        privateActionData = {
-          voleurMiddleCards: room.voleurMiddleCards || []
-        };
+      else if (room.status === 'night_voleur') {
+        if (isHost || viewer.role === 'voleur') {
+          privateActionData = {
+            voleurMiddleCards: room.voleurMiddleCards || []
+          };
+        }
       }
     }
 
@@ -2428,39 +2465,55 @@ function advanceTurnAndCheckRoundEnd(room) {
           res.writeHead(404); return res.end();
         }
 
-        const p = room.players[nickname];
-        if (!p || !p.isAlive) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(JSON.stringify({ error: 'Action impossible ou joueur éliminé' }));
+        const isHost = Object.keys(room.players)[0] === nickname;
+        if (!isHost) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Seul le Maître du Jeu (Hôte) peut faire des actions.' }));
         }
 
-        if (actionType === 'voleur' && p.role === 'voleur' && room.currentNight === 1) {
-          if (targetName && room.voleurMiddleCards && room.voleurMiddleCards.includes(targetName)) {
-            const originalRole = p.role;
-            p.role = targetName;
+        if (actionType === 'gm_skip') {
+           let currentRole = '';
+           if (room.status === 'night_voleur') currentRole = 'voleur';
+           else if (room.status === 'night_cupidon') currentRole = 'cupidon';
+           else if (room.status === 'night_garde') currentRole = 'garde';
+           else if (room.status === 'night_voyante') currentRole = 'voyante';
+           else if (room.status === 'night_loup') currentRole = 'loup';
+           else if (room.status === 'night_sorciere') currentRole = 'sorciere';
+           
+           if (currentRole) {
+             room.nightActionsPerformed.push(currentRole);
+             advanceLoupGarouNight(room);
+           }
+        }
+        else if (actionType === 'voleur' && room.currentNight === 1) {
+          const voleurPlayer = Object.values(room.players).find(pl => pl.role === 'voleur');
+          if (voleurPlayer && targetName && room.voleurMiddleCards && room.voleurMiddleCards.includes(targetName)) {
+            const originalRole = voleurPlayer.role;
+            voleurPlayer.role = targetName;
             const idx = room.voleurMiddleCards.indexOf(targetName);
             if (idx !== -1) {
               room.voleurMiddleCards[idx] = originalRole;
             }
             room.historyLogs.push(`🪶 Le Voleur a choisi d'échanger sa carte.`);
-          } else {
+          } else if (voleurPlayer) {
             room.historyLogs.push(`🪶 Le Voleur a choisi de garder sa carte.`);
           }
           room.nightActionsPerformed.push('voleur');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'voleur_steal' && p.role === 'voleur' && room.currentNight === 1) {
+        else if (actionType === 'voleur_steal' && room.currentNight === 1) {
+          const voleurPlayer = Object.values(room.players).find(pl => pl.role === 'voleur');
           const targetPlayer = room.players[targetName];
-          if (targetPlayer && targetPlayer.nickname !== nickname) {
+          if (voleurPlayer && targetPlayer && targetPlayer.nickname !== voleurPlayer.nickname) {
             const targetOriginalRole = targetPlayer.role;
-            targetPlayer.role = p.role;
-            p.role = targetOriginalRole;
+            targetPlayer.role = voleurPlayer.role;
+            voleurPlayer.role = targetOriginalRole;
             room.historyLogs.push(`🪶 Le Voleur a secrètement dérobé le rôle de ${targetName}.`);
           }
           room.nightActionsPerformed.push('voleur');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'cupidon' && p.role === 'cupidon' && room.currentNight === 1) {
+        else if (actionType === 'cupidon' && room.currentNight === 1) {
           if (targetName && targetName2) {
             room.nightState.lovers = [targetName, targetName2];
             room.players[targetName].coupleId = 'couple_1';
@@ -2470,12 +2523,12 @@ function advanceTurnAndCheckRoundEnd(room) {
           room.nightActionsPerformed.push('cupidon');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'garde' && p.role === 'garde') {
+        else if (actionType === 'garde') {
           room.nightState.protectedPlayer = targetName;
           room.nightActionsPerformed.push('garde');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'voyante' && p.role === 'voyante') {
+        else if (actionType === 'voyante') {
           room.nightState.seerTarget = targetName;
           if (!room.nightState.inspectedPlayers) room.nightState.inspectedPlayers = [];
           if (targetName && !room.nightState.inspectedPlayers.includes(targetName)) {
@@ -2484,47 +2537,24 @@ function advanceTurnAndCheckRoundEnd(room) {
           room.nightActionsPerformed.push('voyante');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'loup' && p.role === 'loup') {
-          p.votedFor = targetName;
-          
-          const aliveWolves = Object.values(room.players).filter(pl => pl.role === 'loup' && pl.isAlive);
-          const votes = {};
-          let votesCount = 0;
-          aliveWolves.forEach(w => {
-            if (w.votedFor) {
-              votes[w.votedFor] = (votes[w.votedFor] || 0) + 1;
-              votesCount++;
-            }
-          });
-          
-          if (votesCount >= aliveWolves.length) {
-            let consensusTarget = null;
-            Object.keys(votes).forEach(target => {
-              if (votes[target] >= aliveWolves.length / 2) {
-                consensusTarget = target;
-              }
-            });
-            
-            if (consensusTarget) {
-              room.nightState.wolfTarget = consensusTarget;
-              room.nightActionsPerformed.push('loup');
-              advanceLoupGarouNight(room);
-            }
-          }
+        else if (actionType === 'loup') {
+          room.nightState.wolfTarget = targetName; // Host decides directly
+          room.nightActionsPerformed.push('loup');
+          advanceLoupGarouNight(room);
         }
-        else if (actionType === 'sorciere_heal' && p.role === 'sorciere') {
+        else if (actionType === 'sorciere_heal') {
           room.nightState.witchHealed = true;
           room.nightState.witchHealedThisTurn = true;
           room.nightActionsPerformed.push('sorciere');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'sorciere_kill' && p.role === 'sorciere') {
+        else if (actionType === 'sorciere_kill') {
           room.nightState.witchKilled = true;
           room.nightState.witchKilledThisTurn = targetName;
           room.nightActionsPerformed.push('sorciere');
           advanceLoupGarouNight(room);
         }
-        else if (actionType === 'sorciere_skip' && p.role === 'sorciere') {
+        else if (actionType === 'sorciere_skip') {
           room.nightActionsPerformed.push('sorciere');
           advanceLoupGarouNight(room);
         }
@@ -2586,6 +2616,96 @@ function advanceTurnAndCheckRoundEnd(room) {
         checkLoupGarouWin(room);
         broadcastLoupGarouState(room);
 
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // GM ELIMINATE ACTION (replaces tally and hunter-shot)
+  if (parsedUrl.pathname === '/api/loup-garou/gm/eliminate' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { roomId, nickname, targetName, reason } = JSON.parse(body);
+        const room = rooms[roomId];
+        if (!room || room.gameType !== 'loup_garou') {
+          res.writeHead(404); return res.end();
+        }
+
+        const isHost = Object.keys(room.players)[0] === nickname;
+        if (!isHost) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Seul le Maître du Jeu (Hôte) peut faire des actions.' }));
+        }
+
+        if (targetName === 'skip') {
+          room.historyLogs.push(`🌅 Le village n'a désigné aucun coupable.`);
+        } else {
+          const target = room.players[targetName];
+          if (target && target.isAlive) {
+            target.isAlive = false;
+            
+            if (reason === 'vote') {
+              room.historyLogs.push(`⚖️ Le village a éliminé ${targetName} (Rôle : ${target.role.toUpperCase()}).`);
+            } else if (reason === 'hunter') {
+              room.historyLogs.push(`💥 Le Chasseur a emporté ${targetName} dans sa tombe.`);
+            } else {
+              room.historyLogs.push(`💀 ${targetName} a été éliminé.`);
+            }
+
+            // Couple check
+            if (room.nightState && room.nightState.lovers && room.nightState.lovers.length === 2) {
+              const [loverA, loverB] = room.nightState.lovers;
+              if (targetName === loverA && room.players[loverB].isAlive) {
+                room.players[loverB].isAlive = false;
+                room.historyLogs.push(`💔 ${loverB} s'est suicidé par chagrin d'amour pour ${loverA}.`);
+              } else if (targetName === loverB && room.players[loverA].isAlive) {
+                room.players[loverA].isAlive = false;
+                room.historyLogs.push(`💔 ${loverA} s'est suicidé par chagrin d'amour pour ${loverB}.`);
+              }
+            }
+            
+            // Mayor check
+            checkMayorDeathAndSuccession(room);
+          }
+        }
+        
+        // Reset timers and advance
+        room.voteTimerEndsAt = null;
+        Object.values(room.players).forEach(p => p.votedFor = null);
+
+        checkLoupGarouWin(room);
+        
+        // Move to night if it was day vote and game isn't over.
+        // If reason was hunter, the GM still needs to decide if it's night or day, but let's assume it moves to next phase.
+        if (room.status !== 'game_over') {
+           // Find if hunter is dead and hasn't shot.
+           const deadHunter = Object.values(room.players).find(p => p.role === 'chasseur' && !p.isAlive && !p.hasShot);
+           if (deadHunter) {
+              deadHunter.hasShot = true;
+              room.status = 'day_hunter';
+              room.historyLogs.push(`💥 Le Chasseur (${deadHunter.nickname}) va tirer ! (Le MJ doit choisir la cible)`);
+           } else {
+              room.currentNight++;
+              room.status = 'night_actions';
+              room.historyLogs.push(`🌒 La nuit n°${room.currentNight} retombe sur le village de Thiercelieux...`);
+              
+              room.nightState.protectedPlayer = null;
+              room.nightState.seerTarget = null;
+              room.nightState.wolfTarget = null;
+              room.nightState.witchHealedThisTurn = false;
+              room.nightState.witchKilledThisTurn = null;
+              room.voteTimerEndsAt = null;
+              Object.keys(room.players).forEach(name => room.players[name].votedFor = null);
+           }
+        }
+
+        broadcastLoupGarouState(room);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
       } catch (e) {
@@ -2822,10 +2942,96 @@ function advanceTurnAndCheckRoundEnd(room) {
   }
 
   // ==========================================
+  // AUTHENTICATION API
+  // ==========================================
+  if (parsedUrl.pathname === '/api/auth/register' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { nickname, password } = JSON.parse(body);
+        if (!nickname || !password || nickname.length > 15) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Pseudo invalide ou mot de passe manquant.' }));
+        }
+
+        const users = loadUsers();
+        if (users[nickname]) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Ce pseudo est déjà pris.' }));
+        }
+
+        users[nickname] = {
+          nickname,
+          passwordHash: hashPassword(password),
+          avatar: '🦖',
+          avatarIsPhoto: false,
+          createdAt: Date.now()
+        };
+        saveUsers(users);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, user: { nickname, avatar: '🦖', avatarIsPhoto: false } }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  if (parsedUrl.pathname === '/api/auth/login' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { nickname, password } = JSON.parse(body);
+        const users = loadUsers();
+        const user = users[nickname];
+
+        if (!user || user.passwordHash !== hashPassword(password)) {
+          res.writeHead(401, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Identifiants incorrects.' }));
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, user: { nickname: user.nickname, avatar: user.avatar, avatarIsPhoto: user.avatarIsPhoto } }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  if (parsedUrl.pathname === '/api/profile/save' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        const { nickname, password, avatar, avatarIsPhoto } = JSON.parse(body);
+        const users = loadUsers();
+        const user = users[nickname];
+
+        if (!user || user.passwordHash !== hashPassword(password)) {
+          res.writeHead(401, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Non autorisé.' }));
+        }
+
+        user.avatar = avatar;
+        user.avatarIsPhoto = avatarIsPhoto;
+        saveUsers(users);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400); res.end();
+      }
+    });
+    return;
+  }
+
+  // ==========================================
   // STATISTICS SYSTEM & PERSISTENCY
   // ==========================================
-  const fs = require('fs');
-  const path = require('path');
   const STATS_FILE = path.join(__dirname, 'stats.json');
 
   function loadStats() {

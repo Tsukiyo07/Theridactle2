@@ -1876,14 +1876,32 @@ h1, h2, h3, h4, .logo {
     margin: 0 1px !important;
   }
   .nav-room-badge {
-    padding: 4px 8px !important;
+    padding: 4px 6px !important;
     font-size: 10px !important;
   }
   .btn-quit {
     white-space: nowrap !important;
-    font-size: 11px !important;
-    padding: 0.4rem 0.75rem !important;
+    font-size: 0px !important;
+    padding: 0.4rem 0.6rem !important;
     border-radius: 8px !important;
+  }
+  .btn-quit::after {
+    content: "🚪";
+    font-size: 14px;
+  }
+  .btn-profile {
+    padding: 4px 8px !important;
+  }
+  #nav-profile-name {
+    display: none !important;
+  }
+  #btn-copy-invite {
+    font-size: 0px !important;
+    padding: 4px 6px !important;
+  }
+  #btn-copy-invite::after {
+    content: "🔗";
+    font-size: 12px;
   }
   .top-nav a { display: none; }
   #room-display { margin-left: 0.25rem; font-size: 11px; }

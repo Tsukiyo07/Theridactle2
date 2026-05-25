@@ -30,7 +30,8 @@ let imposteurState = {
   theme: 'general',
   players: {},
   turnOrder: [],
-  currentTurnIndex: 0
+  currentTurnIndex: 0,
+  gameId: null
 };
 
 // Geographie State
@@ -769,11 +770,10 @@ function init() {
   function routeToManualJoin(gameType, code) {
     if (gameType === 'imposteur') {
       showView('impMenu');
-      if (dom.impJoinCodeInput) {
-        dom.impJoinCodeInput.value = code;
-      }
+      if (dom.impJoinCodeInput) dom.impJoinCodeInput.value = code;
       const nickInput = dom.impNicknameInput;
       if (nickInput) {
+        if (currentProfile.nickname) nickInput.value = currentProfile.nickname;
         nickInput.focus();
         nickInput.style.borderColor = 'var(--neon-pink)';
         nickInput.style.boxShadow = '0 0 15px rgba(236, 72, 153, 0.5)';
@@ -781,11 +781,10 @@ function init() {
     } else if (gameType === 'geographie') {
       showView('geoMenu');
       const geoInput = document.getElementById('geographie-join-code');
-      if (geoInput) {
-        geoInput.value = code;
-      }
+      if (geoInput) geoInput.value = code;
       const nickInput = document.getElementById('geographie-nickname');
       if (nickInput) {
+        if (currentProfile.nickname) nickInput.value = currentProfile.nickname;
         nickInput.focus();
         nickInput.style.borderColor = 'var(--neon-cyan)';
         nickInput.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.5)';
@@ -793,15 +792,17 @@ function init() {
     } else if (gameType === 'loup_garou') {
       showView('lgMenu');
       const lgInput = document.getElementById('loup-garou-join-code');
-      if (lgInput) {
-        lgInput.value = code;
-      }
+      if (lgInput) lgInput.value = code;
       const nickInput = document.getElementById('loup-garou-nickname');
       if (nickInput) {
+        if (currentProfile.nickname) nickInput.value = currentProfile.nickname;
         nickInput.focus();
         nickInput.style.borderColor = '#ef4444';
         nickInput.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.5)';
       }
+    } else if (gameType === 'theridactle') {
+      showView('theriMenu');
+      if (dom.joinRoomInput) dom.joinRoomInput.value = code;
     }
   }
 
@@ -820,13 +821,15 @@ function init() {
         if (data.success) {
           const gameType = data.gameType;
           
-          let savedNickname = '';
-          if (gameType === 'imposteur') {
-            savedNickname = localStorage.getItem('imposteur-nickname');
-          } else if (gameType === 'geographie') {
-            savedNickname = localStorage.getItem('geographie-nickname');
-          } else if (gameType === 'loup_garou') {
-            savedNickname = localStorage.getItem('loup-garou-nickname');
+          let savedNickname = currentProfile.nickname;
+          if (!savedNickname) {
+            if (gameType === 'imposteur') {
+              savedNickname = localStorage.getItem('imposteur-nickname');
+            } else if (gameType === 'geographie') {
+              savedNickname = localStorage.getItem('geographie-nickname');
+            } else if (gameType === 'loup_garou') {
+              savedNickname = localStorage.getItem('loup-garou-nickname');
+            }
           }
           
           if (savedNickname && gameType !== 'theridactle') {
@@ -834,7 +837,7 @@ function init() {
             fetch(`/api/${gameType}/room/join`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ roomId: code, nickname: savedNickname })
+              body: JSON.stringify({ roomId: code, nickname: savedNickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
             })
             .then(res => res.json())
             .then(joinData => {
@@ -847,17 +850,19 @@ function init() {
                 } else if (gameType === 'loup_garou') {
                   startPlayingLoupGarou(code, savedNickname);
                 }
-                showToast("Reconnexion automatique réussie !");
+                showToast("Connexion au salon réussie !");
               } else {
                 routeToManualJoin(gameType, code);
               }
             })
             .catch(() => routeToManualJoin(gameType, code));
           } else {
-            if (gameType === 'theridactle') {
-              joinTheridactleRoom(code);
+            if (gameType === 'theridactle' && !currentProfile.nickname) {
+               routeToManualJoin(gameType, code);
+            } else if (gameType === 'theridactle') {
+               joinTheridactleRoom(code);
             } else {
-              routeToManualJoin(gameType, code);
+               routeToManualJoin(gameType, code);
             }
           }
         } else {
@@ -1233,15 +1238,7 @@ function init() {
     btnLgHunter.addEventListener('click', () => {
       const targetName = document.getElementById('loup-garou-hunter-target').value;
       if (!targetName) return;
-      fetch('/api/loup-garou/hunter-shot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomId: loupGarouState.roomId,
-          nickname: loupGarouState.nickname,
-          targetName
-        })
-      });
+      window.gmEliminatePlayer(targetName, 'hunter');
     });
   }
   // --- Profile Button & Stats Card ---
@@ -1431,28 +1428,109 @@ function initProfileModal() {
     });
   }
 
-  // Save button
+  // Auth & Profile Actions
   const btnSave = document.getElementById('btn-save-profile');
+  const btnLogin = document.getElementById('btn-login-profile');
+  const btnRegister = document.getElementById('btn-register-profile');
+  const btnLogout = document.getElementById('btn-logout-profile');
+  
+  const nicknameInput = document.getElementById('profile-nickname-input');
+  const passwordInput = document.getElementById('profile-password-input');
+  
+  function showError(msg) {
+    const errorEl = document.getElementById('profile-error-msg');
+    if(errorEl) {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+      setTimeout(() => errorEl.style.display = 'none', 3000);
+    }
+  }
+
+  function showSuccess(msg) {
+    const msgEl = document.getElementById('profile-save-msg');
+    if (msgEl) {
+      msgEl.textContent = msg;
+      msgEl.style.display = 'block';
+      setTimeout(() => { msgEl.style.display = 'none'; }, 2500);
+    }
+  }
+
+  if (btnRegister) {
+    btnRegister.addEventListener('click', () => {
+      const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+      if (!nickname || !password) return showError('Pseudo et mot de passe requis.');
+      
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, password })
+      }).then(r => r.json()).then(data => {
+        if(data.success) {
+          showSuccess('✅ Compte créé !');
+          currentProfile.password = password;
+          saveProfile(data.user);
+          openProfileModal(); // Refresh UI
+        } else showError(data.error);
+      });
+    });
+  }
+
+  if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+      const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+      if (!nickname || !password) return showError('Pseudo et mot de passe requis.');
+      
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, password })
+      }).then(r => r.json()).then(data => {
+        if(data.success) {
+          showSuccess('✅ Connecté !');
+          currentProfile.password = password;
+          saveProfile(data.user);
+          openProfileModal(); // Refresh UI
+        } else showError(data.error);
+      });
+    });
+  }
+
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      currentProfile = { nickname: '', avatar: '🦖', avatarIsPhoto: false, password: '' };
+      localStorage.removeItem('caraQuiz-profile');
+      updateNavAvatar();
+      openProfileModal();
+      showSuccess('Déconnecté.');
+    });
+  }
+
   if (btnSave) {
     btnSave.addEventListener('click', () => {
-      const nicknameInput = document.getElementById('profile-nickname-input');
-      const nickname = nicknameInput ? nicknameInput.value.trim() : '';
-      if (!nickname) {
-        nicknameInput.style.borderColor = '#ef4444';
-        return;
-      }
-      const newProfile = {
-        nickname,
-        avatar: tempProfileAvatar || currentProfile.avatar || '🦖',
-        avatarIsPhoto: tempProfileAvatarIsPhoto || (tempProfileAvatar === null && currentProfile.avatarIsPhoto)
-      };
-      saveProfile(newProfile);
-      const msgEl = document.getElementById('profile-save-msg');
-      if (msgEl) {
-        msgEl.textContent = '✅ Profil sauvegardé !';
-        msgEl.style.display = 'block';
-        setTimeout(() => { msgEl.style.display = 'none'; }, 2500);
-      }
+      if (!currentProfile.password) return showError('Vous devez être connecté.');
+      
+      const newAvatar = tempProfileAvatar || currentProfile.avatar || '🦖';
+      const newAvatarIsPhoto = tempProfileAvatarIsPhoto || (tempProfileAvatar === null && currentProfile.avatarIsPhoto);
+
+      fetch('/api/profile/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nickname: currentProfile.nickname,
+          password: currentProfile.password,
+          avatar: newAvatar,
+          avatarIsPhoto: newAvatarIsPhoto
+        })
+      }).then(r => r.json()).then(data => {
+        if(data.success) {
+          showSuccess('✅ Avatar sauvegardé !');
+          currentProfile.avatar = newAvatar;
+          currentProfile.avatarIsPhoto = newAvatarIsPhoto;
+          saveProfile(currentProfile);
+        } else showError(data.error);
+      });
     });
   }
 
@@ -1495,6 +1573,30 @@ function openProfileModal() {
   // Pre-fill form with current profile
   const nicknameInput = document.getElementById('profile-nickname-input');
   if (nicknameInput) nicknameInput.value = currentProfile.nickname || '';
+  
+  const passwordInput = document.getElementById('profile-password-input');
+  if (passwordInput) passwordInput.value = currentProfile.password || '';
+
+  const btnLogin = document.getElementById('btn-login-profile');
+  const btnRegister = document.getElementById('btn-register-profile');
+  const btnSave = document.getElementById('btn-save-profile');
+  const btnLogout = document.getElementById('btn-logout-profile');
+
+  if (currentProfile.nickname && currentProfile.password) {
+    if (nicknameInput) nicknameInput.disabled = true;
+    if (passwordInput) passwordInput.disabled = true;
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (btnRegister) btnRegister.style.display = 'none';
+    if (btnSave) btnSave.style.display = 'block';
+    if (btnLogout) btnLogout.style.display = 'block';
+  } else {
+    if (nicknameInput) nicknameInput.disabled = false;
+    if (passwordInput) passwordInput.disabled = false;
+    if (btnLogin) btnLogin.style.display = 'block';
+    if (btnRegister) btnRegister.style.display = 'block';
+    if (btnSave) btnSave.style.display = 'none';
+    if (btnLogout) btnLogout.style.display = 'none';
+  }
 
   const preview = document.getElementById('profile-avatar-preview');
   if (preview) {
@@ -1720,7 +1822,8 @@ function leaveImposteurRoom() {
     theme: 'general',
     players: {},
     turnOrder: [],
-    currentTurnIndex: 0
+    currentTurnIndex: 0,
+    gameId: null
   };
   
   localStorage.removeItem('imposteur-roomId');
@@ -1823,6 +1926,15 @@ function connectImposteurSSE(roomId, nickname) {
 }
 
 function updateImposteurUI(state) {
+  // If game session changed, clear local cached word
+  if (state.gameId && state.gameId !== imposteurState.gameId) {
+    imposteurState.myWord = '';
+    if (dom.impMyWordDisplay) {
+      dom.impMyWordDisplay.textContent = '---';
+    }
+  }
+  imposteurState.gameId = state.gameId || null;
+
   imposteurState.status = state.status;
   imposteurState.theme = state.theme;
   imposteurState.players = state.players;
@@ -2063,11 +2175,14 @@ function renderDescriptions(state) {
     return;
   }
   history.forEach(item => {
+    const p = state.players[item.nickname];
+    const avatarHtml = (p && p.avatarIsPhoto && p.avatar) ? `<img src="${p.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (p ? p.avatar : item.nickname.charAt(0));
+
     const div = document.createElement('div');
     div.className = 'desc-item';
     const roundBadge = `<span class="desc-round-badge" style="background: rgba(167, 139, 250, 0.12); border: 1px solid rgba(167, 139, 250, 0.25); color: var(--accent); margin-left: 10px; font-size: 10px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 800;">Tour ${item.round}</span>`;
     div.innerHTML = `
-      <span class="desc-player-avatar">${item.nickname.charAt(0)}</span>
+      <span class="desc-player-avatar" style="overflow:hidden;">${avatarHtml}</span>
       <div class="desc-content">
         <div class="desc-player-name" style="display: flex; align-items: center;">
           ${item.nickname} ${item.nickname === imposteurState.nickname ? '(Vous)' : ''}
@@ -2111,14 +2226,15 @@ function renderVotingGrid(state) {
     
     const count = voteCounts[name] || 0;
     const countBadgeHtml = count > 0 ? `<span class="vote-count-badge">🗳️ ${count} ${count > 1 ? 'votes' : 'vote'}</span>` : '';
-    
+
+    const avatarHtml = (p.avatarIsPhoto && p.avatar) ? `<img src="${p.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (p.avatar || name.charAt(0));
+
     card.innerHTML = `
       <span class="vote-indicator">SUSPECTÉ</span>
-      <span class="vote-avatar">${name.charAt(0)}</span>
+      <span class="vote-avatar" style="overflow:hidden;">${avatarHtml}</span>
       <span class="vote-name">${name} ${name === myName ? '(Vous)' : ''}</span>
       ${countBadgeHtml}
-    `;
-    
+    `;    
     // Add vote interaction (users can change their votes now)
     if (!p.isEliminated && !isMeEliminated && name !== myName) {
       card.addEventListener('click', () => {
@@ -2346,9 +2462,11 @@ function updateGeographieUI(state) {
         badgeHtml += `<span class="badge-item badge-thinking"><span class="badge-emoji">💭</span><span class="badge-text"> Réfléchit...</span></span>`;
       }
       
+      const avatarHtml = (p.avatarIsPhoto && p.avatar) ? `<img src="${p.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (p.avatar || name.charAt(0));
+
       li.innerHTML = `
         <div class="player-info-left">
-          <span class="player-avatar" style="background: var(--geo-primary);">${name.charAt(0)}</span>
+          <span class="player-avatar" style="background: var(--geo-primary); overflow: hidden;">${avatarHtml}</span>
           <span class="player-name">${name} ${name === myName ? '(Vous)' : ''}</span>
         </div>
         <div class="player-badges">
@@ -3240,14 +3358,16 @@ window.kickLoupGarouPlayer = function(targetNickname) {
   }
 };
 
-window.submitLoupGarouVote = function(votedNickname) {
-  fetch('/api/loup-garou/vote', {
+window.gmEliminatePlayer = function(targetName, reason) {
+  if (!confirm(`Voulez-vous vraiment éliminer ${targetName} ?`)) return;
+  fetch('/api/loup-garou/gm/eliminate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       roomId: loupGarouState.roomId,
-      nickname: loupGarouState.nickname,
-      votedNickname
+      nickname: loupGarouState.nickname, // GM's nickname
+      targetName,
+      reason
     })
   });
 };
@@ -3588,16 +3708,34 @@ function updateLoupGarouUI(state) {
     const hunterWindow = document.getElementById('loup-garou-hunter-window');
     
     [sleepWindow, voleurWindow, cupidonWindow, gardeWindow, voyanteWindow, wolvesWindow, sorciereWindow, hunterWindow].forEach(w => {
-      if (w) w.classList.add('view-hidden');
+      if (w) {
+        w.classList.add('view-hidden');
+        if (loupGarouState.isHost && w.id !== 'loup-garou-sleep-window' && w.id !== 'loup-garou-hunter-window') {
+           if (!w.querySelector('.gm-skip-btn')) {
+             const btn = document.createElement('button');
+             btn.className = 'btn btn-quit btn-block gm-skip-btn';
+             btn.style.marginTop = '15px';
+             btn.textContent = 'Passer cette phase (MJ) ⏩';
+             btn.onclick = () => {
+                fetch('/api/loup-garou/night-action', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ roomId: loupGarouState.roomId, nickname: loupGarouState.nickname, actionType: 'gm_skip' })
+                });
+             };
+             w.appendChild(btn);
+           }
+        }
+      }
     });
     
     let waken = false;
     
-    if (state.myAlive) {
+    if (loupGarouState.isHost) {
       const alivePlayers = Object.keys(state.players).filter(name => state.players[name].isAlive);
       
       // Voleur wakes
-      if (state.myRole === 'voleur' && state.status === 'night_voleur') {
+      if (state.status === 'night_voleur') {
         waken = true;
         if (voleurWindow) {
           voleurWindow.classList.remove('view-hidden');
@@ -3633,7 +3771,7 @@ function updateLoupGarouUI(state) {
           const voleurTargetSelect = document.getElementById('loup-garou-voleur-target');
           if (voleurTargetSelect) {
             voleurTargetSelect.innerHTML = '<option value="">-- Choisissez qui voler --</option>';
-            alivePlayers.filter(name => name !== myName).forEach(name => {
+            alivePlayers.forEach(name => {
               const opt = document.createElement('option');
               opt.value = name; opt.textContent = name;
               voleurTargetSelect.appendChild(opt);
@@ -3642,7 +3780,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Cupidon wakes
-      else if (state.myRole === 'cupidon' && state.status === 'night_cupidon') {
+      else if (state.status === 'night_cupidon') {
         waken = true;
         if (cupidonWindow) {
           cupidonWindow.classList.remove('view-hidden');
@@ -3664,7 +3802,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Garde wakes
-      else if (state.myRole === 'garde' && state.status === 'night_garde') {
+      else if (state.status === 'night_garde') {
         waken = true;
         if (gardeWindow) {
           gardeWindow.classList.remove('view-hidden');
@@ -3680,7 +3818,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Voyante wakes
-      else if (state.myRole === 'voyante' && state.status === 'night_voyante') {
+      else if (state.status === 'night_voyante') {
         waken = true;
         if (voyanteWindow) {
           voyanteWindow.classList.remove('view-hidden');
@@ -3691,7 +3829,7 @@ function updateLoupGarouUI(state) {
           
           if (targetSelect) {
             targetSelect.innerHTML = '';
-            alivePlayers.filter(n => n !== myName).forEach(name => {
+            alivePlayers.forEach(name => {
               const opt = document.createElement('option');
               opt.value = name; opt.textContent = name;
               targetSelect.appendChild(opt);
@@ -3711,7 +3849,7 @@ function updateLoupGarouUI(state) {
         }
       }
       // Wolves wake
-      else if (state.myRole === 'loup' && state.status === 'night_loup') {
+      else if (state.status === 'night_loup') {
         waken = true;
         if (wolvesWindow) {
           wolvesWindow.classList.remove('view-hidden');
@@ -3726,17 +3864,11 @@ function updateLoupGarouUI(state) {
               targetSelect.appendChild(opt);
             });
           }
-          
-          if (votesList && state.privateActionData && state.privateActionData.wolfVotes) {
-            votesList.innerHTML = '<strong>Votes en cours de la meute :</strong><br>';
-            Object.keys(state.privateActionData.wolfVotes).forEach(wolf => {
-              votesList.innerHTML += `🐾 ${wolf} cible 👉 ${state.privateActionData.wolfVotes[wolf]}<br>`;
-            });
-          }
+          if (votesList) votesList.innerHTML = '';
         }
       }
       // Witch wakes
-      else if (state.myRole === 'sorciere' && state.status === 'night_sorciere') {
+      else if (state.status === 'night_sorciere') {
         waken = true;
         if (sorciereWindow) {
           sorciereWindow.classList.remove('view-hidden');
@@ -3753,15 +3885,12 @@ function updateLoupGarouUI(state) {
           }
           
           if (healBtn) {
-            const canHeal = state.privateActionData && state.privateActionData.hasHealPotion && wolfTarget;
-            healBtn.disabled = !canHeal;
-            healBtn.style.opacity = canHeal ? '1' : '0.4';
+            healBtn.disabled = false;
+            healBtn.style.opacity = '1';
           }
-          
           if (killBtn) {
-            const canKill = state.privateActionData && state.privateActionData.hasKillPotion;
-            killBtn.disabled = !canKill;
-            killBtn.style.opacity = canKill ? '1' : '0.4';
+            killBtn.disabled = false;
+            killBtn.style.opacity = '1';
           }
           
           if (killTargetSelect) {
@@ -3781,7 +3910,7 @@ function updateLoupGarouUI(state) {
       const h3 = sleepWindow.querySelector('h3');
       const p = sleepWindow.querySelector('p');
       if (h3) h3.textContent = "La Nuit est Sombre...";
-      if (p) p.textContent = "Gardez les yeux fermés. Les forces de l'ombre et du bien accomplissent leur destin.";
+      if (p) p.textContent = "Gardez les yeux fermés. Le Maître du Jeu accomplit les actions de la nuit.";
     }
   }
   // Hunter Vengeance Phase
@@ -3803,7 +3932,7 @@ function updateLoupGarouUI(state) {
     const turnStatusText = document.getElementById('loup-garou-turn-status-text');
     if (turnStatusText) turnStatusText.textContent = "Le Chasseur tire son coup de fusil de vengeance ! 🔫";
     
-    if (activeHunter === myName) {
+    if (loupGarouState.isHost) {
       if (hunterWindow) {
         hunterWindow.classList.remove('view-hidden');
         const hunterTargetSelect = document.getElementById('loup-garou-hunter-target');
@@ -3822,7 +3951,7 @@ function updateLoupGarouUI(state) {
         const h3 = sleepWindow.querySelector('h3');
         const p = sleepWindow.querySelector('p');
         if (h3) h3.textContent = "Bruit de fusil... 💥";
-        if (p) p.textContent = "Le village retient son souffle pendant que le Chasseur ajuste sa cible...";
+        if (p) p.textContent = "Le village retient son souffle pendant que le Maître du Jeu résout le tir...";
       }
     }
   }
@@ -3852,14 +3981,7 @@ function updateLoupGarouUI(state) {
             clearInterval(loupGarouVoteInterval);
             loupGarouVoteInterval = null;
             window.lgVoteTimerEndsAt = null;
-            // Trigger auto tally if host
-            if (isHost) {
-              fetch('/api/loup-garou/tally', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ roomId: state.roomId })
-              });
-            }
+            // Removed auto tally since GM handles elimination manually
           }
         }, 1000);
         
@@ -3918,9 +4040,9 @@ function updateLoupGarouUI(state) {
         // Render card for each alive player
         Object.keys(state.players).filter(n => state.players[n].isAlive).forEach(name => {
           const card = document.createElement('div');
-          card.className = `vote-card ${myVote === name ? 'active' : ''}`;
-          card.style.border = myVote === name ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.08)';
-          card.style.background = myVote === name ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.02)';
+          card.className = `vote-card`;
+          card.style.border = '1px solid rgba(255,255,255,0.08)';
+          card.style.background = 'rgba(255,255,255,0.02)';
           card.style.padding = '12px';
           card.style.borderRadius = '10px';
           card.style.display = 'flex';
@@ -3928,67 +4050,50 @@ function updateLoupGarouUI(state) {
           card.style.alignItems = 'center';
           card.style.position = 'relative';
           
-          const voteCount = voteTallies[name] || 0;
-          let tallyBadge = '';
-          if (voteCount > 0) {
-            tallyBadge = `<span style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff; font-size: 10px; font-weight: bold; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(239,68,68,0.5);">${voteCount}</span>`;
+          let actionBtn = '';
+          if (loupGarouState.isHost) {
+            actionBtn = `
+              <button class="btn btn-accent btn-small" onclick="gmEliminatePlayer('${name}', 'vote')" style="margin-top: 10px; width: 100%; font-size: 10px; padding: 4px 8px; background: #ef4444; border-color: #ef4444;">
+                Éliminer
+              </button>
+            `;
           }
           
           card.innerHTML = `
-            ${tallyBadge}
             <div style="font-size: 1.5rem; margin-bottom: 6px;">👤</div>
             <div style="font-weight: bold; font-size: 13px; text-align: center; color: #fff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${name}</div>
-            <button class="btn btn-accent btn-small" ${canVote ? '' : 'disabled'} onclick="submitLoupGarouVote('${name}')" style="margin-top: 10px; width: 100%; font-size: 10px; padding: 4px 8px; ${myVote === name ? 'background: #3b82f6; border-color: #3b82f6;' : 'background: #ef4444; border-color: #ef4444;'}">
-              ${myVote === name ? 'Voté !' : 'Accuser'}
-            </button>
+            ${actionBtn}
           `;
           votingGrid.appendChild(card);
         });
         
         // Skip le vote option card
-        const skipCard = document.createElement('div');
-        skipCard.className = `vote-card ${myVote === 'skip' ? 'active' : ''}`;
-        skipCard.style.border = myVote === 'skip' ? '2px solid #64748b' : '1px solid rgba(255,255,255,0.08)';
-        skipCard.style.background = myVote === 'skip' ? 'rgba(100, 116, 139, 0.15)' : 'rgba(255,255,255,0.02)';
-        skipCard.style.padding = '12px';
-        skipCard.style.borderRadius = '10px';
-        skipCard.style.display = 'flex';
-        skipCard.style.flexDirection = 'column';
-        skipCard.style.alignItems = 'center';
-        skipCard.style.position = 'relative';
-        
-        const skipCount = voteTallies['skip'] || 0;
-        let skipBadge = '';
-        if (skipCount > 0) {
-          skipBadge = `<span style="position: absolute; top: -6px; right: -6px; background: #64748b; color: #fff; font-size: 10px; font-weight: bold; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${skipCount}</span>`;
+        if (loupGarouState.isHost) {
+          const skipCard = document.createElement('div');
+          skipCard.className = `vote-card`;
+          skipCard.style.border = '1px solid rgba(255,255,255,0.08)';
+          skipCard.style.background = 'rgba(255,255,255,0.02)';
+          skipCard.style.padding = '12px';
+          skipCard.style.borderRadius = '10px';
+          skipCard.style.display = 'flex';
+          skipCard.style.flexDirection = 'column';
+          skipCard.style.alignItems = 'center';
+          skipCard.style.position = 'relative';
+          
+          skipCard.innerHTML = `
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">🥱</div>
+            <div style="font-weight: bold; font-size: 13px; text-align: center; color: #64748b;">Passer le vote</div>
+            <button class="btn btn-small" onclick="gmEliminatePlayer('skip', 'vote')" style="margin-top: 10px; width: 100%; font-size: 10px; padding: 4px 8px; background: #64748b; border-color: #64748b; color: #fff;">
+              Skip
+            </button>
+          `;
+          votingGrid.appendChild(skipCard);
         }
-        
-        skipCard.innerHTML = `
-          ${skipBadge}
-          <div style="font-size: 1.5rem; margin-bottom: 6px;">🥱</div>
-          <div style="font-weight: bold; font-size: 13px; text-align: center; color: #64748b;">Passer le vote</div>
-          <button class="btn btn-small" ${canVote ? '' : 'disabled'} onclick="submitLoupGarouVote('skip')" style="margin-top: 10px; width: 100%; font-size: 10px; padding: 4px 8px; background: #64748b; border-color: #64748b; color: #fff;">
-            ${myVote === 'skip' ? 'Voté Skip' : 'Skip'}
-          </button>
-        `;
-        votingGrid.appendChild(skipCard);
       }
       
       const tallyBox = document.getElementById('loup-garou-tally-box');
-      const tallyBtn = document.getElementById('btn-loup-garou-tally');
-      const tallyHelper = document.getElementById('loup-garou-tally-helper');
       if (tallyBox) {
-        tallyBox.style.display = 'block';
-        if (isHost) {
-          if (tallyBtn) tallyBtn.style.display = 'inline-block';
-          if (tallyHelper) tallyHelper.style.display = 'none';
-        } else {
-          if (tallyBtn) tallyBtn.style.display = 'none';
-          if (tallyHelper) {
-            tallyHelper.style.display = 'block';
-            tallyHelper.textContent = "Attente que l'hôte ferme le scrutin...";
-          }
-        }
+        tallyBox.style.display = 'none'; // Replaced by direct elimination
       }
     } else {
       if (votingArea) votingArea.classList.add('view-hidden');

@@ -1037,10 +1037,20 @@
           <label for="profile-nickname-input">Pseudo (affiché dans les jeux)</label>
           <input type="text" id="profile-nickname-input" placeholder="Entrez votre pseudo" maxlength="15" autocomplete="off">
         </div>
+        <div class="profile-field">
+          <label for="profile-password-input">Mot de passe</label>
+          <input type="password" id="profile-password-input" placeholder="Votre mot de passe" autocomplete="off">
+        </div>
 
-        <div class="profile-actions">
-          <button class="btn btn-primary btn-block" id="btn-save-profile">💾 Sauvegarder le Profil</button>
+        <div class="profile-actions" style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" id="btn-login-profile" style="flex: 1;">Se Connecter</button>
+          <button class="btn btn-secondary" id="btn-register-profile" style="flex: 1;">Créer Compte</button>
+        </div>
+        <div class="profile-actions" style="margin-top: 10px;">
+          <button class="btn btn-accent btn-block" id="btn-save-profile" style="display:none;">💾 Sauvegarder l'Avatar</button>
+          <button class="btn btn-quit btn-block" id="btn-logout-profile" style="display:none; margin-top: 10px;">Déconnexion</button>
           <div id="profile-save-msg" style="display:none; margin-top:0.75rem; text-align:center; font-size:13px; color:#34d399;"></div>
+          <div id="profile-error-msg" style="display:none; margin-top:0.75rem; text-align:center; font-size:13px; color:#ef4444;"></div>
         </div>
       </div>
 
