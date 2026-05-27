@@ -32,6 +32,24 @@ function saveUsers(users) {
       console.error("Erreur d'écriture dans users.json", err);
     }
   });
+
+  const key = process.env.JSONBIN_KEY;
+  const usersBin = process.env.JSONBIN_USERS_BIN;
+  if (key && usersBin) {
+    fetch(`https://api.jsonbin.io/v3/b/${usersBin}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': key
+      },
+      body: JSON.stringify(users)
+    }).then(r => r.json()).then(data => {
+      if (data.record) console.log("Users synced to cloud successfully!");
+      else console.error("Failed to sync users to cloud:", data);
+    }).catch(e => {
+      console.error("Failed to sync users to cloud:", e);
+    });
+  }
 }
 
 function hashPassword(password) {
@@ -3076,6 +3094,24 @@ function advanceTurnAndCheckRoundEnd(room) {
         console.error('Failed to save stats:', err);
       }
     });
+
+    const key = process.env.JSONBIN_KEY;
+    const statsBin = process.env.JSONBIN_STATS_BIN;
+    if (key && statsBin) {
+      fetch(`https://api.jsonbin.io/v3/b/${statsBin}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': key
+        },
+        body: JSON.stringify(stats)
+      }).then(r => r.json()).then(data => {
+        if (data.record) console.log("Stats synced to cloud successfully!");
+        else console.error("Failed to sync stats to cloud:", data);
+      }).catch(e => {
+        console.error("Failed to sync stats to cloud:", e);
+      });
+    }
   }
 
   function recordGameStats(gameType, playersData) {
@@ -3370,6 +3406,38 @@ function advanceTurnAndCheckRoundEnd(room) {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running at http://0.0.0.0:${PORT}/`);
-});
+// Pre-load from cloud if configured
+if (process.env.JSONBIN_KEY) {
+  console.log("Preloading databases from JSONBin cloud storage...");
+  Promise.all([
+    // Preload users
+    process.env.JSONBIN_USERS_BIN ? fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_USERS_BIN}/latest`, {
+      headers: { 'X-Master-Key': process.env.JSONBIN_KEY }
+    }).then(r => r.json()).then(data => {
+      if (data.record) {
+        cachedUsers = data.record;
+        console.log("Loaded users from JSONBin successfully.");
+      }
+    }).catch(e => console.error("Failed to preload users from cloud:", e)) : Promise.resolve(),
+
+    // Preload stats
+    process.env.JSONBIN_STATS_BIN ? fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_STATS_BIN}/latest`, {
+      headers: { 'X-Master-Key': process.env.JSONBIN_KEY }
+    }).then(r => r.json()).then(data => {
+      if (data.record) {
+        cachedStats = data.record;
+        console.log("Loaded stats from JSONBin successfully.");
+      }
+    }).catch(e => console.error("Failed to preload stats from cloud:", e)) : Promise.resolve()
+  ]).then(() => {
+    startServer();
+  });
+} else {
+  startServer();
+}
+
+function startServer() {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running at http://0.0.0.0:${PORT}/`);
+  });
+}
