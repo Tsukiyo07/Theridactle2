@@ -52,7 +52,31 @@ function saveUsers(users) {
   }
 }
 
+let bcrypt = null;
+try {
+  bcrypt = require('bcryptjs');
+} catch (e) {
+  console.warn("bcryptjs non détecté en local. Les mots de passe utiliseront SHA-256 en fallback. (Faites npm install pour l'activer !)");
+}
+
+function verifyPassword(password, storedHash) {
+  if (!storedHash) return false;
+  if (storedHash.startsWith('$2a$') || storedHash.startsWith('$2b$') || storedHash.startsWith('$2y$')) {
+    if (bcrypt) {
+      return bcrypt.compareSync(password, storedHash);
+    } else {
+      console.error("Impossible de vérifier le mot de passe Bcrypt car bcryptjs n'est pas installé.");
+      return false;
+    }
+  }
+  // Fallback SHA-256
+  return storedHash === crypto.createHash('sha256').update(password).digest('hex');
+}
+
 function hashPassword(password) {
+  if (bcrypt) {
+    return bcrypt.hashSync(password, 10);
+  }
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
@@ -3026,7 +3050,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         const users = loadUsers();
         const user = users[nickname];
 
-        if (!user || user.passwordHash !== hashPassword(password)) {
+        if (!user || !verifyPassword(password, user.passwordHash)) {
           res.writeHead(401, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Identifiants incorrects.' }));
         }
@@ -3049,7 +3073,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         const users = loadUsers();
         const user = users[nickname];
 
-        if (!user || user.passwordHash !== hashPassword(password)) {
+        if (!user || !verifyPassword(password, user.passwordHash)) {
           res.writeHead(401, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Non autorisé.' }));
         }
