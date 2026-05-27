@@ -5,6 +5,29 @@ const path = require('path');
 const url = require('url');
 const crypto = require('crypto');
 
+// --- Load .env file locally if it exists ---
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  try {
+    const envLines = fs.readFileSync(envPath, 'utf8').split('\n');
+    envLines.forEach(line => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = (match[2] || '').trim();
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.substring(1, value.length - 1);
+        } else if (value.startsWith("'") && value.endsWith("'")) {
+          value = value.substring(1, value.length - 1);
+        }
+        process.env[key] = value;
+      }
+    });
+  } catch (e) {
+    console.error("Failed to load .env file:", e);
+  }
+}
+
 const USERS_FILE = path.join(__dirname, 'users.json');
 
 // --- Users & Stats DB ---
