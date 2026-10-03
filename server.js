@@ -5555,16 +5555,20 @@ function advanceTurnAndCheckRoundEnd(room) {
         res.end('Not Found');
       } else {
         res.writeHead(500);
-        res.end('Server Error: ' + error.code);
       }
     } else {
-      res.writeHead(200, { 
+      const headers = { 
         'Content-Type': mimeTypes[extname] || 'application/octet-stream',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'Surrogate-Control': 'no-store'
-      });
+        'X-Robots-Tag': 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+      };
+      if (extname === '.xml' || extname === '.txt') {
+        headers['Cache-Control'] = 'public, max-age=3600';
+      } else {
+        headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
+      }
+      res.writeHead(200, headers);
       res.end(content, 'utf-8');
     }
   });

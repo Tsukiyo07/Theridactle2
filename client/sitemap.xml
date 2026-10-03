@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://supercaraquiz.duckdns.org/</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://supercaraquiz.duckdns.org/SCQ.svg</image:loc>
+      <image:title>SuperCaraQuiz — Arcade de Jeux &amp; Quiz Multijoueur en Ligne</image:title>
+      <image:caption>SuperCaraQuiz Logo Officiel et Arcade Multijoueur</image:caption>
+    </image:image>
   </url>
 </urlset>
