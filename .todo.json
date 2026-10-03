@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Auditer les règles et le système de statistiques",
+    "active_form": "Audit des règles et du système de statistiques",
+    "status": "completed"
+  },
+  {
+    "content": "Concevoir le calcul de points par jeu",
+    "active_form": "Conception du calcul de points par jeu",
+    "status": "completed"
+  },
+  {
+    "content": "Corriger la collecte et les classements",
+    "active_form": "Correction de la collecte et des classements",
+    "status": "completed"
+  },
+  {
+    "content": "Améliorer l’interface statistiques et classement",
+    "active_form": "Amélioration de l’interface statistiques et classement",
+    "status": "completed"
+  },
+  {
+    "content": "Tester tous les jeux et les cas limites",
+    "active_form": "Test de tous les jeux et des cas limites",
+    "status": "in_progress"
+  }
+]

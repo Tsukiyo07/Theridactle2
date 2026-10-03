@@ -1,0 +1,3041 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+ 
+ <!-- Primary Meta Tags & SuperCaraQuiz SEO Dominance -->
+ <title>SuperCaraQuiz — Site Officiel | Arcade de Jeux & Quiz Multijoueur en Ligne</title>
+ <meta name="title" content="SuperCaraQuiz — Site Officiel | Arcade de Jeux & Quiz Multijoueur en Ligne">
+ <meta name="description" content="SuperCaraQuiz (Super CaraQuiz) est l'arcade de jeux de quiz et blind-tests gratuits en ligne. 8 jeux multijoueur inédits : DinOtiste, PokemOtiste, Ahhhhhh, Otiste Piece, SousLaCouverture, Tiéou, Graouu et Blind Test² !">
+ <meta name="keywords" content="supercaraquiz, super caraquiz, super cara quiz, supercara quiz, dinotiste, pokemotiste, ahhhhhh, otiste piece, souslacouverture, tieou, graouu, blind test 2, caraquiz, quiz multijoueur en ligne, arcade de jeux gratuits, blind test en ligne, jeux entre amis en ligne">
+ <meta name="author" content="SuperCaraQuiz">
+ <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+ <meta name="theme-color" content="#0b0f19">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ <meta name="apple-mobile-web-app-title" content="SuperCaraQuiz">
+ 
+ <!-- Canonical Link -->
+ <link rel="canonical" href="https://supercaraquiz.duckdns.org/">
+ 
+ <!-- Open Graph / Facebook -->
+ <meta property="og:type" content="website">
+ <meta property="og:url" content="https://supercaraquiz.duckdns.org/">
+ <meta property="og:site_name" content="SuperCaraQuiz">
+ <meta property="og:title" content="SuperCaraQuiz — Arcade de Jeux & Quiz Multijoueur en Ligne">
+ <meta property="og:description" content="SuperCaraQuiz propose 8 jeux multijoueur instantanés : DinOtiste, PokemOtiste, Ahhhhhh, Otiste Piece, SousLaCouverture, Tiéou, Graouu et Blind Test². Défiez vos amis sur SuperCaraQuiz !">
+ <meta property="og:image" content="https://supercaraquiz.duckdns.org/SCQ.svg">
+
+ <meta property="og:locale" content="fr_FR">
+
+ <!-- Twitter -->
+ <meta property="twitter:card" content="summary_large_image">
+ <meta property="twitter:url" content="https://supercaraquiz.duckdns.org/">
+ <meta property="twitter:title" content="SuperCaraQuiz — Site Officiel | Arcade & Quiz Multijoueur">
+ <meta property="twitter:description" content="SuperCaraQuiz : 8 jeux multijoueur et blind-tests gratuits en ligne. Jouez instantanément sur SuperCaraQuiz !">
+ <meta property="twitter:image" content="https://supercaraquiz.duckdns.org/SCQ.svg">
+
+ <!-- Icons & Manifest -->
+ <link rel="icon" type="image/png" sizes="512x512" href="favicon.png?v=20260825_liquid">
+ <link rel="apple-touch-icon" sizes="512x512" href="apple-touch-icon.png?v=20260825_liquid">
+ <link rel="manifest" href="manifest.json?v=20260825_liquid">
+ 
+ <!-- Stylesheets & Fonts -->
+ <link rel="stylesheet" href="style.css?v=20260828_graouu_lobby_restored_v15">
+ <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+ <script src="liquid-metal.bundle.js?v=20260825" defer></script>
+
+ <!-- Schema.org Rich Snippets & Brand Structured Data (JSON-LD) -->
+ <script type="application/ld+json">
+ {
+  "@context": "https://schema.org",
+  "@graph": [
+   {
+    "@type": "WebSite",
+    "@id": "https://supercaraquiz.duckdns.org/#website",
+    "url": "https://supercaraquiz.duckdns.org/",
+    "name": "SuperCaraQuiz",
+    "alternateName": ["Super CaraQuiz", "SuperCaraQuiz Arcade", "SuperCaraQuiz Official", "SCQ", "CaraQuiz"],
+    "description": "SuperCaraQuiz est la plateforme d'arcade multijoueur et de quiz en ligne numéro 1 : DinOtiste, PokemOtiste, Ahhhhhh, Otiste Piece, SousLaCouverture, Tiéou, Graouu et Blind Test².",
+    "inLanguage": "fr-FR"
+   },
+   {
+    "@type": "SoftwareApplication",
+    "@id": "https://supercaraquiz.duckdns.org/#webapp",
+    "name": "SuperCaraQuiz",
+    "url": "https://supercaraquiz.duckdns.org/",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires HTML5 and JavaScript",
+    "description": "Jouez gratuitement à SuperCaraQuiz, l'arcade de jeux de quiz multijoueur en temps réel : DinOtiste, PokemOtiste, Ahhhhhh, Otiste Piece, SousLaCouverture, Tiéou, Graouu et Blind Test².",
+    "inLanguage": "fr",
+    "offers": {
+     "@type": "Offer",
+     "price": "0",
+     "priceCurrency": "EUR",
+     "availability": "https://schema.org/InStock"
+    },
+    "aggregateRating": {
+     "@type": "AggregateRating",
+     "ratingValue": "4.9",
+     "ratingCount": "1420",
+     "bestRating": "5",
+     "worstRating": "1"
+    }
+   },
+   {
+    "@type": "Organization",
+    "@id": "https://supercaraquiz.duckdns.org/#organization",
+    "name": "SuperCaraQuiz",
+    "url": "https://supercaraquiz.duckdns.org/",
+    "logo": {
+     "@type": "ImageObject",
+     "url": "https://supercaraquiz.duckdns.org/SCQ.svg"
+    },
+    "sameAs": [
+     "https://supercaraquiz.duckdns.org/"
+    ]
+   },
+   {
+    "@type": "ItemList",
+    "name": "Jeux Multijoueur SuperCaraQuiz",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "SuperCaraQuiz DinOtiste",
+      "description": "Le jeu de décodage encyclopédique de dinosaures de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "SuperCaraQuiz PokemOtiste",
+      "description": "Le quiz Pokédex mystère de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "SuperCaraQuiz Ahhhhhh",
+      "description": "Le quiz de reconnaissance sonore des cris Pokémon de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "SuperCaraQuiz Otiste Piece",
+      "description": "Le quiz encyclopédique One Piece de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 5,
+      "name": "SuperCaraQuiz SousLaCouverture",
+      "description": "Le jeu de rôle, de bluff et de déduction de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 6,
+      "name": "SuperCaraQuiz Tiéou",
+      "description": "Le quiz cartographique, capitales et drapeaux de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 7,
+      "name": "SuperCaraQuiz Graouu",
+      "description": "Le village de Loup-Garou multijoueur en direct de SuperCaraQuiz"
+     },
+     {
+      "@type": "ListItem",
+      "position": 8,
+      "name": "SuperCaraQuiz Blind Test²",
+      "description": "Le blind test musical haute précision de SuperCaraQuiz"
+     }
+    ]
+   }
+  ]
+ }
+ </script>
+</head>
+<body class="dark-theme">
+ 
+ <!-- Subtle Cinematic Noise Texture -->
+ <div class="noise-overlay" aria-hidden="true"></div>
+ 
+ <!-- Subtle SCQ Geometry Background Pattern -->
+ <div class="scq-bg-pattern" aria-hidden="true"></div>
+
+ <!-- Backdrop Animated Glows -->
+ <div class="glow-bg">
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+ </div>
+
+ <!-- Top Navigation -->
+ <nav class="top-nav">
+  <div class="nav-left">
+   <div class="logo" id="nav-logo" title="SuperCaraQuiz — Retourner à l'accueil">
+    <div class="scq-shader-logo-wrap" id="nav-logo-shader">
+     <img src="SCQ.svg" alt="SuperCaraQuiz" class="scq-logo-img">
+    </div>
+    <div class="logo-lockup">
+     <span class="logo-kicker">SUPER</span>
+     <span class="logo-main">CARA<span class="logo-accent">QUIZ</span></span>
+    </div>
+   </div>
+   <span id="room-display" style="display:none;" class="nav-room-badge">
+    <svg class="nav-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="8" cy="12" r="1.5"></circle><circle cx="16" cy="12" r="1.5"></circle><path d="M11 12h2M12 11v2"></path></svg>
+    SALON: <span id="room-code">----</span>
+   </span>
+  </div>
+  
+  <div class="nav-right">
+   <button class="btn btn-secondary btn-icon" id="btn-copy-invite" style="display:none;" title="Copier le lien d'invitation">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+    <span>Inviter</span>
+   </button>
+   <button class="nav-profile-circle-btn" id="btn-profile-trigger" onclick="openProfileModal()" title="Mon Profil" aria-label="Mon Profil">
+    <span class="nav-avatar" id="nav-profile-avatar"><svg class="nav-svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+   </button>
+  </div>
+ </nav>
+
+ <!-- 1. MAIN PORTAL VIEW -->
+ <section id="portal-view" class="portal-container active-view">
+  <div class="portal-hero">
+   <div class="hero-logo-center">
+    <div class="hero-shader-logo-wrap" id="hero-logo-shader">
+     <img src="SCQ.svg" alt="SuperCaraQuiz" class="hero-scq-fallback">
+    </div>
+   </div>
+   <div class="hero-kicker">
+    <span class="hero-kicker-pill">
+     <svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+     ARCADE MULTIJOUEUR EN LIGNE • 100% GRATUIT
+    </span>
+   </div>
+   <h1 class="hero-title"><span class="hero-super-red">Super</span><span class="hero-title-brand">CaraQuiz</span> — L'Arcade Ultime de vos <span class="text-gradient">Soirées</span></h1>
+   <p class="hero-subtitle">8 expériences interactives instantanées sur SuperCaraQuiz. Défiez vos amis, explorez les encyclopédies et grimpez au sommet du classement SuperCaraQuiz.</p>
+  </div>
+
+  <div class="portal-grid">
+   <!-- Game Card 1: Theridactle (DinOtiste) -->
+   <div class="game-card card-theridactle" id="card-theridactle">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-theri">
+       <svg viewBox="0 0 24 24"><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/></svg>
+      </div>
+      <span class="card-meta-tag tag-theri">FOSSILES & SCIENCE</span>
+     </div>
+     <h2 class="card-title">DinOtiste</h2>
+     <p class="card-desc">Le Redactle des dinosaures. Déchiffrez un article Wikipédia censuré en trouvant les mots cachés. Jouable en solo ou en salon !</p>
+     <button class="btn btn-card btn-card-theri">Jouer à DinOtiste</button>
+    </div>
+   </div>
+
+   <!-- Game Card: Pokédactle (PokemOtiste) -->
+   <div class="game-card card-pokedactle" id="card-pokedactle">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-poke">
+       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h7m6 0h7"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+      </div>
+      <span class="card-meta-tag tag-poke">1025 CRÉATURES</span>
+     </div>
+     <h2 class="card-title">PokemOtiste</h2>
+     <p class="card-desc">Le Redactle version Pokédex ! Retrouvez le Pokémon mystère caché sous les pages encyclopédiques de Poképédia.</p>
+     <button class="btn btn-card btn-card-poke">Jouer à PokemOtiste</button>
+    </div>
+   </div>
+
+   <!-- Game Card: PokéCries (Ahhhhhh) -->
+   <div class="game-card card-pokecries" id="card-pokecries" onclick="showView('pokecriesMenu')">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-pokecries">
+       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+       </svg>
+      </div>
+      <span class="card-meta-tag tag-pokecries">BLIND-TEST CRIS POKÉMON</span>
+     </div>
+     <h2 class="card-title">Ahhhhhh</h2>
+     <p class="card-desc">Le blind-test à l'oreille des Pokémon ! Reconnaissez les cris parmi 1025 créatures (Gen 1 à 9). Enchaînez les séries en solo ou affrontez vos amis en salon !</p>
+     <button class="btn btn-card btn-card-pokecries" id="btn-portal-pokecries" onclick="event.stopPropagation(); showView('pokecriesMenu');">Jouer à Ahhhhhh</button>
+    </div>
+   </div>
+
+   <!-- Game Card: Merrydactle (Otiste Piece) -->
+   <div class="game-card card-merrydactle" id="card-merrydactle">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-merry">
+       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4l16 16M20 4L4 20" stroke="currentColor"/>
+        <path d="M7.5 11v2a4.5 4.5 0 0 0 9 0v-2" stroke="currentColor"/>
+        <circle cx="10" cy="13.5" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="14" cy="13.5" r="1.2" fill="currentColor" stroke="none"/>
+        <path d="M9.8 16.5c1.4.8 3 0.8 4.4 0" stroke="currentColor"/>
+        <path d="M11 16v1.2M13 16v1.2" stroke="currentColor"/>
+        <path d="M7 10c0-3.5 2.2-5 5-5s5 1.5 5 5" stroke="#fbbf24"/>
+        <path d="M7.2 9h9.6" stroke="#ef4444"/>
+        <path d="M2.5 10.5c3-1.8 16-1.8 19 0" stroke="#fbbf24"/>
+       </svg>
+      </div>
+      <span class="card-meta-tag tag-merry">GRAND LINE LORE</span>
+     </div>
+     <h2 class="card-title">Otiste Piece</h2>
+     <p class="card-desc">Le Redactle One Piece ! Retrouvez le personnage, navire, fruit du démon ou île mystère masqué sous l'encyclopédie de Grand Line.</p>
+     <button class="btn btn-card btn-card-merry">Jouer à Otiste Piece</button>
+    </div>
+   </div>
+
+   <!-- Game Card 2: L'Imposteur (SousLaCouverture) -->
+   <div class="game-card card-imposteur" id="card-imposteur">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-imp">
+       <svg viewBox="0 0 24 24"><path d="M18 11c-1.5 0-2.5.5-3 2"/><path d="M4 6a2 2 0 0 0-2 2v4a5 5 0 0 0 5 5 8 8 0 0 1 5 2 8 8 0 0 1 5-2 5 5 0 0 0 5-5V8a2 2 0 0 0-2-2h-3a8 8 0 0 0-5 2 8 8 0 0 0-5-2z"/><path d="M6 11c1.5 0 2.5.5 3 2"/></svg>
+      </div>
+      <span class="card-meta-tag tag-imp">BLUFF & DÉDUCTION</span>
+     </div>
+     <h2 class="card-title">SousLaCouverture</h2>
+     <p class="card-desc">Le jeu du quiproquo et du bluff. Tout le monde reçoit le même mot secret, sauf un sous la couverture. Décrivez, débattez et démasquez-le !</p>
+     <button class="btn btn-card btn-card-imp">Jouer à SousLaCouverture</button>
+    </div>
+   </div>
+
+   <!-- Game Card 3: Quiz Géographie (Tiéou) -->
+   <div class="game-card card-geographie" id="card-geographie">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-geo">
+       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      </div>
+      <span class="card-meta-tag tag-geo">MONDE & CARTES</span>
+     </div>
+     <h2 class="card-title">Tiéou</h2>
+     <p class="card-desc">Drapeaux, capitales ou silhouettes vectorielles mystères. Répondez simultanément et assistez à une phase de correction dramatique Kahoot-style !</p>
+     <button class="btn btn-card btn-card-geo">Jouer à Tiéou</button>
+    </div>
+   </div>
+
+   <!-- Game Card 4: Loup-Garou (Graouu) -->
+   <div class="game-card card-loup-garou" id="card-loup-garou">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-wolf">
+       <svg viewBox="0 0 24 24"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </div>
+      <span class="card-meta-tag tag-wolf">4 À 16 JOUEURS</span>
+     </div>
+     <h2 class="card-title">Graouu</h2>
+     <p class="card-desc">Le légendaire jeu de rôle de Thiercelieux. Configurez vos rôles favoris (Voyante, Sorcière, Chasseur...) et survivez au massacre nocturne !</p>
+     <button class="btn btn-card btn-card-wolf">Jouer à Graouu</button>
+    </div>
+   </div>
+
+   <!-- Game Card 6: Songless (Blind Test²) -->
+   <div class="game-card card-songless" id="card-songless" onclick="showView('songlessMenu')">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-songless">
+       <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <span class="card-meta-tag tag-songless">HIT-PARADE & POP</span>
+     </div>
+     <h2 class="card-title">Blind Test²</h2>
+     <p class="card-desc">Le jeu musical à l'oreille absolue. Devinez le titre et l'artiste en continu à partir d'extraits de 0.1s à 10s. Enchaînez les morceaux à l'infini !</p>
+     <button class="btn btn-card btn-card-songless" id="btn-portal-songless" onclick="event.stopPropagation(); showView('songlessMenu');">Jouer à Blind Test²</button>
+    </div>
+   </div>
+
+   <!-- Game Card 5: Statistiques -->
+   <div class="game-card card-statistiques" id="card-statistiques">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-stats">
+       <svg viewBox="0 0 24 24"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2"/><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2"/><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3"/></svg>
+      </div>
+      <span class="card-meta-tag tag-stats">SCORES EN DIRECT</span>
+     </div>
+     <h2 class="card-title">Classements & Stats</h2>
+     <p class="card-desc">Suivez les meilleurs joueurs et analysez vos statistiques personnelles par jeu. Semaine, Mois, Année, All-Time.</p>
+     <button class="btn btn-card btn-card-stats">Consulter les Scores</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- Premium Footer & SEO Knowledge Hub -->
+   <footer class="portal-seo-footer" aria-label="À propos de SuperCaraQuiz">
+    <div class="footer-divider"></div>
+    <div class="footer-inner">
+     <div class="footer-brand-col">
+      <div class="footer-logo">
+       <img src="SCQ.svg" alt="SuperCaraQuiz" class="scq-footer-logo-img">
+       <div class="logo-lockup">
+        <span class="logo-kicker">SUPER</span>
+        <span class="logo-main">CARA<span class="logo-accent">QUIZ</span></span>
+       </div>
+      </div>
+      <p class="footer-tagline">L'arcade multijoueur ultime pour vos soirées, quiz et blind-tests en temps réel.</p>
+      <div class="footer-pills">
+       <span class="footer-pill">100% Temps Réel</span>
+       <span class="footer-pill">8 Expériences de Jeu</span>
+       <span class="footer-pill">Gratuit & Sans Téléchargement</span>
+      </div>
+     </div>
+     <div class="footer-content-col">
+      <h3 class="footer-heading">SuperCaraQuiz (Super CaraQuiz) — L'Arcade Multijoueur Gratuite</h3>
+      <p class="footer-desc">
+       <strong>SuperCaraQuiz</strong> (également recherché sous les variantes <em>Super CaraQuiz</em>, <em>Super Cara Quiz</em> ou <em>SuperCara Quiz</em>) est la plateforme francophone de référence pour les quiz et blind-tests multijoueur en ligne. Jouez instantanément sans téléchargement avec vos amis ou en solo à travers 8 expériences exclusives : l'exploration encyclopédique de <strong>DinOtiste</strong>, le défi Pokédex <strong>PokemOtiste</strong>, la reconnaissance sonore <strong>Ahhhhhh</strong>, l'aventure One Piece <strong>Otiste Piece</strong>, le jeu de déduction <strong>SousLaCouverture</strong>, la compétition cartographique de <strong>Tiéou</strong>, le jeu de rôle immersif <strong>Graouu</strong>, et le blind-test audio ultra-précis <strong>Blind Test²</strong>.
+      </p>
+      <div class="footer-meta-row">
+       <span>© 2026 SuperCaraQuiz (SCQ) • L'arcade de quiz en ligne nouvelle génération</span>
+      </div>
+     </div>
+    </div>
+   </footer>
+ </section>
+
+ <!-- 2. THERIDACTLE MENU VIEW -->
+ <section id="theridactle-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel">
+   <button class="btn-back" id="btn-back-theridactle">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-primary">Dinosaures</span>
+    <h2>DinOtiste</h2>
+    <p>Identifiez l'espèce préhistorique cachée sous les blocs.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="theridactle-pseudo-group">
+     <label for="theridactle-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="theridactle-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-create-room" class="btn btn-primary btn-block">Créer un salon</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box">
+      <input type="text" id="join-room-input" placeholder="Code de salon (ex: ABCD)" autocomplete="off">
+      <button id="btn-join-room" class="btn btn-primary">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="theridactle-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- POKEDACTLE MENU VIEW -->
+ <section id="pokedactle-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-pokedactle">
+   <button class="btn-back" id="btn-back-pokedactle">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-poke">Poképédia &amp; Pokédex</span>
+    <h2>PokemOtiste</h2>
+    <p>Identifiez le Pokémon mystère masqué sous les blocs de texte.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="pokedactle-pseudo-group">
+     <label for="pokedactle-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="pokedactle-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-pokedactle-create" class="btn btn-poke btn-block">Créer un salon</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box">
+      <input type="text" id="pokedactle-join-input" placeholder="Code de salon (ex: ABCD)" autocomplete="off">
+      <button id="btn-pokedactle-join" class="btn btn-poke">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="pokedactle-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- POKECRIES MENU VIEW -->
+ <section id="pokecries-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-pokedactle">
+   <button class="btn-back" id="btn-back-pokecries">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-poke">Blind-Test Cris Pokémon</span>
+    <h2>Ahhhhhh</h2>
+    <p>Écoutez le cri et devinez à quel Pokémon il appartient !</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="pokecries-pseudo-group">
+     <label for="pokecries-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="pokecries-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-pokecries-create-room" class="btn btn-poke btn-block">Créer un salon</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box" style="margin-top: 10px;">
+      <input type="text" id="pokecries-room-code-input" placeholder="Code (ex: ABCD)" maxlength="4" style="text-transform: uppercase; text-align: center; font-weight: 700; letter-spacing: 2px;">
+      <button id="btn-pokecries-join-room" class="btn btn-poke" style="padding: 0 20px;">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="pokecries-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- MERRYDACTLE MENU VIEW -->
+ <section id="merrydactle-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-merrydactle">
+   <button class="btn-back" id="btn-back-merrydactle">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-merry">One Piece &amp; Grand Line</span>
+    <h2>Otiste Piece</h2>
+    <p>Identifiez le mystère de Grand Line masqué sous l'encyclopédie One Piece.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="merrydactle-pseudo-group">
+     <label for="merrydactle-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="merrydactle-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-merrydactle-create" class="btn btn-merry btn-block">Créer un salon</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box">
+      <input type="text" id="merrydactle-join-input" placeholder="Code de salon (ex: ABCD)" autocomplete="off">
+      <button id="btn-merrydactle-join" class="btn btn-merry">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="merrydactle-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- 3. IMPOSTEUR MENU VIEW -->
+ <section id="imposteur-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-imposteur">
+   <button class="btn-back" id="btn-back-imposteur">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-accent">Bluff &amp; Quiproquo</span>
+    <h2>SousLaCouverture</h2>
+    <p>Identifiez l'intrus masqué parmi les joueurs dans des joutes verbales chaotiques.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="imposteur-pseudo-group">
+     <label for="imposteur-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="imposteur-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-imposteur-create" class="btn btn-accent btn-block">Créer un salon</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box">
+      <input type="text" id="imposteur-join-code" placeholder="Code (ex: WXYZ)" autocomplete="off">
+      <button id="btn-imposteur-join" class="btn btn-accent">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="imposteur-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- 3.5. GEOGRAPHIE MENU VIEW -->
+ <section id="geographie-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-geo">
+   <button class="btn-back" id="btn-back-geographie">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-geo">Multijoueur Temps Réel</span>
+    <h2>Tiéou</h2>
+    <p>Testez vos connaissances en cartographie, drapeaux et silhouettes.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="geographie-pseudo-group">
+     <label for="geographie-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="geographie-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-geographie-create" class="btn btn-geo btn-block">Créer un salon</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box">
+      <input type="text" id="geographie-join-code" placeholder="Code (ex: ABCD)" autocomplete="off">
+      <button id="btn-geographie-join" class="btn btn-geo">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="geographie-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- 4. THERIDACTLE GAME VIEW -->
+ <main class="app-container songless-view-container view-hidden" id="game-view">
+  <div class="imposteur-layout">
+   
+   <!-- MAIN GAME SECTION (LEFT / CENTER) -->
+   <section class="imposteur-main-section" style="justify-content: flex-start; overflow-y: auto;">
+    
+    <!-- Multiplayer Lobby State -->
+    <div id="theridactle-multi-lobby" class="glass-panel imposteur-panel">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="theridactle-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff;">En attente des joueurs</span>
+     </div>
+
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div class="lobby-grid-2cols">
+        <div class="input-group">
+         <label for="theridactle-lobby-rounds-select">Nombre de Manches</label>
+         <div class="theme-select-wrapper">
+          <select id="theridactle-lobby-rounds-select" class="theme-select">
+           <option value="1">1 Manche (Article)</option>
+           <option value="2">2 Manches</option>
+           <option value="3" selected>3 Manches</option>
+           <option value="5">5 Manches</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="theridactle-lobby-category-select">Catégorie Dinosaures</label>
+         <div class="theme-select-wrapper">
+          <select id="theridactle-lobby-category-select" class="theme-select">
+           <option value="all" selected>Tous les Dinosaures</option>
+           <option value="theropodes">Théropodes (Carnivores)</option>
+           <option value="sauropodes">Sauropodes (Herbivores)</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="theridactle-lobby-hints-select">Indices Autorisés</label>
+         <div class="theme-select-wrapper">
+          <select id="theridactle-lobby-hints-select" class="theme-select">
+           <option value="3" selected>3 Indices par manche</option>
+           <option value="1">1 Indice par manche</option>
+           <option value="0">Aucun indice (Hardcore)</option>
+          </select>
+         </div>
+        </div>
+       </div>
+      </div>
+
+      <div class="lobby-start-box">
+       <button id="btn-theridactle-start-game" class="btn btn-primary btn-large btn-block" style="background: linear-gradient(135deg, #10b981, #059669); display: none;">
+        Lancer la partie DinOtiste
+       </button>
+       <div id="theridactle-lobby-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+        En attente que l'hôte lance la partie...
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Active Article Area -->
+    <div id="theridactle-active-area" class="dactle-active-container view-hidden">
+     <!-- Round Banner in multiplayer -->
+     <div id="theridactle-round-indicator" class="glass-panel" style="display: none; padding: 0.6rem 1rem; margin-bottom: 1rem; border-radius: 12px; justify-content: space-between; align-items: center;">
+      <div style="font-weight: 700; font-size: 14px; color: #10b981; display: inline-flex; align-items: center; gap: 8px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/></svg>
+       <span>MANCHE <span id="theridactle-round-display">1</span> / <span id="theridactle-total-rounds-display">3</span></span>
+      </div>
+      <div id="theridactle-round-status-badge" class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">En cours</div>
+     </div>
+
+     <!-- Round Ended Notification / Next Round Button -->
+     <div id="theridactle-round-banner" class="glass-panel view-hidden" style="padding: 1.25rem; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08); border-radius: 14px;">
+      <h3 style="margin: 0 0 6px 0; color: #10b981; font-size: 1.3rem;">🎉 Manche Terminée !</h3>
+      <p id="theridactle-round-winner-text" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 14px;">Le dinosaure a été découvert !</p>
+      <button id="btn-theridactle-next-round" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); margin: 0 auto; display: none;">
+       Manche Suivante ➔
+      </button>
+      <div id="theridactle-round-helper" class="helper-text" style="color: var(--text-muted); margin-top: 8px; display: none;">
+       En attente que l'hôte lance la manche suivante...
+      </div>
+     </div>
+
+     <section class="article-section">
+      <div class="article-header">
+       <div class="subtitle">À propos du dinosaure mystère</div>
+       <div class="puzzle-id">« DINOSAURE »</div>
+       <div class="clover">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 3 4 6 4 6s4-3 4-6a4 4 0 0 0-4-4zM2 12a4 4 0 0 0 4 4c3 0 6-4 6-4s-3-4-6-4a4 4 0 0 0-4 4zM12 22a4 4 0 0 0 4-4c0-3-4-6-4-6s-4 3-4 6a4 4 0 0 0 4 4zM22 12a4 4 0 0 0-4-4c-3 0-6 4-6 4s3 4 6 4a4 4 0 0 0 4-4zM12 12v10"></path></svg>
+        1
+       </div>
+      </div>
+      
+      <div id="loading" class="loading" style="display:none;">Recherche des fossiles...</div>
+      <div id="win-message" class="win-message" style="display:none;"></div>
+
+      <div id="article-content" class="article-content">
+       <h1 id="main-title" class="main-title"></h1>
+       <div id="wiki-text" class="wiki-text"></div>
+      </div>
+     </section>
+    </div>
+
+    <!-- Multiplayer End of Game (Podium & Room Controls) -->
+    <div id="theridactle-podium-panel" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header" style="text-align: center; margin-bottom: 1.5rem;">
+      <div class="badge" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; margin-bottom: 8px;">Fin de la Session</div>
+      <h3 style="font-size: 1.6rem; margin: 0;">Podium <span class="text-gradient">Final</span></h3>
+      <p class="theme-helper" style="margin-top: 4px; font-size: 13px;">Voici le classement officiel des paléontologues pour cette session.</p>
+     </div>
+
+     <!-- Stepped 3D Podium Container -->
+     <div class="stats-podium" style="margin-bottom: 1.8rem;">
+      <div class="podium-stepped-wrapper" id="theridactle-podium-stepped">
+       <!-- Rendered dynamically (2nd, 1st, 3rd) -->
+      </div>
+     </div>
+
+     <!-- Full Leaderboard for remaining players -->
+     <div class="songless-full-leaderboard-box" id="theridactle-podium-leaderboard-box" style="margin-bottom: 1.8rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1rem 1.25rem;">
+      <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin: 0 0 10px 0;">Classement Complet</h4>
+      <div id="theridactle-podium-full-list" class="stats-leaderboard-list">
+       <!-- Rendered dynamically -->
+      </div>
+     </div>
+
+     <!-- Action Buttons -->
+     <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+      <button id="btn-theridactle-restart-lobby" class="btn btn-primary btn-large btn-block" style="background: linear-gradient(135deg, #10b981, #059669); display: none;">
+       ⚙️ Modifier les paramètres &amp; Rejouer
+      </button>
+      <div id="theridactle-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+       En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
+      </div>
+      <button id="btn-theridactle-podium-leave" class="btn btn-secondary btn-block" style="max-width: 320px;" onclick="confirmLeave()">
+       Quitter le salon
+      </button>
+     </div>
+    </div>
+
+   </section>
+
+   <!-- Right: Sidebar Area -->
+   <aside class="sidebar-section imposteur-sidebar" id="sidebar">
+    
+    <!-- Mobile Handle -->
+    <div class="mobile-handle" id="mobile-handle">
+     <span class="handle-bar"></span>
+    </div>
+
+    <!-- Multiplayer Connected Players List (Lobby & Game) -->
+    <div id="theridactle-multi-players-box" class="imposteur-sidebar-panel" style="margin-bottom: 1rem;">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+       JOUEURS (<span id="theridactle-player-count">1</span>)
+      </h4>
+     </div>
+     <ul id="theridactle-sidebar-players" class="imposteur-players-list"></ul>
+    </div>
+
+     <!-- In-Game Gameplay Elements (hidden during lobby) -->
+     <div id="theridactle-sidebar-gameplay" class="dactle-sidebar-gameplay" style="display: none;">
+      <div class="sidebar-top">
+       <div class="sidebar-actions">
+        <div class="hint-dropdown-container">
+         <button class="btn-action" id="btn-hint">
+          <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>
+          INDICE(<span id="hint-count-total">3</span>)
+         </button>
+         <div class="hint-dropdown" id="hint-dropdown" style="display:none;">
+          <div class="hint-option" id="hint-reveal-word">
+           <div class="hint-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+           </div>
+           <div class="hint-text">
+            <strong>RÉVÉLER UN MOT(<span id="hint-count-word">3</span>)</strong>
+            <span>CLIQUEZ SUR UN MOT CENSURÉ POUR LE DÉCOUVRIR.</span>
+           </div>
+          </div>
+          <div class="hint-option" id="hint-phrase">
+           <div class="hint-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+           </div>
+           <div class="hint-text">
+            <strong>PHRASE INDICE(1)</strong>
+            <span>OBTENEZ UN INDICE PHYSIQUE.</span>
+           </div>
+          </div>
+         </div>
+        </div>
+        <button class="btn-action" id="btn-give-up">ABANDONNER</button>
+        <button class="btn-action" id="leave-btn">QUITTER</button>
+       </div>
+       
+       <!-- Desktop form(inside sidebar) -->
+       <form id="guess-form-desktop" class="guess-form guess-form-desktop">
+        <input type="text" id="guess-input-desktop" placeholder="Saisir un mot" autocomplete="off">
+        <button type="submit" class="btn-submit">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        (<span id="guess-total-desktop">0</span>)
+        </button>
+       </form>
+      </div>
+
+      <!-- Phrase Hint Container -->
+      <div id="phrase-hint-container" class="phrase-hint-container" style="display:none;">
+       <div class="phrase-hint-title">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>
+        Indice Physique
+       </div>
+       <div id="phrase-hint-text" class="phrase-hint-text"></div>
+      </div>
+
+      <div class="sidebar-list-header">
+       <span class="col-rank">#</span>
+       <span class="col-word">Mot</span>
+       <span class="col-hits">Hits</span>
+      </div>
+      
+      <ul id="guess-list" class="guess-list">
+       <!-- Guesses inserted here via JS -->
+      </ul>
+     </div>
+    
+   </aside>
+
+  </div>
+
+  <!-- Mobile form -->
+  <form id="guess-form-mobile" class="guess-form guess-form-mobile">
+   <button type="button" id="btn-scroll-top" class="btn-scroll-top">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="3"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    HAUT
+   </button>
+   <input type="text" id="guess-input" placeholder="Saisir un mot" autocomplete="off">
+   <button type="submit" class="btn-submit">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+   (<span id="guess-total">0</span>)
+   </button>
+  </form>
+ </main>
+
+ <!-- POKEDACTLE GAME VIEW -->
+ <main class="app-container songless-view-container view-hidden" id="pokedactle-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- MAIN GAME SECTION (LEFT / CENTER) -->
+   <section class="imposteur-main-section" style="justify-content: flex-start; overflow-y: auto;">
+    
+    <!-- Multiplayer Lobby State -->
+    <div id="pokedactle-multi-lobby" class="glass-panel imposteur-panel">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="pokedactle-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;">En attente des joueurs</span>
+     </div>
+
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div class="lobby-grid-2cols">
+        <div class="input-group">
+         <label for="pokedactle-lobby-rounds-select">Nombre de Manches</label>
+         <div class="theme-select-wrapper">
+          <select id="pokedactle-lobby-rounds-select" class="theme-select">
+           <option value="1">1 Manche (Pokémon)</option>
+           <option value="2">2 Manches</option>
+           <option value="3" selected>3 Manches</option>
+           <option value="5">5 Manches</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="pokedactle-lobby-category-select">Générations</label>
+         <div class="theme-select-wrapper">
+          <select id="pokedactle-lobby-category-select" class="theme-select">
+           <option value="all" selected>Toutes (Gen 1 à 9)</option>
+           <option value="gen1">Gen 1 (Kanto)</option>
+           <option value="gen2">Gen 2 (Johto)</option>
+           <option value="gen3">Gen 3 (Hoenn)</option>
+           <option value="gen4">Gen 4 (Sinnoh)</option>
+           <option value="gen5">Gen 5 (Unys)</option>
+           <option value="gen6">Gen 6 (Kalos)</option>
+           <option value="gen7">Gen 7 (Alola)</option>
+           <option value="gen8">Gen 8 (Galar)</option>
+           <option value="gen9">Gen 9 (Paldea)</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="pokedactle-lobby-hints-select">Indices Autorisés</label>
+         <div class="theme-select-wrapper">
+          <select id="pokedactle-lobby-hints-select" class="theme-select">
+           <option value="3" selected>3 Indices par manche</option>
+           <option value="1">1 Indice par manche</option>
+           <option value="0">Aucun indice (Hardcore)</option>
+          </select>
+         </div>
+        </div>
+       </div>
+      </div>
+
+      <div class="lobby-start-box">
+       <button id="btn-pokedactle-start-game" class="btn btn-poke btn-large btn-block" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; display: none;">
+        Lancer la partie PokemOtiste
+       </button>
+       <div id="pokedactle-lobby-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+        En attente que l'hôte lance la partie...
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Active Article Area -->
+    <div id="pokedactle-active-area" class="dactle-active-container view-hidden">
+     <!-- Round Banner in multiplayer -->
+     <div id="pokedactle-round-indicator" class="glass-panel" style="display: none; padding: 0.6rem 1rem; margin-bottom: 1rem; border-radius: 12px; justify-content: space-between; align-items: center;">
+      <div style="font-weight: 700; font-size: 14px; color: #f59e0b; display: inline-flex; align-items: center; gap: 8px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h7m6 0h7"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+       <span>MANCHE <span id="pokedactle-round-display">1</span> / <span id="pokedactle-total-rounds-display">3</span></span>
+      </div>
+      <div id="pokedactle-round-status-badge" class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">En cours</div>
+     </div>
+
+     <!-- Round Ended Notification / Next Round Button -->
+     <div id="pokedactle-round-banner" class="glass-panel view-hidden" style="padding: 1.25rem; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); border-radius: 14px;">
+      <h3 style="margin: 0 0 6px 0; color: #f59e0b; font-size: 1.3rem;">🎉 Pokémon Découvert !</h3>
+      <p id="pokedactle-round-winner-text" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 14px;">Le Pokémon a été trouvé !</p>
+      <button id="btn-pokedactle-next-round" class="btn btn-poke" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; margin: 0 auto; display: none;">
+       Manche Suivante ➔
+      </button>
+      <div id="pokedactle-round-helper" class="helper-text" style="color: var(--text-muted); margin-top: 8px; display: none;">
+       En attente que l'hôte lance la manche suivante...
+      </div>
+     </div>
+
+     <section class="article-section">
+      <div class="article-header">
+       <div class="subtitle">Page Poképédia du Pokémon mystère</div>
+       <div class="puzzle-id">« POKÉMON »</div>
+       <div class="clover">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        1
+       </div>
+      </div>
+      
+      <div id="pokedactle-loading" class="loading" style="display:none;">Consultation du Pokédex...</div>
+      <div id="pokedactle-win-message" class="win-message" style="display:none;"></div>
+
+      <div id="pokedactle-article-content" class="article-content">
+       <h1 id="pokedactle-main-title" class="main-title"></h1>
+       <div id="pokedactle-wiki-text" class="wiki-text"></div>
+      </div>
+     </section>
+    </div>
+
+    <!-- Multiplayer End of Game (Podium & Room Controls) -->
+    <div id="pokedactle-podium-panel" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header" style="text-align: center; margin-bottom: 1.5rem;">
+      <div class="badge" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; margin-bottom: 8px;">Fin de la Session</div>
+      <h3 style="font-size: 1.6rem; margin: 0;">Podium <span class="text-gradient">Final</span></h3>
+      <p class="theme-helper" style="margin-top: 4px; font-size: 13px;">Voici le classement officiel des dresseurs pour cette session.</p>
+     </div>
+
+     <!-- Stepped 3D Podium Container -->
+     <div class="stats-podium" style="margin-bottom: 1.8rem;">
+      <div class="podium-stepped-wrapper" id="pokedactle-podium-stepped">
+       <!-- Rendered dynamically (2nd, 1st, 3rd) -->
+      </div>
+     </div>
+
+     <!-- Full Leaderboard for remaining players -->
+     <div class="songless-full-leaderboard-box" id="pokedactle-podium-leaderboard-box" style="margin-bottom: 1.8rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1rem 1.25rem;">
+      <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin: 0 0 10px 0;">Classement Complet</h4>
+      <div id="pokedactle-podium-full-list" class="stats-leaderboard-list">
+       <!-- Rendered dynamically -->
+      </div>
+     </div>
+
+     <!-- Action Buttons -->
+     <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+      <button id="btn-pokedactle-restart-lobby" class="btn btn-poke btn-large btn-block" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; display: none;">
+       ⚙️ Modifier les paramètres &amp; Rejouer
+      </button>
+      <div id="pokedactle-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+       En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
+      </div>
+      <button id="btn-pokedactle-podium-leave" class="btn btn-secondary btn-block" style="max-width: 320px;" onclick="confirmLeave()">
+       Quitter le salon
+      </button>
+     </div>
+    </div>
+
+   </section>
+
+   <!-- Right: Sidebar Area -->
+   <aside class="sidebar-section imposteur-sidebar" id="pokedactle-sidebar">
+    
+    <!-- Mobile Handle -->
+    <div class="mobile-handle" id="pokedactle-mobile-handle">
+     <span class="handle-bar"></span>
+    </div>
+
+    <!-- Multiplayer Connected Players List (Lobby & Game) -->
+    <div id="pokedactle-multi-players-box" class="imposteur-sidebar-panel" style="margin-bottom: 1rem;">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+       JOUEURS (<span id="pokedactle-player-count">1</span>)
+      </h4>
+     </div>
+     <ul id="pokedactle-sidebar-players" class="imposteur-players-list"></ul>
+    </div>
+
+    <!-- In-Game Gameplay Elements (hidden during lobby) -->
+    <div id="pokedactle-sidebar-gameplay" class="dactle-sidebar-gameplay" style="display: none;">
+     <div class="sidebar-top">
+      <div class="sidebar-actions">
+       <div class="hint-dropdown-container">
+        <button class="btn-action" id="btn-pokedactle-hint">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>
+         INDICE(<span id="pokedactle-hint-count-total">3</span>)
+        </button>
+        <div class="hint-dropdown" id="pokedactle-hint-dropdown" style="display:none;">
+         <div class="hint-option" id="pokedactle-hint-reveal-word">
+          <div class="hint-icon">
+           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+          </div>
+          <div class="hint-text">
+           <strong>RÉVÉLER UN MOT(<span id="pokedactle-hint-count-word">3</span>)</strong>
+           <span>CLIQUEZ SUR UN MOT CENSURÉ POUR LE DÉCOUVRIR.</span>
+          </div>
+         </div>
+         <div class="hint-option" id="pokedactle-hint-phrase">
+          <div class="hint-icon">
+           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div class="hint-text">
+           <strong>PHRASE INDICE(1)</strong>
+           <span>OBTENEZ UN INDICE PHYSIQUE / POKÉDEX.</span>
+          </div>
+         </div>
+        </div>
+       </div>
+       <button class="btn-action" id="btn-pokedactle-give-up">ABANDONNER</button>
+       <button class="btn-action" id="pokedactle-leave-btn">QUITTER</button>
+      </div>
+      
+      <!-- Desktop form(inside sidebar) -->
+      <form id="pokedactle-guess-form-desktop" class="guess-form guess-form-desktop">
+       <input type="text" id="pokedactle-guess-input-desktop" placeholder="Saisir un mot" autocomplete="off">
+       <button type="submit" class="btn-submit btn-poke">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+       (<span id="pokedactle-guess-total-desktop">0</span>)
+       </button>
+      </form>
+     </div>
+
+     <!-- Phrase Hint Container -->
+     <div id="pokedactle-phrase-hint-container" class="phrase-hint-container" style="display:none;">
+      <div id="pokedactle-phrase-hint-title" class="phrase-hint-title">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>
+       Indice Pokédex
+      </div>
+      <div id="pokedactle-phrase-hint-text" class="phrase-hint-text"></div>
+     </div>
+
+     <div class="sidebar-list-header">
+      <span class="col-rank">#</span>
+      <span class="col-word">Mot</span>
+      <span class="col-hits">Hits</span>
+     </div>
+     
+    <ul id="pokedactle-guess-list" class="guess-list">
+     <!-- Guesses inserted here via JS -->
+    </ul>
+    
+   </aside>
+
+  </div>
+
+  <!-- Mobile form -->
+  <form id="pokedactle-guess-form-mobile" class="guess-form guess-form-mobile">
+   <button type="button" id="btn-pokedactle-scroll-top" class="btn-scroll-top">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="3"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    HAUT
+   </button>
+   <input type="text" id="pokedactle-guess-input" placeholder="Saisir un mot" autocomplete="off">
+   <button type="submit" class="btn-submit" style="background: #f59e0b; color: #000; border-color: #f59e0b; font-weight: bold;">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+   (<span id="pokedactle-guess-total">0</span>)
+   </button>
+  </form>
+ </main>
+
+ <!-- MERRYDACTLE GAME VIEW -->
+ <main class="app-container songless-view-container view-hidden" id="merrydactle-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- MAIN GAME SECTION (LEFT / CENTER) -->
+   <section class="imposteur-main-section" style="justify-content: flex-start; overflow-y: auto;">
+    
+    <!-- Multiplayer Lobby State -->
+    <div id="merrydactle-multi-lobby" class="glass-panel imposteur-panel">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="merrydactle-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff;">En attente des joueurs</span>
+     </div>
+
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div class="lobby-grid-2cols">
+        <div class="input-group">
+         <label for="merrydactle-lobby-rounds-select">Nombre de Manches</label>
+         <div class="theme-select-wrapper">
+          <select id="merrydactle-lobby-rounds-select" class="theme-select">
+           <option value="1">1 Manche (Article)</option>
+           <option value="2">2 Manches</option>
+           <option value="3" selected>3 Manches</option>
+           <option value="5">5 Manches</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="merrydactle-lobby-category-select">Catégorie One Piece</label>
+         <div class="theme-select-wrapper">
+          <select id="merrydactle-lobby-category-select" class="theme-select">
+           <option value="all" selected>Tout One Piece</option>
+           <option value="characters">Personnages &amp; Équipages</option>
+           <option value="islands_ships">Îles, Mers &amp; Navires</option>
+           <option value="fruits_lore">Fruits du Démon &amp; Lore</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="merrydactle-lobby-hints-select">Indices Autorisés</label>
+         <div class="theme-select-wrapper">
+          <select id="merrydactle-lobby-hints-select" class="theme-select">
+           <option value="3" selected>3 Indices par manche</option>
+           <option value="1">1 Indice par manche</option>
+           <option value="0">Aucun indice (Hardcore)</option>
+          </select>
+         </div>
+        </div>
+       </div>
+      </div>
+
+      <div class="lobby-start-box">
+       <button id="btn-merrydactle-start-game" class="btn btn-merry btn-large btn-block" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; display: none;">
+        Lancer la partie Otiste Piece
+       </button>
+       <div id="merrydactle-lobby-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+        En attente que l'hôte lance la partie...
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Active Article Area -->
+    <div id="merrydactle-active-area" class="dactle-active-container view-hidden">
+     <!-- Round Banner in multiplayer -->
+     <div id="merrydactle-round-indicator" class="glass-panel" style="display: none; padding: 0.6rem 1rem; margin-bottom: 1rem; border-radius: 12px; justify-content: space-between; align-items: center;">
+      <div style="font-weight: 700; font-size: 14px; color: #ef4444; display: inline-flex; align-items: center; gap: 8px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/><path d="M7.5 11v2a4.5 4.5 0 0 0 9 0v-2"/><circle cx="10" cy="13.5" r="1.2" fill="currentColor"/><circle cx="14" cy="13.5" r="1.2" fill="currentColor"/><path d="M9.8 16.5c1.4.8 3 0.8 4.4 0"/><path d="M7 10c0-3.5 2.2-5 5-5s5 1.5 5 5"/><path d="M7.2 9h9.6"/><path d="M2.5 10.5c3-1.8 16-1.8 19 0"/></svg>
+       <span>MANCHE <span id="merrydactle-round-display">1</span> / <span id="merrydactle-total-rounds-display">3</span></span>
+      </div>
+      <div id="merrydactle-round-status-badge" class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">En cours</div>
+     </div>
+
+     <!-- Round Ended Notification / Next Round Button -->
+     <div id="merrydactle-round-banner" class="glass-panel view-hidden" style="padding: 1.25rem; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); border-radius: 14px;">
+      <h3 style="margin: 0 0 6px 0; color: #ef4444; font-size: 1.3rem;">🎉 Article Trouvé !</h3>
+      <p id="merrydactle-round-winner-text" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 14px;">L'article One Piece a été découvert !</p>
+      <button id="btn-merrydactle-next-round" class="btn btn-merry" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; margin: 0 auto; display: none;">
+       Manche Suivante ➔
+      </button>
+      <div id="merrydactle-round-helper" class="helper-text" style="color: var(--text-muted); margin-top: 8px; display: none;">
+       En attente que l'hôte lance la manche suivante...
+      </div>
+     </div>
+
+     <section class="article-section">
+      <div class="article-header">
+       <div class="subtitle">Encyclopédie One Piece / Grand Line</div>
+       <div class="puzzle-id">« ONE PIECE »</div>
+       <div class="clover">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="#ef4444" stroke="#ef4444" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        1
+       </div>
+      </div>
+      
+      <div id="merrydactle-loading" class="loading" style="display:none;">Navigation sur Grand Line...</div>
+      <div id="merrydactle-win-message" class="win-message" style="display:none;"></div>
+
+      <div id="merrydactle-article-content" class="article-content">
+       <h1 id="merrydactle-main-title" class="main-title"></h1>
+       <div id="merrydactle-wiki-text" class="wiki-text"></div>
+      </div>
+     </section>
+    </div>
+
+    <!-- Multiplayer End of Game (Podium & Room Controls) -->
+    <div id="merrydactle-podium-panel" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header" style="text-align: center; margin-bottom: 1.5rem;">
+      <div class="badge" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; margin-bottom: 8px;">Fin de la Session</div>
+      <h3 style="font-size: 1.6rem; margin: 0;">Podium <span class="text-gradient">Final</span></h3>
+      <p class="theme-helper" style="margin-top: 4px; font-size: 13px;">Voici le classement officiel des pirates pour cette session.</p>
+     </div>
+
+     <!-- Stepped 3D Podium Container -->
+     <div class="stats-podium" style="margin-bottom: 1.8rem;">
+      <div class="podium-stepped-wrapper" id="merrydactle-podium-stepped">
+       <!-- Rendered dynamically (2nd, 1st, 3rd) -->
+      </div>
+     </div>
+
+     <!-- Full Leaderboard for remaining players -->
+     <div class="songless-full-leaderboard-box" id="merrydactle-podium-leaderboard-box" style="margin-bottom: 1.8rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1rem 1.25rem;">
+      <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin: 0 0 10px 0;">Classement Complet</h4>
+      <div id="merrydactle-podium-full-list" class="stats-leaderboard-list">
+       <!-- Rendered dynamically -->
+      </div>
+     </div>
+
+     <!-- Action Buttons -->
+     <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+      <button id="btn-merrydactle-restart-lobby" class="btn btn-merry btn-large btn-block" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; display: none;">
+       ⚙️ Modifier les paramètres &amp; Rejouer
+      </button>
+      <div id="merrydactle-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+       En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
+      </div>
+      <button id="btn-merrydactle-podium-leave" class="btn btn-secondary btn-block" style="max-width: 320px;" onclick="confirmLeave()">
+       Quitter le salon
+      </button>
+     </div>
+    </div>
+
+   </section>
+
+   <!-- Right: Sidebar Area -->
+   <aside class="sidebar-section imposteur-sidebar" id="merrydactle-sidebar">
+    
+    <!-- Mobile Handle -->
+    <div class="mobile-handle" id="merrydactle-mobile-handle">
+     <span class="handle-bar"></span>
+    </div>
+
+    <!-- Multiplayer Connected Players List (Lobby & Game) -->
+    <div id="merrydactle-multi-players-box" class="imposteur-sidebar-panel" style="margin-bottom: 1rem;">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+       JOUEURS (<span id="merrydactle-player-count">1</span>)
+      </h4>
+     </div>
+     <ul id="merrydactle-sidebar-players" class="imposteur-players-list"></ul>
+    </div>
+
+    <!-- In-Game Gameplay Elements (hidden during lobby) -->
+    <div id="merrydactle-sidebar-gameplay" class="dactle-sidebar-gameplay" style="display: none;">
+     <div class="sidebar-top">
+      <div class="sidebar-actions">
+       <div class="hint-dropdown-container">
+        <button class="btn-action" id="btn-merrydactle-hint">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>
+         INDICE(<span id="merrydactle-hint-count-total">3</span>)
+        </button>
+        <div class="hint-dropdown" id="merrydactle-hint-dropdown" style="display:none;">
+         <div class="hint-option" id="merrydactle-hint-reveal-word">
+          <div class="hint-icon">
+           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+          </div>
+          <div class="hint-text">
+           <strong>RÉVÉLER UN MOT(<span id="merrydactle-hint-count-word">3</span>)</strong>
+           <span>CLIQUEZ SUR UN MOT CENSURÉ POUR LE DÉCOUVRIR.</span>
+          </div>
+         </div>
+         <div class="hint-option" id="merrydactle-hint-phrase">
+          <div class="hint-icon">
+           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div class="hint-text">
+           <strong>INDICE DE L'ÉQUIPAGE(1)</strong>
+           <span>OBTENEZ UNE CITATION / LORE ONE PIECE.</span>
+          </div>
+         </div>
+        </div>
+       </div>
+       <button class="btn-action" id="btn-merrydactle-give-up">ABANDONNER</button>
+       <button class="btn-action" id="merrydactle-leave-btn">QUITTER</button>
+      </div>
+      
+      <!-- Desktop form(inside sidebar) -->
+      <form id="merrydactle-guess-form-desktop" class="guess-form guess-form-desktop">
+       <input type="text" id="merrydactle-guess-input-desktop" placeholder="Saisir un mot" autocomplete="off">
+       <button type="submit" class="btn-submit btn-merry">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+       (<span id="merrydactle-guess-total-desktop">0</span>)
+       </button>
+      </form>
+     </div>
+
+     <!-- Phrase Hint Container -->
+     <div id="merrydactle-phrase-hint-container" class="phrase-hint-container" style="display:none;">
+      <div id="merrydactle-phrase-hint-title" class="phrase-hint-title">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"></path></svg>
+       Journal de Bord / Lore
+      </div>
+      <div id="merrydactle-phrase-hint-text" class="phrase-hint-text"></div>
+     </div>
+
+     <div class="sidebar-list-header">
+      <span class="col-rank">#</span>
+      <span class="col-word">Mot</span>
+      <span class="col-hits">Hits</span>
+     </div>
+     
+     <ul id="merrydactle-guess-list" class="guess-list">
+      <!-- Guesses inserted here via JS -->
+     </ul>
+    </div>
+    
+   </aside>
+
+  </div>
+
+  <!-- Mobile form -->
+  <form id="merrydactle-guess-form-mobile" class="guess-form guess-form-mobile">
+   <button type="button" id="btn-merrydactle-scroll-top" class="btn-scroll-top">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="3"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    HAUT
+   </button>
+   <input type="text" id="merrydactle-guess-input" placeholder="Saisir un mot" autocomplete="off">
+   <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; border: none; font-weight: bold;">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+   (<span id="merrydactle-guess-total">0</span>)
+   </button>
+  </form>
+ </main>
+
+ <!-- 5. IMPOSTEUR GAME VIEW -->
+ <main class="app-container view-hidden" id="imposteur-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- Left: Game Actions / Lobbies / Turn displays -->
+   <section class="imposteur-main-section">
+    
+    <!-- LOBBY STATE PANEL -->
+    <div id="imposteur-lobby-panel" class="glass-panel imposteur-panel">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="imposteur-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff;">En attente des joueurs</span>
+     </div>
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div class="lobby-grid-2cols">
+        <div class="input-group">
+         <label for="imposteur-theme-select">Thème de la Partie</label>
+         <div class="theme-select-wrapper">
+          <select id="imposteur-theme-select" class="theme-select">
+           <option value="general">Général (Chien/Chat, Café/Thé...)</option>
+           <option value="anime">Mangas & Animes (Naruto/Sasuke...)</option>
+           <option value="jeux_video">Jeux Vidéo (Mario/Luigi...)</option>
+           <option value="films_series">Films & Séries (Harry Potter...)</option>
+          </select>
+         </div>
+        </div>
+        
+        <div class="input-group">
+         <label for="imposteur-rounds-select">Nombre de Tours</label>
+         <div class="theme-select-wrapper">
+          <select id="imposteur-rounds-select" class="theme-select">
+           <option value="1">1 Tour (Rapide)</option>
+           <option value="2" selected>2 Tours (Standard)</option>
+           <option value="3">3 Tours (Stratégique)</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="imposteur-count-select">Nombre d'Imposteurs</label>
+         <div class="theme-select-wrapper">
+          <select id="imposteur-count-select" class="theme-select">
+           <option value="1" selected>1 Imposteur</option>
+           <option value="2">2 Imposteurs</option>
+          </select>
+         </div>
+        </div>
+       </div>
+
+       <div id="imposteur-reset-scores-box" class="mt-15" style="display:none;">
+        <button id="btn-imposteur-reset-scores" class="btn btn-quit btn-large" style="padding: 0.5rem 1rem; font-size: 13px;">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+         Réinitialiser les scores
+        </button>
+       </div>
+
+       <p class="theme-helper mt-10">Invitez vos amis avec le bouton <b>« Copier l'invitation »</b> en haut à droite.</p>
+      </div>
+      
+      <div class="lobby-start-box">
+       <button id="btn-imposteur-start" class="btn btn-accent btn-large btn-block" style="display:none;">
+        Lancer la partie SousLaCouverture
+       </button>
+       <div id="imposteur-start-helper" class="helper-text" style="text-align: center; margin-top: 8px; color: var(--text-muted);">
+        Le salon doit contenir au moins 3 joueurs pour démarrer.
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- PLAYING GAME PANEL(Secret Word & Descriptions) -->
+    <div id="imposteur-play-panel" class="view-hidden">
+     
+     <!-- Secret Word Card -->
+     <div class="secret-word-card glass-panel">
+      <div class="secret-card-header">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1.5 1.5L10 13l-4 1 1-4 7.5-7.5m1.5-1.5L19 1l2 2z"></path></svg>
+       VOTRE MOT SECRET
+      </div>
+      <div class="secret-word-value" id="imposteur-my-word-display">------</div>
+      <div class="secret-card-footer">Ne révélez ce mot à personne ! Décrivez-le subtilement pour que vos alliés vous comprennent, mais sans donner trop d'indices à l'imposteur.</div>
+     </div>
+
+     <!-- Description Turn Manager -->
+     <div class="glass-panel imposteur-panel mt-15">
+      <div class="turn-indicator-bar" id="imposteur-turn-bar">
+       <div class="turn-status-icon">
+        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+       </div>
+       <div class="turn-status-text" id="imposteur-turn-status-text">Attente...</div>
+      </div>
+
+      <!-- Description Form -->
+      <form id="imposteur-desc-form" class="desc-submission-form view-hidden">
+       <input type="text" id="imposteur-desc-input" placeholder="Décrivez votre mot en 1-3 mots max..." autocomplete="off">
+       <button type="submit" class="btn btn-accent">Envoyer</button>
+      </form>
+     </div>
+
+     <!-- Descriptions Feed -->
+     <div class="glass-panel imposteur-panel mt-15">
+      <div class="panel-header">
+       <h4>
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Descriptions du Tour
+       </h4>
+      </div>
+      <div class="descriptions-container" id="imposteur-descriptions-list">
+       <!-- Inserted dynamically -->
+      </div>
+     </div>
+
+    </div>
+
+    <!-- DEBATE & VOTING PANEL -->
+    <div id="imposteur-vote-panel" class="view-hidden">
+     <div class="glass-panel imposteur-panel">
+      <div class="panel-header">
+       <h3>
+        <svg class="inline-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        Phase de Vote
+       </h3>
+       <p>Débattez(oralement ou par chat) puis votez pour le joueur que vous suspectez d'être l'imposteur !</p>
+      </div>
+      
+      <div class="voting-grid" id="imposteur-voting-grid">
+       <!-- Voting cards inserted dynamically -->
+      </div>
+
+      <div id="imposteur-tally-box" class="text-center mt-20" style="display:none; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+       <button id="btn-imposteur-tally" class="btn btn-accent btn-large">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        Dépouiller les votes
+       </button>
+       <p id="tally-helper-text" class="helper-text mt-10" style="color: var(--text-muted);">Seul l'hôte peut dépouiller les votes pour figer la décision.</p>
+      </div>
+     </div>
+    </div>
+
+    <!-- GAME OVER RESULTS PANEL -->
+    <div id="imposteur-results-panel" class="view-hidden">
+     <div class="glass-panel imposteur-panel text-center">
+      <div class="results-emoji" id="imposteur-results-emoji">
+       <svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#fbbf24" stroke-width="2.5"><path d="M14 10H34V20C34 25.52 29.52 30 24 30C18.48 30 14 25.52 14 20V10Z" fill="rgba(251, 191, 36, 0.15)"/><path d="M14 14H8C6.9 14 6 14.9 6 16C6 19.31 8.69 22 12 22H14"/><path d="M34 14H40C41.1 14 42 14.9 42 16C42 19.31 39.31 22 36 22H34"/><path d="M24 30V38M16 42H32M18 38H30"/></svg>
+      </div>
+      <h2 id="imposteur-results-title" class="text-gradient">Victoire des Citoyens !</h2>
+      <p id="imposteur-results-subtitle" class="results-subtext">L'imposteur a été démasqué.</p>
+
+      <div class="words-reveal-box">
+       <div class="word-reveal-row">
+        <span class="reveal-label">Mot des Citoyens:</span>
+        <strong class="reveal-value text-green" id="imposteur-reveal-civil">------</strong>
+       </div>
+       <div class="word-reveal-row">
+        <span class="reveal-label">Mot de l'Imposteur:</span>
+        <strong class="reveal-value text-red" id="imposteur-reveal-impostor">------</strong>
+       </div>
+       <div class="word-reveal-row mt-15">
+        <span class="reveal-label">L'Imposteur était:</span>
+        <strong class="reveal-name" id="imposteur-reveal-name">------</strong>
+       </div>
+      </div>
+
+      <button id="btn-imposteur-restart" class="btn btn-accent btn-large mt-20" style="display:none;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+       Relancer une partie dans ce salon
+      </button>
+      <p id="imposteur-restart-helper" class="helper-text" style="display:none;">Seul l'hôte peut relancer la partie.</p>
+     </div>
+    </div>
+
+   </section>
+
+   <!-- Right: Players List(Lobby & Game) -->
+   <aside class="imposteur-sidebar">
+    <div class="glass-panel imposteur-sidebar-panel">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+       Joueurs(<span id="imposteur-players-count">0</span>)
+      </h4>
+     </div>
+     <ul class="imposteur-players-list" id="imposteur-players-list">
+      <!-- Dynamic player list -->
+     </ul>
+    </div>
+   </aside>
+
+  </div>
+ </main>
+
+ <!-- 6. GEOGRAPHIE GAME VIEW -->
+ <main class="app-container view-hidden" id="geographie-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- Left: Game Actions / Questions / Correction -->
+   <section class="imposteur-main-section">
+    
+    <!-- LOBBY STATE PANEL -->
+    <div id="geographie-lobby-panel" class="glass-panel imposteur-panel" style="border-color: var(--neon-cyan);">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="geographie-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff;">En attente des joueurs</span>
+     </div>
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div class="lobby-grid-2cols">
+        <div class="input-group">
+         <label for="geographie-mode-select">Mode de Jeu</label>
+         <div class="theme-select-wrapper">
+          <select id="geographie-mode-select" class="theme-select">
+           <option value="drapeaux">Drapeaux (Identifier le pays)</option>
+           <option value="capitales">Capitales (Trouver la capitale)</option>
+           <option value="localisation">Localisation (Cliquer sur la carte)</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="geographie-scope-select">Portée Géographique</label>
+         <div class="theme-select-wrapper">
+          <select id="geographie-scope-select" class="theme-select">
+           <option value="monde">Monde Entier</option>
+           <option value="europe">Europe</option>
+           <option value="asie">Asie</option>
+           <option value="afrique">Afrique</option>
+           <option value="amerique">Amérique</option>
+           <option value="oceanie">Océanie</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="geographie-count-select">Nombre de Questions</label>
+         <div class="theme-select-wrapper">
+          <select id="geographie-count-select" class="theme-select">
+           <option value="5">5 Questions</option>
+           <option value="10" selected>10 Questions</option>
+           <option value="15">15 Questions</option>
+           <option value="20">20 Questions</option>
+          </select>
+         </div>
+        </div>
+       </div>
+       
+       <p class="theme-helper mt-10">Invitez vos amis avec le bouton <b>« Copier l'invitation »</b> en haut à droite.</p>
+      </div>
+      
+      <div class="lobby-start-box">
+       <button id="btn-geographie-start" class="btn btn-geo btn-large btn-block" style="display:none;">
+        Lancer la partie Tiéou
+       </button>
+       <div id="geographie-start-helper" class="helper-text" style="text-align: center; margin-top: 8px; color: var(--text-muted);">
+        En attente que l'hôte lance la partie.
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- PLAYING QUESTION PANEL -->
+    <div id="geographie-play-panel" class="view-hidden">
+     <div class="glass-panel imposteur-panel" style="border-color: var(--neon-cyan); padding: 1.5rem;">
+      <!-- Question Indicator / Progress -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+       <span style="font-weight: 600; color: var(--neon-cyan);" id="geographie-question-number">Question 1/10</span>
+       <div class="countdown-circle" id="geographie-timer-container" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center;">
+        <span id="geographie-timer-text" style="font-size: 1.3rem; font-weight: 800; color: #fff;">15</span>
+       </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-container" style="background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem; position: relative;">
+       <div id="geographie-progress-fill" style="height: 100%; width: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-emerald)); transition: width 0.1s linear;"></div>
+      </div>
+
+      <!-- Prompt Title -->
+      <h3 id="geographie-question-prompt" class="text-center" style="font-size: 1.4rem; margin-bottom: 1.5rem;">Quel pays possède ce drapeau ?</h3>
+
+      <!-- Media Container -->
+      <div id="geographie-media-container" class="text-center" style="min-height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+       <!-- Content filled dynamically -->
+      </div>
+
+      <!-- Grille de 4 Boutons de propositions -->
+      <div class="geo-choices-grid" id="geographie-choices-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+       <!-- 4 buttons inserted dynamically -->
+      </div>
+
+      <!-- Saisie texte libre(Capitales) -->
+      <div id="geographie-text-input-container" class="view-hidden" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: center; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto;">
+       <input type="text" id="geographie-text-answer" placeholder="Écrivez la capitale ici..." autocomplete="off" style="flex: 1; padding: 1rem; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; outline: none; font-size: 1.1rem; transition: border-color 0.3s;">
+       <button id="btn-geographie-submit-text" class="btn btn-geo">Valider</button>
+      </div>
+     </div>
+    </div>
+
+    <!-- DETAILED SEQUENTIAL CORRECTION PANEL -->
+    <div id="geographie-correction-panel" class="view-hidden">
+     <div class="glass-panel imposteur-panel" style="border-color: var(--neon-emerald); background: rgba(16, 185, 129, 0.05);">
+      <div class="panel-header text-center" style="margin-bottom: 1.5rem;">
+       <span class="badge" style="background: var(--neon-emerald); color: #000; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); font-weight: 700;">Phase de Correction</span>
+       <h2 style="margin-top: 0.5rem; color: #fff;">Résultats de la Question</h2>
+      </div>
+
+      <!-- Media miniature showing correct element -->
+      <div id="geographie-correction-mini-media" class="text-center" style="margin-bottom: 1.5rem;"></div>
+
+      <!-- Correct Answer Showcase -->
+      <div class="correct-answer-showcase text-center" style="margin-bottom: 2rem; padding: 1.5rem; border-radius: 12px; background: rgba(0,0,0,0.3); border: 2px solid transparent; transition: all 0.5s ease;" id="geographie-correct-card">
+       <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Bonne Réponse</div>
+       <div id="geographie-correct-answer-text" style="font-size: 2rem; font-weight: 800; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);">...</div>
+       
+       <!-- Pseudos who answered correctly -->
+       <div id="geographie-correct-players" style="margin-top: 1rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem;">
+        <!-- dynamic correct players capsules -->
+       </div>
+      </div>
+
+      <!-- Sequential incorrect answers list -->
+      <div style="margin-top: 1.5rem;">
+       <h4 style="margin-bottom: 1rem; color: rgba(255,255,255,0.8);">Choix incorrects:</h4>
+       <div id="geographie-incorrect-reveals-list" style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <!-- Dynamically populated one by one with delay -->
+       </div>
+      </div>
+
+      <!-- Next button for Host -->
+      <div class="text-center" style="margin-top: 2.5rem;">
+       <button id="btn-geographie-next" class="btn btn-primary" style="display: none;">Question Suivante →</button>
+       <div id="geographie-next-helper" class="helper-text">En attente que l'hôte passe à la question suivante.</div>
+      </div>
+     </div>
+    </div>
+
+    <!-- PODIUM FINAL PANEL -->
+    <div id="geographie-results-panel" class="view-hidden">
+     <div class="glass-panel imposteur-panel text-center" style="border-color: var(--neon-cyan);">
+      <div class="results-emoji">
+       <svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#00f2fe" stroke-width="2.5"><path d="M14 10H34V20C34 25.52 29.52 30 24 30C18.48 30 14 25.52 14 20V10Z" fill="rgba(0, 242, 254, 0.15)"/><path d="M14 14H8C6.9 14 6 14.9 6 16C6 19.31 8.69 22 12 22H14"/><path d="M34 14H40C41.1 14 42 14.9 42 16C42 19.31 39.31 22 36 22H34"/><path d="M24 30V38M16 42H32M18 38H30"/></svg>
+      </div>
+      <h2 class="text-gradient" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Expédition Terminée !</h2>
+      <p class="results-subtext" style="margin-bottom: 2rem;">Voici le podium final des explorateurs.</p>
+
+      <!-- Custom 3D Neon Podium -->
+      <div class="podium-container" id="geographie-podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 1rem; height: 220px; margin-bottom: 3rem; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+       <!-- Filled dynamically by JS -->
+      </div>
+
+      <!-- Full scoreboard -->
+      <div class="glass-panel" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); text-align: left; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
+       <h4 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; color: var(--neon-cyan);">Classement Général</h4>
+       <div id="geographie-full-leaderboard" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <!-- dynamic rankings list -->
+       </div>
+      </div>
+
+      <button id="btn-geographie-restart" class="btn btn-geo btn-large mt-20" style="display:none;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+       Recommencer une partie
+      </button>
+      <p id="geographie-restart-helper" class="helper-text" style="display:none;">Seul l'hôte peut relancer la partie.</p>
+     </div>
+    </div>
+
+   </section>
+
+   <!-- Right: Players Sidebar -->
+   <aside class="imposteur-sidebar">
+    <div class="glass-panel imposteur-sidebar-panel" style="border-color: var(--neon-cyan); box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.1);">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+       Explorateurs(<span id="geographie-players-count">0</span>)
+      </h4>
+     </div>
+     <ul class="imposteur-players-list" id="geographie-players-list">
+      <!-- Dynamic players list -->
+     </ul>
+    </div>
+   </aside>
+
+  </div>
+ </main>
+
+ <!-- 3.7. LOUP-GAROU MENU VIEW -->
+ <!-- 3.7. LOUP-GAROU MENU VIEW -->
+ <section id="loup-garou-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-wolf">
+   <button class="btn-back" id="btn-back-loup-garou">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-wolf">Jeu de Rôle Stratégique</span>
+    <h2>Graouu</h2>
+    <p>Démasquez les loups ou dévorez les villageois au fil de la nuit.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="loup-garou-pseudo-group">
+     <label for="loup-garou-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="loup-garou-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-loup-garou-create" class="btn btn-wolf btn-block">Lancer une partie</button>
+     
+     <div class="divider"><span>OU REJOINDRE UN VILLAGE</span></div>
+     
+     <div class="join-box">
+      <input type="text" id="loup-garou-join-code" placeholder="Code (ex: WXYZ)" autocomplete="off">
+      <button id="btn-loup-garou-join" class="btn btn-wolf">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="loup-garou-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- 6. LOUP-GAROU GAME VIEW -->
+ <main class="app-container view-hidden" id="loup-garou-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- Left: Game Area -->
+   <section class="imposteur-main-section">
+    
+    <!-- LOBBY STATE PANEL -->
+    <div id="loup-garou-lobby-panel" class="glass-panel imposteur-panel" style="border-color: #ef4444;">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="loup-garou-lobby-code" class="text-gradient">----</span></h3>
+      <div style="display: flex; align-items: center; gap: 10px;">
+       <span class="badge" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff;">En attente des villageois</span>
+       <button id="btn-loup-garou-tts-toggle" class="btn btn-icon" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #fff;">
+        <span id="loup-garou-tts-icon">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        </span>
+        Vocaux activés
+       </button>
+      </div>
+     </div>
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <h4>
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        Paquet de Cartes à Distribuer(<span id="lg-active-cards-count">0</span>)
+       </h4>
+       <div id="lg-validation-badge" class="badge" style="background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #ef4444; margin-bottom: 12px; width: fit-content; font-weight: bold; font-size: 11px; padding: 4px 10px; border-radius: 4px;">Compte invalide(0 / 0 joueurs)</div>
+       
+       <!-- Active Cards List -->
+       <div id="lg-active-cards-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; min-height: 60px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+        <!-- active cards dynamically rendered -->
+       </div>
+
+       <h4>
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        Catalogue des Rôles(Ajouter au paquet)
+       </h4>
+       <p class="theme-helper" style="margin-bottom: 1rem;">Ajoutez les cartes de rôles nécessaires dans le paquet:</p>
+       
+       <!-- Role Grid Catalog Builder -->
+       <div class="role-config-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+        <div class="role-catalog-card" data-role="loup" style="border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; position: relative; cursor: help;" title="Loup-Garou: Dévore un villageois chaque nuit." onclick="showRoleTooltip('loup')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Loup-Garou</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('loup')" style="background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="simple_villageois" style="border: 1px solid #94a3b8; background: rgba(148, 163, 184, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Simple Villageois: N'a aucun pouvoir spécial, tente de démasquer les loups." onclick="showRoleTooltip('simple_villageois')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Simple Villageois</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('simple_villageois')" style="background: #94a3b8; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="voyante" style="border: 1px solid #a78bfa; background: rgba(167, 139, 250, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Voyante: Voit secrètement le rôle d'un joueur chaque nuit." onclick="showRoleTooltip('voyante')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Voyante</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('voyante')" style="background: #a78bfa; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="sorciere" style="border: 1px solid #34d399; background: rgba(52, 211, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Sorcière: Possède une potion de vie(soigner) et une de mort(tuer)." onclick="showRoleTooltip('sorciere')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#34d399" stroke-width="2"><path d="M10 2v7.31L4.54 18.2A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.66-2.8L14 9.31V2h-4z"></path><line x1="8.5" y1="2" x2="15.5" y2="2"></line></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Sorcière</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('sorciere')" style="background: #34d399; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="chasseur" style="border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Chasseur: Élimine un autre joueur avec son fusil lors de sa mort." onclick="showRoleTooltip('chasseur')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Chasseur</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('chasseur')" style="background: #f59e0b; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="cupidon" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Cupidon: Lie deux joueurs amoureux éternels la première nuit." onclick="showRoleTooltip('cupidon')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Cupidon</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('cupidon')" style="background: #ec4899; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="garde" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Garde: Protège un joueur de l'attaque des loups chaque nuit." onclick="showRoleTooltip('garde')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Garde</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('garde')" style="background: #3b82f6; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="voleur" style="border: 1px solid #06b6d4; background: rgba(6, 182, 212, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Voleur: Peut échanger sa carte au milieu ou voler le rôle d'un joueur." onclick="showRoleTooltip('voleur')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Voleur</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('voleur')" style="background: #06b6d4; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="petite_fille" style="border: 1px solid #ec4899; background: rgba(236, 72, 153, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Petite Fille: Peut espionner secrètement les loups pendant la nuit." onclick="showRoleTooltip('petite_fille')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Petite Fille</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('petite_fille')" style="background: #ec4899; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="bouc_emissaire" style="border: 1px solid #f97316; background: rgba(249, 115, 22, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Bouc Émissaire: Meurt automatiquement en cas d'égalité au vote." onclick="showRoleTooltip('bouc_emissaire')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f97316" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Bouc Émissaire</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('bouc_emissaire')" style="background: #f97316; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="idiot_du_village" style="border: 1px solid #84cc16; background: rgba(132, 204, 22, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Idiot du Village: Si voté par le village, survit mais perd son vote." onclick="showRoleTooltip('idiot_du_village')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#84cc16" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Idiot du Village</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('idiot_du_village')" style="background: #84cc16; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="montreur_d_ours" style="border: 1px solid #78716c; background: rgba(120, 113, 108, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Montreur d'Ours: Son ours grogne au matin si un loup est à côté." onclick="showRoleTooltip('montreur_d_ours')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#78716c" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Montreur d'Ours</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('montreur_d_ours')" style="background: #78716c; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+        <div class="role-catalog-card" data-role="ancien" style="border: 1px solid #a1a1aa; background: rgba(161, 161, 170, 0.05); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; cursor: help;" title="Ancien: Survit à une première attaque de loups." onclick="showRoleTooltip('ancien')">
+         <div style="font-size: 1.5rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+         </div>
+         <div style="font-size: 11px; font-weight: bold;">Ancien</div>
+         <button class="btn-lg-add-role" onclick="event.stopPropagation(); addLoupGarouCard('ancien')" style="background: #a1a1aa; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-top: 4px;">+</button>
+        </div>
+       </div>
+ 
+       <p class="theme-helper mt-15" style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">L'Hôte doit configurer un paquet de cartes égal au nombre de joueurs.</p>
+       
+       <!-- Settings Section for Extra Options(Mayor, Timer) -->
+       <div class="lobby-extra-settings" style="background: rgba(0,0,0,0.15); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px;">
+        <h5 style="margin: 0; color: #ef4444; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+         Options de la Partie
+        </h5>
+        
+        <!-- Mayor Toggle Option -->
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #fff;">
+         <label for="chk-loup-garou-mayor" style="cursor: pointer; display: flex; align-items: center; gap: 6px; user-select: none;">
+          <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fbbf24" stroke-width="2"><polygon points="2 4 5 20 19 20 22 4 15 10 12 2 9 10 2 4"></polygon></svg>
+          Élection d'un Maire(Double vote)
+         </label>
+         <input type="checkbox" id="chk-loup-garou-mayor" style="cursor: pointer; width: 15px; height: 15px; accent-color: #ef4444;">
+        </div>
+        
+        <!-- Vote Timer Option -->
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #fff;">
+         <span style="display: flex; align-items: center; gap: 6px;">
+          <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Timer pour le vote du village
+         </span>
+         <select id="sel-loup-garou-timer" class="theme-select" style="width: 80px; padding: 2px 4px; font-size: 11px; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); height: 26px;">
+          <option value="0">Aucun</option>
+          <option value="15">15s</option>
+          <option value="30">30s</option>
+          <option value="60">60s</option>
+          <option value="90">90s</option>
+          <option value="120">120s</option>
+         </select>
+        </div>
+       </div>
+      </div>
+      
+      <div class="lobby-start-box">
+       <button id="btn-loup-garou-start" class="btn btn-wolf btn-large btn-block" style="display:none;">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Lancer la partie Graouu
+       </button>
+       <div id="loup-garou-start-helper" class="helper-text" style="color: var(--text-muted);">Sélectionnez les rôles...</div>
+      </div>
+     </div>
+    </div>
+ 
+    <!-- PLAY PANEL(Night & Day Interactions) -->
+    <div id="loup-garou-play-panel" class="glass-panel imposteur-panel view-hidden" style="border-color: #ef4444;">
+     
+     <!-- SECRET CARD DRAWER -->
+     <div onclick="showRoleTooltip(loupGarouState.myRole)" class="glass-panel text-center" style="background: rgba(0,0,0,0.4); border-color: rgba(239, 68, 68, 0.3); padding: 1.5rem; border-radius: 14px; margin-bottom: 1.5rem; position: relative; overflow: hidden; cursor: help;" title="Cliquez pour afficher la description complète !">
+      <div style="font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.5); letter-spacing: 1px; margin-bottom: 0.5rem;">Votre Identité Secrète</div>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+       <span id="loup-garou-my-role-emoji" style="display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#ef4444" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+       </span>
+       <span id="loup-garou-my-role-name" style="font-size: 1.5rem; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.4); text-transform: uppercase;">CHARGEMENT...</span>
+      </div>
+      <div id="loup-garou-my-role-desc" style="font-size: 12px; color: var(--text-muted); margin-top: 0.5rem; font-style: italic;">Description du rôle...</div>
+      <div id="loup-garou-my-couple-badge" class="badge-item" style="display:none; background: rgba(236,72,153,0.15); border: 1px solid rgba(236,72,153,0.3); color: #f472b6; font-size: 10px; margin: 8px auto 0 auto; width: fit-content; padding: 2px 8px; border-radius: 4px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+       Amoureux
+      </div>
+     </div>
+
+     <!-- TURN STATE BAR -->
+     <div id="loup-garou-turn-bar" class="imposteur-turn-bar text-center" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; min-height: 50px;">
+      <strong id="loup-garou-turn-status-text" style="font-size: 13px; font-weight: bold; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+       Le village dort paisiblement...
+      </strong>
+     </div>
+
+     <!-- 1. SLEEP WINDOW(For sleeping players) -->
+     <div id="loup-garou-sleep-window" class="text-center" style="padding: 3rem 1rem;">
+      <div class="sleep-moon" style="display: flex; justify-content: center; animation: pulse-moon 4s infinite ease-in-out;">
+       <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#a78bfa" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </div>
+      <h3 style="margin-top: 1.5rem; color: rgba(255,255,255,0.9);">La Nuit est Sombre...</h3>
+      <p style="color: var(--text-muted); font-size: 13px; font-style: italic; max-width: 320px; margin: 0.5rem auto 0 auto;">Gardez les yeux fermés. Les forces de l'ombre et du bien accomplissent leur destin.</p>
+     </div>
+
+     <!-- 1B. VOLEUR ACTIONS -->
+     <div id="loup-garou-voleur-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #06b6d4; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line></svg>
+       Pouvoir du Voleur
+      </h4>
+      <p class="theme-helper" style="margin-bottom: 1rem;">Option 1: Choisissez l'une des deux cartes du milieu pour échanger votre rôle secrètement:</p>
+      <div id="loup-garou-voleur-cards-box" style="display: flex; gap: 15px; justify-content: center; margin-bottom: 1.5rem;">
+       <!-- voleur choices buttons will be injected -->
+      </div>
+      
+      <p class="theme-helper" style="margin-bottom: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem;">Option 2: Voler le rôle d'un autre joueur du village:</p>
+      <div class="theme-select-wrapper" style="margin-bottom: 1rem;">
+       <select id="loup-garou-voleur-target" class="theme-select"></select>
+      </div>
+      <button id="btn-loup-garou-voleur-steal" class="btn btn-geo btn-block" style="margin-bottom: 1.5rem;">Voler le rôle de ce joueur</button>
+      
+      <button id="btn-loup-garou-voleur-skip" class="btn btn-quit btn-block">Garder mon rôle actuel</button>
+     </div>
+
+     <!-- 2. CUPIDON ACTIONS -->
+     <div id="loup-garou-cupidon-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #f472b6; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f472b6" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+       Choisissez deux Âmes Sœurs
+      </h4>
+      <p class="theme-helper" style="margin-bottom: 1rem;">Liez éternellement deux villageois d'un amour passionnel:</p>
+      <div class="theme-select-wrapper" style="margin-bottom: 10px;">
+       <select id="loup-garou-cupid-lover1" class="theme-select"></select>
+      </div>
+      <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+       <select id="loup-garou-cupid-lover2" class="theme-select"></select>
+      </div>
+      <button id="btn-loup-garou-cupid-submit" class="btn btn-accent btn-block">Déclarer leur amour</button>
+     </div>
+
+     <!-- 3. GARDE ACTIONS -->
+     <div id="loup-garou-garde-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #60a5fa; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+       Protégez un Habitant
+      </h4>
+      <p class="theme-helper" style="margin-bottom: 1rem;">Choisissez un joueur à abriter du courroux des loups pour cette nuit:</p>
+      <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+       <select id="loup-garou-garde-target" class="theme-select"></select>
+      </div>
+      <button id="btn-loup-garou-garde-submit" class="btn btn-geo btn-block">Activer le Bouclier</button>
+     </div>
+
+     <!-- 4. VOYANTE ACTIONS -->
+     <div id="loup-garou-voyante-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #c084fc; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#c084fc" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+       Révélation Psychique
+      </h4>
+      <p class="theme-helper" style="margin-bottom: 1rem;">Choisissez un joueur dont vous voulez sonder la véritable nature:</p>
+      <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+       <select id="loup-garou-voyante-target" class="theme-select"></select>
+      </div>
+      <button id="btn-loup-garou-voyante-submit" class="btn btn-accent btn-block">Scruter la boule de cristal</button>
+      <div id="loup-garou-seer-result" class="text-center mt-15" style="display:none; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(167, 139, 250, 0.4);">
+       <span id="loup-garou-seer-result-text" style="font-weight: bold; font-size: 14px;">...</span>
+      </div>
+     </div>
+
+     <!-- 5. LOUPS-GAROUS ACTIONS -->
+     <div id="loup-garou-wolves-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #ef4444; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z"></path></svg>
+       Hurlez et Dévorez
+      </h4>
+      <p class="theme-helper" style="margin-bottom: 1rem;">Votez avec la meute pour désigner le citoyen à dévorer cette nuit:</p>
+      <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+       <select id="loup-garou-wolf-target" class="theme-select"></select>
+      </div>
+      <button id="btn-loup-garou-wolf-submit" class="btn btn-wolf btn-block">Valider la Cible</button>
+      <div id="loup-garou-wolf-votes-list" class="mt-15" style="font-size: 11px; color: var(--text-muted);"></div>
+     </div>
+
+     <!-- 6. SORCIERE ACTIONS -->
+     <div id="loup-garou-sorciere-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #34d399; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#34d399" stroke-width="2"><path d="M10 2v7.31L4.54 18.2A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.66-2.8L14 9.31V2h-4z"></path><line x1="8.5" y1="2" x2="15.5" y2="2"></line></svg>
+       Chaudron de Potion
+      </h4>
+      <div id="loup-garou-witch-victim-banner" class="mt-10 mb-15" style="padding: 0.75rem; border-radius: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-weight: bold; font-size: 12px; text-align: center;"></div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+       <button id="btn-loup-garou-witch-heal" class="btn btn-accent" style="flex: 1; background: #10b981; border-color: #10b981; font-size: 11px; padding: 0.75rem 0.25rem;">Potion de Vie(Soigner)</button>
+       <button id="btn-loup-garou-witch-kill" class="btn btn-accent" style="flex: 1; background: #ef4444; border-color: #ef4444; font-size: 11px; padding: 0.75rem 0.25rem;">Potion de Mort(Tuer)</button>
+      </div>
+      
+      <div id="loup-garou-witch-kill-select-box" class="view-hidden" style="margin-bottom: 1.5rem;">
+       <label for="loup-garou-witch-kill-target" style="font-size: 11px; display: block; margin-bottom: 4px;">Cible de l'empoisonnement:</label>
+       <div class="theme-select-wrapper">
+        <select id="loup-garou-witch-kill-target" class="theme-select"></select>
+       </div>
+      </div>
+
+      <button id="btn-loup-garou-witch-skip" class="btn btn-quit btn-block">Ne rien faire et passer</button>
+     </div>
+
+     <!-- 7. CHASSEUR RITUAL(Vengeance) -->
+     <div id="loup-garou-hunter-window" class="view-hidden">
+      <h4 style="margin-bottom: 1rem; color: #f59e0b; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+       Coup de Fusil Vengeur
+      </h4>
+      <p class="theme-helper" style="margin-bottom: 1rem;">Vous êtes éliminé, mais dans un dernier souffle, vous abattez la cible de votre choix !</p>
+      <div class="theme-select-wrapper" style="margin-bottom: 1.5rem;">
+       <select id="loup-garou-hunter-target" class="theme-select"></select>
+      </div>
+      <button id="btn-loup-garou-hunter-submit" class="btn btn-poke btn-block">FEU !</button>
+     </div>
+
+    </div>
+
+    <!-- DAY LOGS & SUSPECT VOTE PANEL -->
+    <div id="loup-garou-day-panel" class="glass-panel imposteur-panel view-hidden" style="border-color: #ef4444;">
+     <div class="panel-header">
+      <h3>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+       Le Village se Réveille
+      </h3>
+      <span class="badge" style="background: #e2e8f0; color: #0f172a;">Parlement Diurne</span>
+     </div>
+     
+     <!-- Real-time dynamic vote timer banner -->
+     <div id="lg-vote-timer-banner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 1.5rem; font-size: 13px; font-family: monospace;">
+      Temps restant pour délibérer et voter: --s
+     </div>
+     
+     <!-- Real-time logs journal -->
+     <div id="loup-garou-history-journal" style="background: rgba(0,0,0,0.3); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); max-height: 180px; overflow-y: auto; font-family: monospace; font-size: 12px; line-height: 1.5; color: #cbd5e1; margin-bottom: 1.5rem;">
+      <!-- dynamic logs entries -->
+     </div>
+
+     <!-- Voting view -->
+     <div id="loup-garou-voting-area" class="view-hidden">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+       Conseil Municipal(Vote)
+      </h4>
+      <p class="theme-helper mb-15">Choisissez un citoyen suspecté d'être un Loup-Garou:</p>
+      <div class="voting-grid" id="loup-garou-voting-grid">
+       <!-- dynamic voting grid -->
+      </div>
+      
+      <div id="loup-garou-tally-box" style="margin-top: 1.5rem; text-align: center; display: none;">
+       <button id="btn-loup-garou-tally" class="btn btn-wolf btn-large">
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        Dépouiller les votes
+       </button>
+       <div id="loup-garou-tally-helper" class="helper-text">Attente que l'hôte ferme le scrutin.</div>
+      </div>
+     </div>
+    </div>
+
+    <!-- RESULTS / GAME OVER PANEL -->
+    <div id="loup-garou-results-panel" class="glass-panel imposteur-panel view-hidden text-center" style="border-color: #ef4444;">
+     <div class="results-emoji" id="loup-garou-results-emoji" style="display: flex; justify-content: center; margin-bottom: 1rem;">
+      <svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M14 10H34V20C34 25.52 29.52 30 24 30C18.48 30 14 25.52 14 20V10Z" fill="rgba(239, 68, 68, 0.15)"/><path d="M14 14H8C6.9 14 6 14.9 6 16C6 19.31 8.69 22 12 22H14"/><path d="M34 14H40C41.1 14 42 14.9 42 16C42 19.31 39.31 22 36 22H34"/><path d="M24 30V38M16 42H32M18 38H30"/></svg>
+     </div>
+     <h2 class="text-gradient" id="loup-garou-results-title" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Fin de la Partie</h2>
+     <p class="results-subtext" id="loup-garou-results-subtitle" style="margin-bottom: 2rem;">...</p>
+
+     <div class="glass-panel" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); text-align: left; padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem;">
+      <h4 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; color: #ef4444; display: flex; align-items: center; gap: 6px;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+       Identités secrètes révélées
+      </h4>
+      <div id="loup-garou-reveal-list" style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 13px;">
+       <!-- dynamic revealed player list -->
+      </div>
+     </div>
+
+     <button id="btn-loup-garou-restart" class="btn btn-wolf btn-large mx-auto" style="display:none;">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Relancer un Rituel
+     </button>
+     <div id="loup-garou-restart-helper" class="helper-text" style="display:none;">Attente que l'hôte relance un rituel...</div>
+    </div>
+
+   </section>
+
+   <!-- Right: Players Sidebar -->
+   <aside class="imposteur-sidebar">
+    <div class="glass-panel imposteur-sidebar-panel" style="border-color: #ef4444; box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.15);">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+       Villageois(<span id="loup-garou-players-count">0</span>)
+      </h4>
+     </div>
+     <ul class="imposteur-players-list" id="loup-garou-players-list">
+      <!-- Dynamic players list -->
+     </ul>
+    </div>
+   </aside>
+  </div>
+ </main>
+
+ <!-- 3.8. SONGLESS MENU VIEW -->
+ <section id="songless-menu-view" class="menu-container view-hidden">
+  <div class="glass-panel menu-panel card-songless">
+   <button class="btn-back" id="btn-back-songless">
+    <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Retour
+   </button>
+   <div class="menu-header">
+    <span class="badge badge-songless">Quiz Musical Infini</span>
+    <h2>Blind Test²</h2>
+    <p>Reconnaissez le titre et l'artiste en continu à partir de courts extraits de 0.1s à 10s.</p>
+   </div>
+
+   <div class="menu-inputs">
+    <div class="input-group menu-pseudo-group" id="songless-pseudo-group">
+     <label for="songless-player-nickname">Votre pseudo temporaire</label>
+     <div class="pseudo-input-wrapper">
+      <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <input type="text" id="songless-player-nickname" class="player-nickname-input" placeholder="Entrez un pseudo..." maxlength="15" autocomplete="nickname">
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-songless-create-room" class="btn btn-songless btn-block">
+      Créer un salon
+     </button>
+     
+     <div class="divider"><span>OU REJOINDRE UN SALON</span></div>
+     
+     <div class="join-box" style="margin-top: 10px;">
+      <input type="text" id="songless-room-code-input" placeholder="Code (ex: ABCD)" maxlength="4" style="text-transform: uppercase; text-align: center; font-weight: 700; letter-spacing: 2px;">
+      <button id="btn-songless-join-room" class="btn btn-songless">Rejoindre</button>
+     </div>
+    </div>
+   </div>
+   <div id="songless-menu-error" class="error-msg" style="display: none;"></div>
+  </div>
+ </section>
+
+ <!-- 7. SONGLESS GAME VIEW -->
+ <main class="app-container songless-view-container view-hidden" id="songless-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- MAIN GAME SECTION (LEFT / CENTER) -->
+   <section class="imposteur-main-section">
+    
+    <!-- Multiplayer Lobby State -->
+    <div id="songless-multi-lobby" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="songless-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff;">En attente des joueurs</span>
+     </div>
+
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <h4 style="margin: 0;">Univers Musical (Multi-Thèmes)</h4>
+        <div style="display: flex; align-items: center; gap: 8px;">
+         <label for="songless-lobby-rounds-select" style="font-size: 12px; color: var(--text-muted); margin: 0;">Manches :</label>
+         <div class="theme-select-wrapper" style="width: auto;">
+          <select id="songless-lobby-rounds-select" class="theme-select theme-select-compact">
+           <option value="5">5 Manches</option>
+           <option value="10" selected>10 Manches</option>
+           <option value="15">15 Manches</option>
+           <option value="20">20 Manches</option>
+           <option value="infinite">Infini (∞)</option>
+          </select>
+         </div>
+        </div>
+       </div>
+       <div class="multi-theme-selector" id="songless-lobby-theme-pills">
+        <button type="button" class="theme-pill active" data-value="all">Tous les Thèmes</button>
+        <button type="button" class="theme-pill" data-value="pop">Pop</button>
+        <button type="button" class="theme-pill" data-value="rap_fr">Rap FR</button>
+        <button type="button" class="theme-pill" data-value="rock">Rock</button>
+        <button type="button" class="theme-pill" data-value="annees_80_90">80s / 90s</button>
+        <button type="button" class="theme-pill" data-value="electro">Électro</button>
+        <button type="button" class="theme-pill" data-value="cinema">Films & BO</button>
+        <button type="button" class="theme-pill" data-value="series">Séries TV</button>
+        <button type="button" class="theme-pill" data-value="anime">Animés</button>
+        <button type="button" class="theme-pill" data-value="gaming">Jeux Vidéo</button>
+       </div>
+       <p class="theme-helper mt-10" id="songless-lobby-theme-helper">Tous les thèmes sont activés pour cette session.</p>
+      </div>
+
+      <div class="lobby-start-box">
+       <button id="btn-songless-host-start" class="btn btn-songless btn-large btn-block">
+        Lancer la partie Blind Test²
+       </button>
+       <div id="songless-start-helper" class="helper-text" style="text-align: center; margin-top: 8px; color: var(--text-muted);">
+        Le salon est prêt. Lancez dès que vos amis ont rejoint.
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Active Game Play Area -->
+    <div id="songless-active-game" class="songless-play-area">
+     
+     <!-- Top Info Banner -->
+     <div class="game-stats-bar glass-panel">
+      <div class="stats-bar-left">
+       <span class="badge-theme" id="songless-genre-pill">Tous les Hits</span>
+       <span class="stats-bar-hint">6 tentatives</span>
+      </div>
+      <div class="stats-bar-right">
+       <div class="stat-pill stat-pill-streak">
+        <svg class="stat-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <span>Série</span>
+        <b id="songless-streak-display">0</b>
+       </div>
+       <div class="stat-pill stat-pill-score">
+        <svg class="stat-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+        <span>Score</span>
+        <b id="songless-score-display">0</b>
+       </div>
+      </div>
+     </div>
+
+     <!-- Segmented Audio Player Card (ABOVE GUESSES) -->
+     <div class="songless-player-card glass-panel">
+      <div class="songless-track-container">
+       <div class="songless-track-segments" id="songless-track-segments">
+        <div class="songless-segment is-unlocked" data-step="0"><span class="seg-label">0.1s</span></div>
+        <div class="songless-segment" data-step="1"><span class="seg-label">0.5s</span></div>
+        <div class="songless-segment" data-step="2"><span class="seg-label">1.0s</span></div>
+        <div class="songless-segment" data-step="3"><span class="seg-label">2.5s</span></div>
+        <div class="songless-segment" data-step="4"><span class="seg-label">5.0s</span></div>
+        <div class="songless-segment" data-step="5"><span class="seg-label">10s</span></div>
+       </div>
+       <div class="songless-playhead" id="songless-playhead" style="left: 0%;"></div>
+      </div>
+
+      <div class="songless-player-controls">
+       <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="songless-time-label" id="songless-time-display">0.0s / 0.1s</div>
+        <!-- Volume Control -->
+        <div class="songless-volume-box">
+         <button id="btn-songless-mute" class="btn-songless-vol-icon" aria-label="Couper le son">
+          <svg id="songless-vol-high" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <svg id="songless-vol-muted" class="view-hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+         </button>
+         <input type="range" id="songless-volume-slider" min="0" max="1" step="0.05" value="0.8" class="songless-vol-slider" aria-label="Volume">
+        </div>
+       </div>
+       <button class="btn-songless-play" id="btn-songless-play" aria-label="Écouter l'extrait">
+        <svg id="songless-play-icon" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <svg id="songless-pause-icon" class="view-hidden" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+       </button>
+       <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-songless-skip" id="btn-songless-skip">
+         Passer (+1.0s)
+        </button>
+        <button class="btn-songless-giveup" id="btn-songless-giveup" title="Abandonner et voir la réponse">
+         Abandonner
+        </button>
+       </div>
+      </div>
+     </div>
+
+     <!-- Search & Autocomplete Box (ABOVE GUESSES) -->
+     <div class="songless-search-wrapper" id="songless-search-wrapper">
+      <div class="songless-input-box">
+       <svg class="songless-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+       <input type="text" id="songless-search-input" placeholder="Rechercher une œuvre, un film, une série, un jeu, un artiste ou un titre..." autocomplete="off" spellcheck="false">
+       <button id="btn-songless-submit" class="btn btn-songless-submit" disabled>Deviner</button>
+      </div>
+      <!-- Dropdown suggestions -->
+      <div class="songless-autocomplete-dropdown view-hidden" id="songless-autocomplete-dropdown"></div>
+     </div>
+
+     <!-- Guess Rows (6 attempt slots) -->
+     <div class="songless-guesses-list" id="songless-guesses-list">
+      <!-- 6 slots dynamically rendered -->
+     </div>
+
+     <!-- Result Box (Won / Lost / Revealed) -->
+     <div class="songless-result-panel glass-panel view-hidden" id="songless-result-panel">
+      <div class="songless-result-header" id="songless-result-status-title">Morceau Trouvé !</div>
+      <div class="songless-song-card">
+       <img id="songless-result-artwork" src="" alt="Album Artwork" class="songless-artwork-img">
+       <div class="songless-song-info">
+        <div id="songless-result-media-badge" class="songless-media-badge view-hidden">
+         <span id="songless-result-media-name">Bande Originale</span>
+        </div>
+        <h3 id="songless-result-title" class="songless-song-title">Titre de la chanson</h3>
+        <p id="songless-result-artist" class="songless-song-artist">Nom de l'artiste</p>
+        <span id="songless-result-year" class="songless-song-year">2020</span>
+       </div>
+      </div>
+
+      <!-- Full 30s Audio preview player -->
+      <div class="songless-full-player">
+       <audio id="songless-full-audio" preload="none"></audio>
+       <button id="btn-songless-full-play" class="btn-songless-full-play">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>Écouter l'extrait complet (30s)</span>
+       </button>
+      </div>
+
+      <div class="songless-result-actions">
+       <button id="btn-songless-next-song" class="btn btn-songless">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Morceau Suivant
+       </button>
+       <button id="btn-songless-share" class="btn btn-songless-share">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+        Partager mon score
+       </button>
+       <button id="btn-songless-next-round" class="btn btn-card-songless view-hidden">Manche Suivante</button>
+      </div>
+     </div>
+
+    </div>
+
+    <!-- Multiplayer End of Game (Podium & Room Controls) -->
+    <div id="songless-podium-panel" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header" style="text-align: center; margin-bottom: 1.5rem;">
+      <div class="badge badge-songless" style="margin-bottom: 8px;">Fin de la Session</div>
+      <h3 style="font-size: 1.6rem; margin: 0;">Podium <span class="text-gradient">Final</span></h3>
+      <p class="theme-helper" style="margin-top: 4px; font-size: 13px;">Voici le classement officiel des joueurs pour cette session.</p>
+     </div>
+
+     <!-- Stepped 3D Podium Container -->
+     <div class="stats-podium" style="margin-bottom: 1.8rem;">
+      <div class="podium-stepped-wrapper" id="songless-podium-stepped">
+       <!-- Rendered dynamically (2nd, 1st, 3rd) -->
+      </div>
+     </div>
+
+     <!-- Full Leaderboard for remaining players -->
+     <div class="songless-full-leaderboard-box" id="songless-podium-leaderboard-box" style="margin-bottom: 1.8rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1rem 1.25rem;">
+      <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin: 0 0 10px 0;">Classement Complet</h4>
+      <div id="songless-podium-full-list" class="stats-leaderboard-list">
+       <!-- Rendered dynamically -->
+      </div>
+     </div>
+
+     <!-- Action Buttons -->
+     <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+      <button id="btn-songless-restart-lobby" class="btn btn-songless btn-large btn-block" style="display: none;">
+       ⚙️ Modifier les paramètres &amp; Rejouer
+      </button>
+      <div id="songless-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+       En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
+      </div>
+      <button id="btn-songless-podium-leave" class="btn btn-secondary btn-block" style="max-width: 320px;" onclick="confirmLeave()">
+       Quitter le salon
+      </button>
+     </div>
+    </div>
+
+   </section>
+
+   <!-- RIGHT SIDEBAR (PLAYERS & SCORES) -->
+   <aside class="imposteur-sidebar">
+    <div class="imposteur-sidebar-panel">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+       JOUEURS (<span id="songless-player-count">1</span>)
+      </h4>
+     </div>
+     <ul id="songless-sidebar-players" class="imposteur-players-list">
+      <!-- Rendered dynamically -->
+     </ul>
+    </div>
+   </aside>
+
+  </div>
+ </main>
+
+ <!-- 8. POKECRIES GAME VIEW -->
+ <main class="app-container songless-view-container view-hidden" id="pokecries-game-view">
+  <div class="imposteur-layout">
+   
+   <!-- MAIN GAME SECTION(LEFT / CENTER) -->
+   <section class="imposteur-main-section">
+    
+    <!-- Multiplayer Lobby State -->
+    <div id="pokecries-multi-lobby" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header">
+      <h3>Salon Multijoueur : <span id="pokecries-lobby-code" class="text-gradient">----</span></h3>
+      <span class="badge" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;">En attente des joueurs</span>
+     </div>
+
+     <div class="lobby-content">
+      <div class="lobby-settings-box">
+       <div class="lobby-grid-2cols">
+        <div class="input-group">
+         <label for="pokecries-lobby-category-select">Générations</label>
+         <div class="theme-select-wrapper">
+          <select id="pokecries-lobby-category-select" class="theme-select">
+           <option value="all">Toutes (Gen 1 à 9)</option>
+           <option value="gen1">Gen 1 (Kanto)</option>
+           <option value="gen2">Gen 2 (Johto)</option>
+           <option value="gen3">Gen 3 (Hoenn)</option>
+           <option value="gen4">Gen 4 (Sinnoh)</option>
+           <option value="gen5">Gen 5 (Unys)</option>
+           <option value="gen6">Gen 6 (Kalos)</option>
+           <option value="gen7">Gen 7 (Alola)</option>
+           <option value="gen8">Gen 8 (Galar)</option>
+           <option value="gen9">Gen 9 (Paldea)</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="pokecries-lobby-rounds-select">Nombre de Manches</label>
+         <div class="theme-select-wrapper">
+          <select id="pokecries-lobby-rounds-select" class="theme-select">
+           <option value="10">10 Manches</option>
+           <option value="15">15 Manches</option>
+           <option value="20">20 Manches</option>
+           <option value="30">30 Manches</option>
+           <option value="infinite">Infini (∞)</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="pokecries-lobby-mode-select">Mode de Réponse</label>
+         <div class="theme-select-wrapper">
+          <select id="pokecries-lobby-mode-select" class="theme-select">
+           <option value="mcq">QCM (4 Choix)</option>
+           <option value="search">Saisie Libre</option>
+          </select>
+         </div>
+        </div>
+
+        <div class="input-group">
+         <label for="pokecries-lobby-era-select">Style de Cris</label>
+         <div class="theme-select-wrapper">
+          <select id="pokecries-lobby-era-select" class="theme-select">
+           <option value="latest">Cris Modernes</option>
+           <option value="legacy">Cris Rétro (Gen 1-5)</option>
+          </select>
+         </div>
+        </div>
+       </div>
+
+       <p class="theme-helper mt-10">Invitez vos amis avec le bouton <b>« Copier l'invitation »</b> en haut à droite.</p>
+      </div>
+
+      <div class="lobby-start-box">
+       <button id="btn-pokecries-host-start" class="btn btn-poke btn-large btn-block">
+        Lancer la partie Ahhhhhh
+       </button>
+       <div id="pokecries-start-helper" class="helper-text" style="text-align: center; margin-top: 8px; color: var(--text-muted);">
+        Le salon est prêt. Lancez dès que tous les joueurs ont rejoint.
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Active Game Play Area -->
+    <div id="pokecries-active-game" class="songless-play-area">
+     
+     <!-- Top Info Banner -->
+     <div class="game-stats-bar glass-panel">
+      <div class="stats-bar-left">
+       <span class="badge-theme" id="pokecries-gen-pill">Toutes les Générations</span>
+       <span class="stats-bar-hint" id="pokecries-round-label">Cri Pokémon</span>
+      </div>
+      <div class="stats-bar-right">
+       <div class="stat-pill stat-pill-streak">
+        <svg class="stat-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <span>Série</span>
+        <b id="pokecries-streak-display">0</b>
+       </div>
+       <div class="stat-pill stat-pill-score">
+        <svg class="stat-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+        <span>Score</span>
+        <b id="pokecries-score-display">0</b>
+       </div>
+      </div>
+     </div>
+
+     <!-- POKECRIES AUDIO HERO PLAYER -->
+     <div class="pokecries-hero-card glass-panel">
+      <div class="pokecries-sound-visualizer">
+       <div class="pokecries-speaker-wrap">
+        <div class="pokecries-pulse-ring ring-1" id="pokecries-ring-1"></div>
+        <div class="pokecries-pulse-ring ring-2" id="pokecries-ring-2"></div>
+        <button class="pokecries-speaker-btn" id="btn-pokecries-play" aria-label="Écouter le cri">
+         <svg id="pokecries-play-icon" viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+         </svg>
+         <svg id="pokecries-playing-icon" class="view-hidden" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+         </svg>
+        </button>
+       </div>
+
+       <!-- Animated Equalizer Bars -->
+       <div class="pokecries-equalizer" id="pokecries-equalizer">
+        <span class="eq-bar eq-1"></span>
+        <span class="eq-bar eq-2"></span>
+        <span class="eq-bar eq-3"></span>
+        <span class="eq-bar eq-4"></span>
+        <span class="eq-bar eq-5"></span>
+       </div>
+
+       <div class="pokecries-status-text" id="pokecries-status-text">Cliquez pour écouter le cri Pokémon</div>
+      </div>
+
+      <!-- Audio Controls Bar -->
+      <div class="pokecries-player-controls">
+       <button class="btn-pokecries-replay" id="btn-pokecries-replay" title="Rejouer le son(Espace)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+        <span>Rejouer le cri</span>
+       </button>
+
+       <div class="songless-volume-box">
+        <button id="btn-pokecries-mute" class="btn-songless-vol-icon" aria-label="Couper le son">
+         <svg id="pokecries-vol-high" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+         <svg id="pokecries-vol-muted" class="view-hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+        </button>
+        <input type="range" id="pokecries-volume-slider" min="0" max="1" step="0.05" value="0.85" class="songless-vol-slider" aria-label="Volume">
+       </div>
+
+       <button class="btn-songless-giveup" id="btn-pokecries-giveup" title="Abandonner et voir la solution">
+        Abandonner
+       </button>
+      </div>
+     </div>
+
+     <!-- HINTS ACCORDION / BAR(Solo mode) -->
+     <div class="pokecries-hints-container" id="pokecries-hints-container">
+      <div class="pokecries-hints-title">Indices disponibles</div>
+      <div class="pokecries-hints-buttons">
+       <button class="btn-pokecries-hint" id="btn-hint-type" data-hint="type">
+        <span>Indice Types</span>
+       </button>
+       <button class="btn-pokecries-hint" id="btn-hint-gen" data-hint="gen">
+        <span>Indice Région</span>
+       </button>
+       <button class="btn-pokecries-hint" id="btn-hint-silhouette" data-hint="silhouette">
+        <span>Indice Silhouette</span>
+       </button>
+      </div>
+
+      <div class="pokecries-revealed-hints" id="pokecries-revealed-hints">
+       <div class="hint-card view-hidden" id="hint-card-type">
+        <span class="hint-label">Types:</span>
+        <span id="hint-val-type" class="hint-val"></span>
+       </div>
+       <div class="hint-card view-hidden" id="hint-card-gen">
+        <span class="hint-label">Région:</span>
+        <span id="hint-val-gen" class="hint-val"></span>
+       </div>
+       <div class="hint-card view-hidden" id="hint-card-silhouette">
+        <div class="silhouette-wrapper">
+         <img id="hint-img-silhouette" src="" alt="Silhouette Pokémon" class="pokemon-silhouette-img">
+        </div>
+       </div>
+      </div>
+     </div>
+
+     <!-- INPUT SECTION: QCM GRID -->
+     <div class="pokecries-mcq-grid" id="pokecries-mcq-grid">
+      <button class="pokecries-mcq-btn" data-choice-idx="0">
+       <span class="mcq-badge">A</span>
+       <span class="mcq-text" id="pokecries-choice-0">—</span>
+      </button>
+      <button class="pokecries-mcq-btn" data-choice-idx="1">
+       <span class="mcq-badge">B</span>
+       <span class="mcq-text" id="pokecries-choice-1">—</span>
+      </button>
+      <button class="pokecries-mcq-btn" data-choice-idx="2">
+       <span class="mcq-badge">C</span>
+       <span class="mcq-text" id="pokecries-choice-2">—</span>
+      </button>
+      <button class="pokecries-mcq-btn" data-choice-idx="3">
+       <span class="mcq-badge">D</span>
+       <span class="mcq-text" id="pokecries-choice-3">—</span>
+      </button>
+     </div>
+
+     <!-- INPUT SECTION: SEARCH / AUTOCOMPLETE (if search mode active) -->
+     <div class="songless-search-wrapper view-hidden" id="pokecries-search-wrapper">
+      <div class="songless-input-box">
+       <svg class="songless-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+       <input type="text" id="pokecries-search-input" placeholder="Tapez le nom d'un Pokémon (ex: Pikachu, Dracaufeu, Mewtwo...)" autocomplete="off" spellcheck="false">
+       <button id="btn-pokecries-submit" class="btn btn-pokecries-submit" disabled>Valider</button>
+      </div>
+      <!-- Dropdown suggestions -->
+      <div class="songless-autocomplete-dropdown view-hidden" id="pokecries-autocomplete-dropdown"></div>
+     </div>
+
+     <!-- Result Box (Won / Lost / Solution Reveal) -->
+     <div class="pokecries-reveal-card glass-panel view-hidden" id="pokecries-reveal-card">
+      <div class="pokecries-reveal-header" id="pokecries-reveal-title">C'est Bulbizarre !</div>
+      
+      <div class="pokecries-pokemon-showcase">
+       <div class="pokecries-artwork-frame">
+        <img id="pokecries-reveal-artwork" src="" alt="Artwork Pokémon" class="pokecries-artwork-img">
+       </div>
+       
+       <div class="pokecries-reveal-details">
+        <div class="pokecries-pokedex-num" id="pokecries-reveal-num">N° 0001</div>
+        <h3 class="pokecries-pokemon-name" id="pokecries-reveal-name">Bulbizarre</h3>
+        <div class="pokecries-en-name" id="pokecries-reveal-en">Bulbasaur</div>
+        <div class="pokecries-types-row" id="pokecries-reveal-types">
+         <!-- Types badges rendered dynamically -->
+        </div>
+       </div>
+      </div>
+
+      <div class="pokecries-reveal-actions">
+       <button id="btn-pokecries-next-pokemon" class="btn btn-poke">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Pokémon Suivant
+       </button>
+       <button id="btn-pokecries-share" class="btn btn-songless-share">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+        Partager mon score
+       </button>
+       <button id="btn-pokecries-next-round" class="btn btn-card-pokecries view-hidden">Manche Suivante</button>
+      </div>
+     </div>
+
+    </div>
+
+    <!-- Multiplayer End of Game (Podium & Room Controls) -->
+    <div id="pokecries-podium-panel" class="glass-panel imposteur-panel view-hidden">
+     <div class="panel-header" style="text-align: center; margin-bottom: 1.5rem;">
+      <div class="badge badge-songless" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 8px;">Fin de la Session</div>
+      <h3 style="font-size: 1.6rem; margin: 0;">Podium <span class="text-gradient">Final</span></h3>
+      <p class="theme-helper" style="margin-top: 4px; font-size: 13px;">Voici le classement officiel des meilleurs dresseurs pour cette session.</p>
+     </div>
+
+     <!-- Stepped 3D Podium Container -->
+     <div class="stats-podium" style="margin-bottom: 1.8rem;">
+      <div class="podium-stepped-wrapper" id="pokecries-podium-stepped">
+       <!-- Rendered dynamically (2nd, 1st, 3rd) -->
+      </div>
+     </div>
+
+     <!-- Full Leaderboard for remaining players -->
+     <div class="songless-full-leaderboard-box" id="pokecries-podium-leaderboard-box" style="margin-bottom: 1.8rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1rem 1.25rem;">
+      <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin: 0 0 10px 0;">Classement Complet</h4>
+      <div id="pokecries-podium-full-list" class="stats-leaderboard-list">
+       <!-- Rendered dynamically -->
+      </div>
+     </div>
+
+     <!-- Action Buttons -->
+     <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+      <button id="btn-pokecries-restart-lobby" class="btn btn-poke btn-large btn-block" style="display: none;">
+       ⚙️ Modifier les paramètres &amp; Rejouer
+      </button>
+      <div id="pokecries-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
+       En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
+      </div>
+      <button id="btn-pokecries-podium-leave" class="btn btn-secondary btn-block" style="max-width: 320px;" onclick="confirmLeave()">
+       Quitter le salon
+      </button>
+     </div>
+    </div>
+   </section>
+
+   <!-- RIGHT SIDEBAR(PLAYERS & SCORES) -->
+   <aside class="imposteur-sidebar">
+    <div class="imposteur-sidebar-panel">
+     <div class="sidebar-header">
+      <h4>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+       DRESSEURS(<span id="pokecries-player-count">1</span>)
+      </h4>
+     </div>
+     <ul id="pokecries-sidebar-players" class="imposteur-players-list">
+      <!-- Rendered dynamically -->
+     </ul>
+    </div>
+   </aside>
+
+  </div>
+ </main>
+
+ <!-- STATS VIEW -->
+ <section id="stats-view" class="stats-container view-hidden">
+  <div class="stats-layout">
+
+   <!-- Page Header (consistent with all other views) -->
+   <div class="stats-page-header">
+    <button class="btn-back" id="btn-back-stats">
+     <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+     Retour
+    </button>
+    <div class="stats-page-heading">
+     <div class="stats-page-title-row">
+      <h2 class="stats-main-title">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+       Classements &amp; Statistiques
+      </h2>
+      <!-- Period Filter inline with title -->
+      <div class="stats-period-tabs">
+       <button class="stats-period-btn active" data-period="week" id="stats-period-week">Semaine</button>
+       <button class="stats-period-btn" data-period="month" id="stats-period-month">Mois</button>
+       <button class="stats-period-btn" data-period="year" id="stats-period-year">Année</button>
+       <button class="stats-period-btn" data-period="all" id="stats-period-all">All-Time</button>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Controls Row: Game Pills + Metric Sort Toolbar -->
+   <div class="stats-controls-row">
+    <!-- Game Filter Tabs -->
+    <div class="stats-game-tabs">
+     <button class="stats-game-tab active" data-game="all" id="stats-tab-all">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      Tous les Jeux
+     </button>
+     <button class="stats-game-tab" data-game="theridactle" id="stats-tab-theridactle">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/></svg>
+      DinOtiste
+     </button>
+     <button class="stats-game-tab" data-game="pokedactle" id="stats-tab-pokedactle">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h7m6 0h7"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+      PokemOtiste
+     </button>
+     <button class="stats-game-tab" data-game="pokecries" id="stats-tab-pokecries">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      Ahhhhhh
+     </button>
+     <button class="stats-game-tab" data-game="merrydactle" id="stats-tab-merrydactle">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/><path d="M7.5 11v2a4.5 4.5 0 0 0 9 0v-2"/><circle cx="10" cy="13.5" r="1.2" fill="currentColor"/><circle cx="14" cy="13.5" r="1.2" fill="currentColor"/><path d="M9.8 16.5c1.4.8 3 0.8 4.4 0"/><path d="M7 10c0-3.5 2.2-5 5-5s5 1.5 5 5"/><path d="M7.2 9h9.6"/><path d="M2.5 10.5c3-1.8 16-1.8 19 0"/></svg>
+      Otiste Piece
+     </button>
+     <button class="stats-game-tab" data-game="songless" id="stats-tab-songless">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      Blind Test²
+     </button>
+     <button class="stats-game-tab" data-game="imposteur" id="stats-tab-imposteur">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11c-1.5 0-2.5.5-3 2"/><path d="M4 6a2 2 0 0 0-2 2v4a5 5 0 0 0 5 5 8 8 0 0 1 5 2 8 8 0 0 1 5-2 5 5 0 0 0 5-5V8a2 2 0 0 0-2-2h-3a8 8 0 0 0-5 2 8 8 0 0 0-5-2z"/><path d="M6 11c1.5 0 2.5.5 3 2"/></svg>
+      SousLaCouverture
+     </button>
+     <button class="stats-game-tab" data-game="geographie" id="stats-tab-geographie">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+      Tiéou
+     </button>
+     <button class="stats-game-tab" data-game="loup_garou" id="stats-tab-loup-garou">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      Graouu
+     </button>
+    </div>
+
+    <!-- Sort Metric Tabs -->
+    <div class="stats-sort-tabs" role="group" aria-label="Critère de classement">
+     <button class="stats-sort-btn active" data-sort="points" aria-pressed="true"><svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg> Points</button>
+     <button class="stats-sort-btn" data-sort="winRate" aria-pressed="false"><svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Win rate</button>
+     <button class="stats-sort-btn" data-sort="wins" aria-pressed="false"><svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Victoires</button>
+    </div>
+   </div>
+
+   <!-- Leaderboard Content -->
+   <div class="stats-content">
+    <!-- Dynamic Podium (Top 3) -->
+    <div class="stats-podium" id="stats-podium"></div>
+
+    <!-- Full Leaderboard Table -->
+    <div class="glass-panel stats-table-panel">
+     <div id="stats-leaderboard-list" class="stats-leaderboard-list">
+      <div class="stats-loading">Chargement des statistiques...</div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- PROFILE MODAL -->
+ <div id="profile-modal" class="profile-modal-overlay" style="display:none;">
+  <div class="profile-modal-content glass-panel">
+   <button class="profile-modal-close" id="btn-close-profile">✕</button>
+
+   <div class="profile-modal-inner">
+    <!-- Modal Tabs -->
+    <div class="profile-modal-tabs">
+     <button class="profile-tab active" id="ptab-account" data-tab="account">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      Mon Profil
+     </button>
+     <button class="profile-tab" id="ptab-stats" data-tab="stats">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+      Mes Stats
+     </button>
+     <button class="profile-tab" id="ptab-history" data-tab="history">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      Mon Historique
+     </button>
+    </div>
+
+    <!-- Account Tab -->
+    <div id="profile-tab-account" class="profile-tab-content active">
+     <div class="profile-avatar-section">
+      <div class="profile-avatar-preview" id="profile-avatar-preview">
+       <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div class="profile-avatar-actions">
+       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 6px;">
+        <p class="profile-avatar-label" style="margin: 0;">Avatars Flat Design :</p>
+        <label class="profile-upload-mini-btn" for="profile-photo-upload" title="Uploader une image personnalisée depuis votre appareil">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+         <span>Importer une photo</span>
+         <input type="file" id="profile-photo-upload" accept="image/*" style="display:none;">
+        </label>
+       </div>
+       <div class="profile-avatars-grid" id="profile-emoji-grid">
+        <!-- Flat design SVG avatars populated by JS -->
+       </div>
+      </div>
+     </div>
+
+     <form id="profile-login-form" onsubmit="event.preventDefault();">
+      <div class="profile-field">
+       <label for="profile-nickname-input">Pseudo (affiché dans les jeux)</label>
+       <input type="text" id="profile-nickname-input" placeholder="Entrez votre pseudo" maxlength="15" autocomplete="username">
+      </div>
+      <div class="profile-field">
+       <label for="profile-password-input">Mot de passe</label>
+       <input type="password" id="profile-password-input" placeholder="Votre mot de passe" autocomplete="current-password">
+      </div>
+
+      <div class="profile-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+       <button type="submit" class="btn btn-primary" id="btn-login-profile" style="flex: 1;">Se Connecter</button>
+       <button type="button" class="btn btn-secondary" id="btn-register-profile" style="flex: 1;">Créer Compte</button>
+      </div>
+     </form>
+     <div class="profile-actions" style="margin-top: 10px;">
+      <button class="btn btn-accent btn-block" id="btn-save-profile" style="display:none;">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+       Sauvegarder le Profil
+      </button>
+      <button class="btn btn-quit btn-block" id="btn-logout-profile" style="display:none; margin-top: 10px;">Déconnexion</button>
+      <div id="profile-save-msg" style="display:none; margin-top:0.75rem; text-align:center; font-size:13px; color:#34d399;"></div>
+      <div id="profile-error-msg" style="display:none; margin-top:0.75rem; text-align:center; font-size:13px; color:#ef4444;"></div>
+     </div>
+    </div>
+
+    <!-- Stats Tab -->
+    <div id="profile-tab-stats" class="profile-tab-content" style="display:none;">
+     <div class="profile-stats-header">
+      <div class="profile-stats-avatar" id="profile-stats-avatar">
+       <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div>
+       <div class="profile-stats-name" id="profile-stats-name">—</div>
+       <div class="profile-stats-sub">Statistiques personnelles</div>
+      </div>
+     </div>
+     <div id="profile-stats-content" class="profile-stats-grid">
+      <div class="stats-loading">Entrez un pseudo pour voir vos stats...</div>
+     </div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="profile-tab-history" class="profile-tab-content" style="display:none; flex-direction: column; width: 100%;">
+     <div class="profile-stats-header">
+      <div class="profile-stats-avatar" id="profile-history-avatar">
+       <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div>
+       <div class="profile-stats-name" id="profile-history-name">—</div>
+       <div class="profile-stats-sub">Historique des parties</div>
+      </div>
+     </div>
+     <div id="profile-history-content" class="profile-history-list" style="margin-top: 1rem; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; width: 100%; padding-right: 5px;">
+      <div class="stats-loading">Entrez un pseudo pour voir votre historique...</div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- Global Pro Game Loading Screen(Direct child of <body>) -->
+ <div id="global-loading-overlay" class="loading-overlay-container" role="status" aria-live="polite" style="display: none;">
+  <div class="loading-bg-glow"></div>
+  <div class="loading-card glass-panel" id="loading-card-panel">
+   <div class="loading-icon-wrapper" id="loading-icon-wrapper">
+    <span id="loading-overlay-icon" class="loading-icon"></span>
+   </div>
+   <div class="loading-spinner-ring"></div>
+   <div class="loading-text-group">
+    <h3 id="loading-overlay-title" class="loading-title">Lancement de la partie...</h3>
+    <p id="loading-overlay-subtitle" class="loading-subtitle">Préparation des données en cours...</p>
+   </div>
+   <div class="loading-progress-track">
+    <div class="loading-progress-bar" id="loading-progress-bar"></div>
+   </div>
+  </div>
+ </div>
+
+ <!-- Global Pro In-Site Confirmation Modal(Direct child of <body>) -->
+ <div id="global-confirm-modal" class="confirm-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-message" style="display: none;" onclick="if(event.target === this) window.resolveConfirmModal(false);">
+  <div class="confirm-modal-card glass-panel" onclick="event.stopPropagation();">
+   <div class="confirm-modal-icon-wrapper">
+    <span class="confirm-modal-icon" id="confirm-modal-icon"></span>
+   </div>
+   <h3 id="confirm-modal-title" class="confirm-modal-title">Quitter la partie ?</h3>
+   <p id="confirm-modal-message" class="confirm-modal-message">Voulez-vous vraiment quitter la partie en cours ?</p>
+   <div class="confirm-modal-actions">
+    <button id="confirm-modal-btn-cancel" type="button" class="btn confirm-btn-cancel" onclick="window.resolveConfirmModal(false)">Rester</button>
+    <button id="confirm-modal-btn-confirm" type="button" class="btn btn-confirm-leave" onclick="window.resolveConfirmModal(true)">Quitter</button>
+   </div>
+  </div>
+ </div>
+
+ <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="app.js?v=20260828_graouu_lobby_restored_v15"></script>
+</body>
+</html>

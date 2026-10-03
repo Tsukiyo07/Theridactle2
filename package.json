@@ -1,0 +1,22 @@
+{
+  "name": "theridactle",
+  "version": "1.0.0",
+  "description": "Redactle en français sur les dinosaures",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@paper-design/shaders-react": "^0.0.80",
+    "bcryptjs": "^2.4.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

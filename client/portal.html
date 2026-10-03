@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CaraHub — Portail Applications Cloud HTTPS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --surface: rgba(15, 23, 42, 0.65);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(30, 41, 59, 0.75);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-gold: #fbbf24;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-violet: #a78bfa;
+      --radius-card: 16px;
+      --radius-pill: 9999px;
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-title: 'Outfit', sans-serif;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1.5rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .glow-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.25;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+    }
+
+    .orb-1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
+    .orb-2 { width: 600px; height: 600px; background: #fbbf24; bottom: -150px; right: -100px; animation-delay: -6s; }
+    .orb-3 { width: 400px; height: 400px; background: #10b981; top: 40%; left: 50%; transform: translate(-50%, -50%); animation-delay: -3s; }
+
+    @keyframes floatOrb {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(30px) scale(1.08); }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .dot-pulse {
+      width: 8px;
+      height: 8px;
+      background-color: #34d399;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #34d399;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    h1.hub-title {
+      font-family: var(--font-title);
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    p.hub-subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 0.85rem 1.25rem;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-pill);
+      padding: 0.5rem 1rem;
+      flex: 1;
+      min-width: 240px;
+      max-width: 380px;
+      transition: border-color 0.2s var(--ease-out);
+    }
+
+    .search-box:focus-within { border-color: rgba(255, 255, 255, 0.3); }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .category-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    .cat-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s var(--ease-out), background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .cat-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .cat-btn:active { transform: scale(0.96); }
+    .cat-btn.active { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.2); color: #fff; }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .app-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s var(--ease-out), border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+
+    .app-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.2);
+      background: var(--surface-hover);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .app-card:active { transform: scale(0.97); }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+
+    .app-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s var(--ease-out);
+    }
+
+    .app-card:hover .app-icon { transform: scale(1.08); }
+
+    .badge-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .card-body { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .app-name {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-desc { color: var(--text-muted); font-size: 13px; line-height: 1.55; }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 0.25rem;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      transition: gap 0.2s var(--ease-out);
+    }
+
+    .app-card:hover .action-btn { gap: 10px; }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    .icon-caraquiz { color: var(--accent-gold); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); }
+    .icon-files { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
+    .icon-ittools { color: var(--accent-violet); border-color: rgba(167, 139, 250, 0.3); background: rgba(167, 139, 250, 0.1); }
+    .icon-crafty { color: #ec4899; border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1); }
+    .icon-kuma { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.1); }
+
+    footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 1.5rem 0 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <div class="glow-bg">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="badge-status">
+        <span class="dot-pulse"></span>
+        CERTIFICAT SSL HTTPS DUCKDNS (CADENAS VERT OFFICIEL)
+      </div>
+      <h1 class="hub-title">CaraHub</h1>
+      <p class="hub-subtitle">Portail d'accès centralisé 1-click avec sous-domaine permanent supercaraquiz.duckdns.org.</p>
+    </header>
+
+    <div class="controls-bar">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted)"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="hub-search" placeholder="Rechercher une application…">
+      </div>
+      <div class="category-pills">
+        <button class="cat-btn active" data-cat="all">Tous les services</button>
+        <button class="cat-btn" data-cat="arcade">Jeux &amp; Arcade</button>
+        <button class="cat-btn" data-cat="tools">Outils &amp; Admin</button>
+        <button class="cat-btn" data-cat="monitoring">Monitoring</button>
+      </div>
+    </div>
+
+    <div class="apps-grid" id="apps-grid">
+
+      <!-- Card 1: CaraQuiz -->
+      <a href="https://supercaraquiz.duckdns.org/arcade" target="_blank" rel="noopener" class="app-card" data-cat="arcade" data-name="caraquiz caragames jeux redactle theridactle pokedactle merrydactle songless imposteur geographie loup garou">
+        <div class="card-top">
+          <div class="app-icon icon-caraquiz">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          </div>
+          <span class="badge-tag">Jeux &amp; Arcade</span>
+        </div>
+        <div class="card-body">
+          <h2 class="app-name">
+            <span class="status-dot"></span>
+            SuperCaraQuiz
+          </h2>
+          <p class="app-desc">L'Arcade Multijoueur (DinOtiste, PokemOtiste, Ahhhhhh, Otiste Piece, SousLaCouverture, Tiéou, Graouu, Blind Test²).</p>
+        </div>
+        <div class="card-footer">
+          <span class="action-btn">
+            Lancer l'Arcade HTTPS
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 2: IT-Tools -->
+      <a href="https://supercaraquiz.duckdns.org/tools/" target="_blank" rel="noopener" class="app-card" data-cat="tools" data-name="it-tools ittools outils dev boite a outils converter jwt regex crypto hash">
+        <div class="card-top">
+          <div class="app-icon icon-ittools">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          </div>
+          <span class="badge-tag">Outils Dev</span>
+        </div>
+        <div class="card-body">
+          <h2 class="app-name">
+            <span class="status-dot"></span>
+            IT-Tools
+          </h2>
+          <p class="app-desc">Collection de 100+ outils en ligne essentiels pour développeurs (convertisseurs, encodeurs, crypto, regex, JWT).</p>
+        </div>
+        <div class="card-footer">
+          <span class="action-btn">
+            Ouvrir la Boîte à Outils HTTPS
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 3: Crafty Controller -->
+      <a href="https://supercaraquiz.duckdns.org:8443" target="_blank" rel="noopener" class="app-card" data-cat="tools" data-name="crafty controller minecraft serveur jeux admin docker panel">
+        <div class="card-top">
+          <div class="app-icon icon-crafty">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="8" cy="12" r="1.5"></circle><circle cx="16" cy="12" r="1.5"></circle><path d="M11 12h2M12 11v2"></path></svg>
+          </div>
+          <span class="badge-tag">Serveurs Minecraft</span>
+        </div>
+        <div class="card-body">
+          <h2 class="app-name">
+            <span class="status-dot"></span>
+            Crafty Controller
+          </h2>
+          <p class="app-desc">Panneau de contrôle dédié ultra-fluide pour créer et administrer vos serveurs Minecraft (Paper, Fabric, Forge).</p>
+        </div>
+        <div class="card-footer">
+          <span class="action-btn">
+            Gérer Minecraft HTTPS
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Card 4: Uptime Kuma -->
+      <a href="https://supercaraquiz.duckdns.org/kuma/" target="_blank" rel="noopener" class="app-card" data-cat="monitoring" data-name="uptime kuma monitoring supervision sante status page">
+        <div class="card-top">
+          <div class="app-icon icon-kuma">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <span class="badge-tag">Monitoring &amp; Santé</span>
+        </div>
+        <div class="card-body">
+          <h2 class="app-name">
+            <span class="status-dot"></span>
+            Uptime Kuma
+          </h2>
+          <p class="app-desc">Tableau de bord de supervision globale, suivi de l'uptime et métriques de disponibilité en temps réel.</p>
+        </div>
+        <div class="card-footer">
+          <span class="action-btn">
+            Superviser le Serveur HTTPS
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+        </div>
+      </a>
+
+    </div>
+
+    <footer>
+      <p>CaraHub &copy; 2026 — Certificat SSL DuckDNS Permanent supercaraquiz.duckdns.org.</p>
+    </footer>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('hub-search');
+    const catBtns = document.querySelectorAll('.cat-btn');
+    const appCards = document.querySelectorAll('.app-card');
+
+    let currentCat = 'all';
+
+    function filterApps() {
+      const query = (searchInput.value || '').trim().toLowerCase();
+
+      appCards.forEach(card => {
+        const catMatch = currentCat === 'all' || card.dataset.cat === currentCat;
+        const searchMatch = !query || card.dataset.name.toLowerCase().includes(query);
+
+        if (catMatch && searchMatch) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    searchInput.addEventListener('input', filterApps);
+
+    catBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        catBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCat = btn.dataset.cat;
+        filterApps();
+      });
+    });
+  </script>
+</body>
+</html>
