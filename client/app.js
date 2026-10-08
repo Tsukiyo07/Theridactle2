@@ -4677,42 +4677,16 @@ function showLocalPlayerCard(index) {
 
   const headerStep = document.getElementById('imp-local-header-step');
   const playerName = document.getElementById('imp-local-current-player-name');
-  const roleBadge = document.getElementById('imp-local-role-badge');
   const secretWord = document.getElementById('imp-local-secret-word');
-  const roleTip = document.getElementById('imp-local-role-tip');
   const btnNext = document.getElementById('btn-imp-local-next-player');
 
   if (headerStep) headerStep.textContent = `Joueur ${index + 1} / ${total}`;
   if (playerName) playerName.textContent = current.name;
 
-  if (current.role === 'impostor') {
-    if (roleBadge) {
-      roleBadge.textContent = '🎭 IMPOSTEUR';
-      roleBadge.style.background = 'linear-gradient(135deg, #f43f5e, #e11d48)';
-      roleBadge.style.color = '#fff';
-      roleBadge.style.boxShadow = '0 0 14px rgba(244, 63, 94, 0.4)';
-    }
-    if (secretWord) {
-      secretWord.textContent = current.word;
-      secretWord.style.color = '#fb7185';
-    }
-    if (roleTip) {
-      roleTip.textContent = "Vous avez le mot de l'imposteur ! Donnez un indice subtil pour vous fondre parmi les civils sans vous faire démasquer.";
-    }
-  } else {
-    if (roleBadge) {
-      roleBadge.textContent = '🛡️ CIVIL';
-      roleBadge.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-      roleBadge.style.color = '#fff';
-      roleBadge.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.4)';
-    }
-    if (secretWord) {
-      secretWord.textContent = current.word;
-      secretWord.style.color = '#34d399';
-    }
-    if (roleTip) {
-      roleTip.textContent = "Vous avez le vrai mot secret des civils ! Décrivez-le subtilement pour que vos alliés vous reconnaissent sans aider l'imposteur.";
-    }
+  // Set the secret word identically for all players (Civils & Impostors)
+  if (secretWord) {
+    secretWord.textContent = current.word;
+    secretWord.style.color = '#ffffff';
   }
 
   if (btnNext) {
