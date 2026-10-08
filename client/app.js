@@ -474,6 +474,7 @@ const views = {
   merrydactleGame: document.getElementById('merrydactle-game-view'),
   songlessGame: document.getElementById('songless-game-view'),
   impGame: dom.impGameView,
+  impLocalGame: document.getElementById('imposteur-local-game-view'),
   geoGame: dom.geoGameView,
   lgGame: document.getElementById('loup-garou-game-view')
 };
@@ -607,6 +608,7 @@ async function confirmLeave() {
   const isMerrydactleActive = views.merrydactleGame && !views.merrydactleGame.classList.contains('view-hidden');
   const isSonglessActive = views.songlessGame && !views.songlessGame.classList.contains('view-hidden');
   const isImpActive = views.impGame && !views.impGame.classList.contains('view-hidden');
+  const isImpLocalActive = views.impLocalGame && !views.impLocalGame.classList.contains('view-hidden');
   const isGeoActive = views.geoGame && !views.geoGame.classList.contains('view-hidden');
   const isLgActive = views.lgGame && !views.lgGame.classList.contains('view-hidden');
 
@@ -655,6 +657,16 @@ async function confirmLeave() {
       icon: GAME_SVG_ICONS.imposteur
     });
     if (confirmed) leaveImposteurRoom();
+  } else if (isImpLocalActive) {
+    const confirmed = await showConfirmModal({
+      title: "Quitter SousLaCouverture ?",
+      message: "Voulez-vous vraiment quitter la partie en présentiel en cours ?",
+      icon: GAME_SVG_ICONS.imposteur
+    });
+    if (confirmed) {
+      stopLocalDebateTimer();
+      showView('impMenu');
+    }
   } else if (isGeoActive) {
     const confirmed = await showConfirmModal({
       title: "Quitter Tiéou ?",
@@ -1175,6 +1187,9 @@ function init() {
       .catch(() => showImpMenuError('Impossible de joindre le serveur.'));
     });
   }
+
+  // Initialize SousLaCouverture Mode Présentiel
+  initImposteurLocalMode();
 
   // --- L'Imposteur Game Actions ---
   if (dom.impThemeSelect) {
@@ -4312,6 +4327,554 @@ function showMerrydactleGiveUp() {
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==========================================
+// SOUS LA COUVERTURE — MODE PRÉSENTIEL (1 TÉL)
+// ==========================================
+const imposteurLocalState = {
+  theme: 'aleatoire',
+  impostorCount: 1,
+  players: ['Joueur 1', 'Joueur 2', 'Joueur 3', 'Joueur 4'],
+  // Game session
+  currentIndex: 0,
+  assignments: [], // [{ name: '...', role: 'civil' | 'impostor', word: '...' }]
+  civilWord: '',
+  impostorWord: '',
+  themeUsedName: '',
+  starterName: '',
+  timerSeconds: 120,
+  timerInterval: null,
+  timerRunning: false,
+  eliminated: new Set(),
+  suspects: new Set()
+};
+
+function initImposteurLocalMode() {
+  // Load saved local players from localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem('imp_local_players_saved'));
+    if (Array.isArray(saved) && saved.length >= 3) {
+      imposteurLocalState.players = saved;
+    }
+  } catch (e) {}
+
+  const btnModeOnline = document.getElementById('btn-imp-mode-online');
+  const btnModeLocal = document.getElementById('btn-imp-mode-local');
+  const onlineBox = document.getElementById('imposteur-online-config-box');
+  const localBox = document.getElementById('imposteur-local-config-box');
+
+  if (btnModeOnline && btnModeLocal) {
+    btnModeOnline.addEventListener('click', () => {
+      btnModeOnline.classList.add('active');
+      btnModeLocal.classList.remove('active');
+      if (onlineBox) onlineBox.classList.remove('view-hidden');
+      if (localBox) localBox.classList.add('view-hidden');
+    });
+
+    btnModeLocal.addEventListener('click', () => {
+      btnModeLocal.classList.add('active');
+      btnModeOnline.classList.remove('active');
+      if (onlineBox) onlineBox.classList.add('view-hidden');
+      if (localBox) localBox.classList.remove('view-hidden');
+      renderLocalPlayerInputs();
+    });
+  }
+
+  // Stepper buttons
+  const btnAdd = document.getElementById('btn-imp-local-add-player');
+  const btnSub = document.getElementById('btn-imp-local-sub-player');
+  if (btnAdd) {
+    btnAdd.addEventListener('click', () => {
+      if (imposteurLocalState.players.length < 20) {
+        imposteurLocalState.players.push(`Joueur ${imposteurLocalState.players.length + 1}`);
+        renderLocalPlayerInputs();
+      }
+    });
+  }
+  if (btnSub) {
+    btnSub.addEventListener('click', () => {
+      if (imposteurLocalState.players.length > 3) {
+        imposteurLocalState.players.pop();
+        renderLocalPlayerInputs();
+      }
+    });
+  }
+
+  // Impostor count adjustment
+  const selImpostors = document.getElementById('imp-local-impostors-count');
+  if (selImpostors) {
+    selImpostors.addEventListener('change', () => {
+      imposteurLocalState.impostorCount = parseInt(selImpostors.value, 10) || 1;
+    });
+  }
+
+  const selTheme = document.getElementById('imp-local-theme-select');
+  if (selTheme) {
+    selTheme.addEventListener('change', () => {
+      imposteurLocalState.theme = selTheme.value || 'aleatoire';
+    });
+  }
+
+  // Start local game
+  const btnStartLocal = document.getElementById('btn-imp-local-start');
+  if (btnStartLocal) {
+    btnStartLocal.addEventListener('click', startImposteurLocalGame);
+  }
+
+  // In-Game Flip & Pass-the-phone
+  const card3d = document.getElementById('imp-local-3d-card');
+  const btnFlip = document.getElementById('btn-imp-local-flip');
+  const btnNext = document.getElementById('btn-imp-local-next-player');
+
+  if (btnFlip) {
+    btnFlip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (card3d) card3d.classList.add('is-flipped');
+    });
+  }
+  if (card3d) {
+    card3d.addEventListener('click', () => {
+      if (!card3d.classList.contains('is-flipped')) {
+        card3d.classList.add('is-flipped');
+      }
+    });
+  }
+
+  if (btnNext) {
+    btnNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (card3d) card3d.classList.remove('is-flipped');
+      setTimeout(() => {
+        advanceLocalPlayerStep();
+      }, 250);
+    });
+  }
+
+  // Quit / Back to menu
+  const btnQuit = document.getElementById('btn-imp-local-quit');
+  if (btnQuit) {
+    btnQuit.addEventListener('click', () => {
+      stopLocalDebateTimer();
+      showView('impMenu');
+    });
+  }
+
+  // Timer controls
+  const btnTimerToggle = document.getElementById('btn-imp-local-timer-toggle');
+  const btnTimerAdd = document.getElementById('btn-imp-local-timer-add');
+  const btnTimerReset = document.getElementById('btn-imp-local-timer-reset');
+
+  if (btnTimerToggle) {
+    btnTimerToggle.addEventListener('click', toggleLocalDebateTimer);
+  }
+  if (btnTimerAdd) {
+    btnTimerAdd.addEventListener('click', () => {
+      imposteurLocalState.timerSeconds += 30;
+      updateLocalTimerDisplay();
+    });
+  }
+  if (btnTimerReset) {
+    btnTimerReset.addEventListener('click', () => {
+      stopLocalDebateTimer();
+      imposteurLocalState.timerSeconds = 120;
+      updateLocalTimerDisplay();
+      if (btnTimerToggle) btnTimerToggle.textContent = 'Démarrer';
+    });
+  }
+
+  // Reveal all
+  const btnRevealAll = document.getElementById('btn-imp-local-reveal-all');
+  if (btnRevealAll) {
+    btnRevealAll.addEventListener('click', showLocalGameResults);
+  }
+
+  // Replay
+  const btnReplay = document.getElementById('btn-imp-local-replay-same');
+  if (btnReplay) {
+    btnReplay.addEventListener('click', startImposteurLocalGame);
+  }
+
+  const btnBackConfig = document.getElementById('btn-imp-local-back-config');
+  if (btnBackConfig) {
+    btnBackConfig.addEventListener('click', () => {
+      stopLocalDebateTimer();
+      showView('impMenu');
+      const btnModeLocal = document.getElementById('btn-imp-mode-local');
+      if (btnModeLocal) btnModeLocal.click();
+    });
+  }
+}
+
+function renderLocalPlayerInputs() {
+  const container = document.getElementById('imp-local-players-inputs-container');
+  const countBadge = document.getElementById('imp-local-player-count-badge');
+  const countText = document.getElementById('imp-local-count-text');
+  const selImpostors = document.getElementById('imp-local-impostors-count');
+
+  const count = imposteurLocalState.players.length;
+  if (countBadge) countBadge.textContent = `${count} Joueurs`;
+  if (countText) countText.textContent = `${count} Joueurs`;
+
+  // Adjust max impostors (need at least 2*imp + 1, so 2 imp requires 5+ players)
+  if (selImpostors) {
+    if (count < 5) {
+      selImpostors.value = '1';
+      imposteurLocalState.impostorCount = 1;
+      if (selImpostors.options[1]) selImpostors.options[1].disabled = true;
+    } else {
+      if (selImpostors.options[1]) selImpostors.options[1].disabled = false;
+    }
+  }
+
+  if (!container) return;
+  container.innerHTML = '';
+
+  imposteurLocalState.players.forEach((player, idx) => {
+    const row = document.createElement('div');
+    row.className = 'local-player-input-row';
+
+    const num = document.createElement('span');
+    num.className = 'local-player-num';
+    num.textContent = `J${idx + 1}`;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'local-player-input';
+    input.placeholder = `Nom du joueur ${idx + 1}`;
+    input.value = player;
+    input.maxLength = 18;
+    input.addEventListener('input', (e) => {
+      imposteurLocalState.players[idx] = e.target.value.trim() || `Joueur ${idx + 1}`;
+      try {
+        localStorage.setItem('imp_local_players_saved', JSON.stringify(imposteurLocalState.players));
+      } catch (err) {}
+    });
+
+    row.appendChild(num);
+    row.appendChild(input);
+
+    if (count > 3) {
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn-del-local-player';
+      delBtn.title = 'Supprimer ce joueur';
+      delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+      delBtn.addEventListener('click', () => {
+        imposteurLocalState.players.splice(idx, 1);
+        renderLocalPlayerInputs();
+        try {
+          localStorage.setItem('imp_local_players_saved', JSON.stringify(imposteurLocalState.players));
+        } catch (err) {}
+      });
+      row.appendChild(delBtn);
+    }
+
+    container.appendChild(row);
+  });
+}
+
+function startImposteurLocalGame() {
+  const players = imposteurLocalState.players.map((p, i) => (p && p.trim()) ? p.trim() : `Joueur ${i + 1}`);
+  if (players.length < 3) {
+    alert('Il faut au moins 3 joueurs pour démarrer une partie.');
+    return;
+  }
+
+  // Save players
+  try {
+    localStorage.setItem('imp_local_players_saved', JSON.stringify(players));
+  } catch (e) {}
+
+  const impCount = Math.min(imposteurLocalState.impostorCount || 1, players.length >= 5 ? 2 : 1);
+
+  // Pick random word pair
+  const wordsData = window.IMPOSTEUR_WORDS || {};
+  let pool = [];
+  let themeName = 'Général';
+
+  if (imposteurLocalState.theme === 'aleatoire') {
+    const allThemes = Object.keys(wordsData);
+    const randTheme = allThemes[Math.floor(Math.random() * allThemes.length)] || 'general';
+    pool = wordsData[randTheme] || wordsData.general;
+    themeName = getThemeReadableName(randTheme);
+  } else {
+    pool = wordsData[imposteurLocalState.theme] || wordsData.general || [];
+    themeName = getThemeReadableName(imposteurLocalState.theme);
+  }
+
+  if (!pool || pool.length === 0) {
+    pool = [{ civil: 'Café', impostor: 'Thé' }];
+  }
+
+  const chosenPair = pool[Math.floor(Math.random() * pool.length)];
+  // 50% chance to swap civil and impostor words
+  const swap = Math.random() < 0.5;
+  const civilWord = swap ? chosenPair.impostor : chosenPair.civil;
+  const impostorWord = swap ? chosenPair.civil : chosenPair.impostor;
+
+  // Pick random impostors
+  const indices = players.map((_, i) => i);
+  // Shuffle indices
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const impostorIndices = new Set(indices.slice(0, impCount));
+
+  // Build assignments
+  imposteurLocalState.assignments = players.map((name, i) => {
+    const isImpostor = impostorIndices.has(i);
+    return {
+      name,
+      role: isImpostor ? 'impostor' : 'civil',
+      word: isImpostor ? impostorWord : civilWord
+    };
+  });
+
+  imposteurLocalState.civilWord = civilWord;
+  imposteurLocalState.impostorWord = impostorWord;
+  imposteurLocalState.themeUsedName = themeName;
+  imposteurLocalState.currentIndex = 0;
+  imposteurLocalState.starterName = players[Math.floor(Math.random() * players.length)];
+  imposteurLocalState.eliminated = new Set();
+  imposteurLocalState.suspects = new Set();
+  imposteurLocalState.timerSeconds = 120;
+  stopLocalDebateTimer();
+
+  // Show local game view
+  showView('impLocalGame');
+
+  // Activate Phase 1 (Card flip)
+  document.getElementById('imp-local-phase-card').classList.remove('view-hidden');
+  document.getElementById('imp-local-phase-debate').classList.add('view-hidden');
+  document.getElementById('imp-local-phase-results').classList.add('view-hidden');
+
+  const themeBadge = document.getElementById('imp-local-theme-badge');
+  if (themeBadge) themeBadge.textContent = themeName;
+
+  showLocalPlayerCard(0);
+}
+
+function getThemeReadableName(themeKey) {
+  const names = {
+    general: 'Général',
+    anime: 'Mangas & Animes',
+    jeux_video: 'Jeux Vidéo',
+    films_series: 'Films & Séries',
+    aleatoire: 'Aléatoire'
+  };
+  return names[themeKey] || 'Général';
+}
+
+function showLocalPlayerCard(index) {
+  imposteurLocalState.currentIndex = index;
+  const current = imposteurLocalState.assignments[index];
+  const total = imposteurLocalState.assignments.length;
+
+  const card3d = document.getElementById('imp-local-3d-card');
+  if (card3d) card3d.classList.remove('is-flipped');
+
+  const headerStep = document.getElementById('imp-local-header-step');
+  const playerName = document.getElementById('imp-local-current-player-name');
+  const roleBadge = document.getElementById('imp-local-role-badge');
+  const secretWord = document.getElementById('imp-local-secret-word');
+  const roleTip = document.getElementById('imp-local-role-tip');
+  const btnNext = document.getElementById('btn-imp-local-next-player');
+
+  if (headerStep) headerStep.textContent = `Joueur ${index + 1} / ${total}`;
+  if (playerName) playerName.textContent = current.name;
+
+  if (current.role === 'impostor') {
+    if (roleBadge) {
+      roleBadge.textContent = '🎭 IMPOSTEUR';
+      roleBadge.style.background = 'linear-gradient(135deg, #f43f5e, #e11d48)';
+      roleBadge.style.color = '#fff';
+      roleBadge.style.boxShadow = '0 0 14px rgba(244, 63, 94, 0.4)';
+    }
+    if (secretWord) {
+      secretWord.textContent = current.word;
+      secretWord.style.color = '#fb7185';
+    }
+    if (roleTip) {
+      roleTip.textContent = "Vous avez le mot de l'imposteur ! Donnez un indice subtil pour vous fondre parmi les civils sans vous faire démasquer.";
+    }
+  } else {
+    if (roleBadge) {
+      roleBadge.textContent = '🛡️ CIVIL';
+      roleBadge.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      roleBadge.style.color = '#fff';
+      roleBadge.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.4)';
+    }
+    if (secretWord) {
+      secretWord.textContent = current.word;
+      secretWord.style.color = '#34d399';
+    }
+    if (roleTip) {
+      roleTip.textContent = "Vous avez le vrai mot secret des civils ! Décrivez-le subtilement pour que vos alliés vous reconnaissent sans aider l'imposteur.";
+    }
+  }
+
+  if (btnNext) {
+    if (index === total - 1) {
+      btnNext.innerHTML = '<svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Cacher &amp; Lancer le Débat';
+    } else {
+      btnNext.innerHTML = '<svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Cacher &amp; Joueur suivant';
+    }
+  }
+}
+
+function advanceLocalPlayerStep() {
+  const nextIndex = imposteurLocalState.currentIndex + 1;
+  if (nextIndex < imposteurLocalState.assignments.length) {
+    showLocalPlayerCard(nextIndex);
+  } else {
+    // All players have seen their words -> Start Phase 2: Debate!
+    startLocalDebatePhase();
+  }
+}
+
+function startLocalDebatePhase() {
+  document.getElementById('imp-local-phase-card').classList.add('view-hidden');
+  document.getElementById('imp-local-phase-debate').classList.remove('view-hidden');
+  document.getElementById('imp-local-phase-results').classList.add('view-hidden');
+
+  const headerStep = document.getElementById('imp-local-header-step');
+  if (headerStep) headerStep.textContent = 'Phase de Débat';
+
+  const starterSpan = document.getElementById('imp-local-starter-name');
+  if (starterSpan) starterSpan.textContent = imposteurLocalState.starterName;
+
+  renderLocalDebatePlayersList();
+  imposteurLocalState.timerSeconds = 120;
+  updateLocalTimerDisplay();
+}
+
+function renderLocalDebatePlayersList() {
+  const container = document.getElementById('imp-local-debate-players-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  imposteurLocalState.assignments.forEach((p, idx) => {
+    const item = document.createElement('div');
+    item.className = 'local-debate-player-item';
+    if (imposteurLocalState.eliminated.has(idx)) item.classList.add('is-eliminated');
+    if (imposteurLocalState.suspects.has(idx)) item.classList.add('is-suspect');
+
+    const nameBox = document.createElement('div');
+    nameBox.style.display = 'flex';
+    nameBox.style.alignItems = 'center';
+    nameBox.style.gap = '8px';
+
+    const icon = document.createElement('span');
+    icon.style.fontSize = '15px';
+    icon.textContent = imposteurLocalState.eliminated.has(idx) ? '❌' : (imposteurLocalState.suspects.has(idx) ? '🕵️' : '👤');
+
+    const label = document.createElement('span');
+    label.style.fontWeight = '700';
+    label.style.fontSize = '14px';
+    label.style.color = '#fff';
+    label.textContent = p.name;
+
+    nameBox.appendChild(icon);
+    nameBox.appendChild(label);
+
+    const actionBadge = document.createElement('span');
+    actionBadge.className = 'badge';
+    actionBadge.style.fontSize = '10.5px';
+    if (imposteurLocalState.eliminated.has(idx)) {
+      actionBadge.textContent = 'Éliminé';
+      actionBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+      actionBadge.style.color = '#ef4444';
+    } else if (imposteurLocalState.suspects.has(idx)) {
+      actionBadge.textContent = 'Suspecté';
+      actionBadge.style.background = 'rgba(244, 63, 94, 0.2)';
+      actionBadge.style.color = '#fb7185';
+    } else {
+      actionBadge.textContent = 'En jeu';
+      actionBadge.style.background = 'rgba(255, 255, 255, 0.06)';
+      actionBadge.style.color = 'var(--text-muted)';
+    }
+
+    item.appendChild(nameBox);
+    item.appendChild(actionBadge);
+
+    // Tap to toggle suspect / eliminate
+    item.addEventListener('click', () => {
+      if (!imposteurLocalState.suspects.has(idx) && !imposteurLocalState.eliminated.has(idx)) {
+        imposteurLocalState.suspects.add(idx);
+      } else if (imposteurLocalState.suspects.has(idx)) {
+        imposteurLocalState.suspects.delete(idx);
+        imposteurLocalState.eliminated.add(idx);
+      } else {
+        imposteurLocalState.eliminated.delete(idx);
+      }
+      renderLocalDebatePlayersList();
+    });
+
+    container.appendChild(item);
+  });
+}
+
+function toggleLocalDebateTimer() {
+  const btn = document.getElementById('btn-imp-local-timer-toggle');
+  if (imposteurLocalState.timerRunning) {
+    stopLocalDebateTimer();
+    if (btn) btn.textContent = 'Reprendre';
+  } else {
+    imposteurLocalState.timerRunning = true;
+    if (btn) btn.textContent = 'Pause';
+    imposteurLocalState.timerInterval = setInterval(() => {
+      if (imposteurLocalState.timerSeconds > 0) {
+        imposteurLocalState.timerSeconds--;
+        updateLocalTimerDisplay();
+      } else {
+        stopLocalDebateTimer();
+        if (btn) btn.textContent = 'Temps écoulé !';
+      }
+    }, 1000);
+  }
+}
+
+function stopLocalDebateTimer() {
+  if (imposteurLocalState.timerInterval) {
+    clearInterval(imposteurLocalState.timerInterval);
+    imposteurLocalState.timerInterval = null;
+  }
+  imposteurLocalState.timerRunning = false;
+}
+
+function updateLocalTimerDisplay() {
+  const display = document.getElementById('imp-local-timer-display');
+  if (!display) return;
+  const m = Math.floor(imposteurLocalState.timerSeconds / 60);
+  const s = imposteurLocalState.timerSeconds % 60;
+  display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function showLocalGameResults() {
+  stopLocalDebateTimer();
+  document.getElementById('imp-local-phase-card').classList.add('view-hidden');
+  document.getElementById('imp-local-phase-debate').classList.add('view-hidden');
+  document.getElementById('imp-local-phase-results').classList.remove('view-hidden');
+
+  const headerStep = document.getElementById('imp-local-header-step');
+  if (headerStep) headerStep.textContent = 'Résultats';
+
+  const resCivil = document.getElementById('imp-local-res-civil-word');
+  const resImpostor = document.getElementById('imp-local-res-impostor-word');
+  const resNames = document.getElementById('imp-local-res-impostors-names');
+
+  if (resCivil) resCivil.textContent = imposteurLocalState.civilWord;
+  if (resImpostor) resImpostor.textContent = imposteurLocalState.impostorWord;
+
+  const impostorNames = imposteurLocalState.assignments
+    .filter(a => a.role === 'impostor')
+    .map(a => a.name);
+
+  if (resNames) {
+    resNames.textContent = impostorNames.join(' & ');
+  }
 }
 
 // --- L'Imposteur Client Logic ---

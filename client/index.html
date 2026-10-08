@@ -618,7 +618,20 @@
     <p>Identifiez l'intrus masqué parmi les joueurs dans des joutes verbales chaotiques.</p>
    </div>
 
-   <div class="menu-inputs">
+   <!-- Mode Switcher Tabs -->
+   <div class="imp-mode-switcher-tabs">
+    <button type="button" id="btn-imp-mode-online" class="imp-mode-tab-btn active">
+     <svg class="inline-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+     En Ligne
+    </button>
+    <button type="button" id="btn-imp-mode-local" class="imp-mode-tab-btn">
+     <svg class="inline-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+     En Présentiel (1 Tél)
+    </button>
+   </div>
+
+   <!-- ONLINE CONFIG SECTION -->
+   <div id="imposteur-online-config-box" class="menu-inputs">
     <div class="input-group menu-pseudo-group" id="imposteur-pseudo-group">
      <label for="imposteur-player-nickname">Votre pseudo temporaire</label>
      <div class="pseudo-input-wrapper">
@@ -638,6 +651,63 @@
      </div>
     </div>
    </div>
+
+   <!-- LOCAL / PRESENTIEL CONFIG SECTION -->
+   <div id="imposteur-local-config-box" class="menu-inputs view-hidden">
+    <div class="lobby-grid-2cols" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+     <div class="input-group">
+      <label for="imp-local-theme-select">Thème</label>
+      <div class="theme-select-wrapper">
+       <select id="imp-local-theme-select" class="theme-select">
+        <option value="aleatoire">🎲 Aléatoire (Tous thèmes)</option>
+        <option value="general">Général (Objets, Animaux...)</option>
+        <option value="anime">Mangas &amp; Animes (Naruto, DBZ...)</option>
+        <option value="jeux_video">Jeux Vidéo (Mario, Zelda...)</option>
+        <option value="films_series">Films &amp; Séries (HP, Marvel...)</option>
+       </select>
+      </div>
+     </div>
+
+     <div class="input-group">
+      <label for="imp-local-impostors-count">Imposteurs</label>
+      <div class="theme-select-wrapper">
+       <select id="imp-local-impostors-count" class="theme-select">
+        <option value="1" selected>1 Imposteur</option>
+        <option value="2">2 Imposteurs (dès 5 j.)</option>
+       </select>
+      </div>
+     </div>
+    </div>
+
+    <!-- Stepper Number of Players -->
+    <div class="input-group" style="margin-bottom: 14px;">
+     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <label style="margin: 0;">Nombre de Joueurs</label>
+      <span id="imp-local-player-count-badge" class="badge badge-accent" style="font-size: 11px;">4 Joueurs</span>
+     </div>
+     <div class="stepper-wrapper" style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" id="btn-imp-local-sub-player" class="btn btn-secondary" style="padding: 0.6rem 1.1rem; font-size: 17px; font-weight: 900;">-</button>
+      <div style="flex: 1; text-align: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.6rem; font-weight: 800; font-family: var(--font-display); font-size: 15px;" id="imp-local-count-text">4 Joueurs</div>
+      <button type="button" id="btn-imp-local-add-player" class="btn btn-secondary" style="padding: 0.6rem 1.1rem; font-size: 17px; font-weight: 900;">+</button>
+     </div>
+    </div>
+
+    <!-- Dynamic Player Nicknames List -->
+    <div class="input-group">
+     <label style="margin-bottom: 6px; display: block;">Pseudos des Joueurs</label>
+     <div id="imp-local-players-inputs-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 4px;">
+      <!-- Generated dynamically via JS -->
+     </div>
+    </div>
+
+    <div class="menu-actions" style="margin-top: 1.25rem;">
+     <button id="btn-imp-local-start" class="btn btn-accent btn-large btn-block" style="box-shadow: 0 4px 20px rgba(244, 63, 94, 0.4);">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      Lancer la partie en présentiel
+     </button>
+    </div>
+   </div>
+
    <div id="imposteur-menu-error" class="error-msg" style="display: none;"></div>
   </div>
  </section>
@@ -1619,8 +1689,155 @@
   </div>
  </main>
 
- <!-- 6. GEOGRAPHIE GAME VIEW -->
- <main class="app-container view-hidden" id="geographie-game-view">
+  <!-- 5.5. IMPOSTEUR LOCAL PRESENTIEL GAME VIEW -->
+  <main class="app-container view-hidden" id="imposteur-local-game-view">
+   <div class="imposteur-layout" style="max-width: 680px; margin: 0 auto; width: 100%;">
+    
+    <!-- Top Navigation & Progress Header -->
+    <div class="glass-panel" style="padding: 0.85rem 1.25rem; border-radius: 14px; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;">
+     <button class="btn btn-secondary" id="btn-imp-local-quit" style="padding: 0.4rem 0.8rem; font-size: 12px; gap: 4px;">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Menu
+     </button>
+     
+     <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <span class="badge badge-accent" style="font-size: 10.5px; padding: 2px 8px;">Mode Présentiel (1 Tél)</span>
+      <span id="imp-local-header-step" style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); margin-top: 2px;">Joueur 1 / 4</span>
+     </div>
+
+     <div style="min-width: 60px; text-align: right;">
+      <span id="imp-local-theme-badge" class="badge" style="background: rgba(255,255,255,0.06); font-size: 10px;">Général</span>
+     </div>
+    </div>
+
+    <!-- PHASE 1: PASS-THE-PHONE & SECRET CARD FLIP -->
+    <section id="imp-local-phase-card" class="glass-panel imposteur-panel text-center" style="padding: 1.75rem 1.25rem; width: 100%;">
+     
+     <div class="local-pass-banner" style="margin-bottom: 1.25rem;">
+      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px;">📱 Passe le téléphone à</div>
+      <h2 id="imp-local-current-player-name" class="text-gradient" style="font-size: 28px; font-weight: 900; margin: 0;">Joueur 1</h2>
+      <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px;">Assurez-vous que les autres joueurs ne regardent pas l'écran !</p>
+     </div>
+
+     <!-- 3D Card Flip Container -->
+     <div class="imp-3d-card-wrapper" style="perspective: 1000px; margin: 1.5rem auto; max-width: 380px; min-height: 260px; width: 100%;">
+      <div id="imp-local-3d-card" class="imp-3d-card" style="width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); min-height: 260px; cursor: pointer;">
+       
+       <!-- FRONT FACE (LOCKED / HIDDEN) -->
+       <div class="imp-card-face imp-card-front glass-panel" style="position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; border-radius: 18px; border: 2px dashed rgba(244, 63, 94, 0.4); background: radial-gradient(circle at center, rgba(244, 63, 94, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%);">
+        <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(244, 63, 94, 0.2); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; color: #fb7185;">
+         <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;">C'est bien toi ?</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 1rem;">Touche la carte pour découvrir ton rôle et ton mot</div>
+        <button type="button" id="btn-imp-local-flip" class="btn btn-accent" style="padding: 0.6rem 1.4rem; font-size: 13.5px; border-radius: 9999px;">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+         Voir mon mot secret
+        </button>
+       </div>
+
+       <!-- BACK FACE (REVEALED ROLE & WORD) -->
+       <div class="imp-card-face imp-card-back glass-panel" style="position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.15); background: radial-gradient(circle at center, rgba(30, 41, 59, 0.9) 0%, rgba(10, 15, 30, 0.98) 100%);">
+        <span id="imp-local-role-badge" class="badge" style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 12px; border-radius: 6px; margin-bottom: 8px;">Civil</span>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Votre mot secret :</div>
+        <div id="imp-local-secret-word" style="font-size: 28px; font-weight: 900; color: #fff; margin: 8px 0; font-family: var(--font-display); letter-spacing: -0.02em; text-shadow: 0 0 20px rgba(255,255,255,0.3);">------</div>
+        <p id="imp-local-role-tip" style="font-size: 11.5px; color: rgba(255,255,255,0.7); max-width: 280px; margin-bottom: 1.25rem;">Décrivez ce mot sans vous faire repérer par l'imposteur !</p>
+        
+        <button type="button" id="btn-imp-local-next-player" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-size: 13.5px; border-radius: 9999px; background: linear-gradient(135deg, #10b981, #059669);">
+         <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+         Cacher &amp; Joueur suivant
+        </button>
+       </div>
+
+      </div>
+     </div>
+    </section>
+
+    <!-- PHASE 2: PLACE AU DÉBAT ET AU VOTE -->
+    <section id="imp-local-phase-debate" class="glass-panel imposteur-panel view-hidden" style="padding: 1.75rem 1.25rem; width: 100%;">
+     <div class="text-center" style="margin-bottom: 1.25rem;">
+      <div style="font-size: 36px; margin-bottom: 6px;">🗣️</div>
+      <h2 class="text-gradient" style="font-size: 24px; font-weight: 900; margin-bottom: 4px;">Place au Débat !</h2>
+      <p style="font-size: 13px; color: rgba(255,255,255,0.7);">Tous les joueurs ont pris connaissance de leur rôle.</p>
+     </div>
+
+     <!-- Starter Spotlight Box -->
+     <div class="glass-panel" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 12px;">
+      <div style="font-size: 24px;">🎲</div>
+      <div>
+       <div style="font-size: 11px; text-transform: uppercase; color: #fb7185; font-weight: 700; letter-spacing: 0.05em;">Premier tour de table</div>
+       <div style="font-size: 15px; font-weight: 800; color: #fff;"><span id="imp-local-starter-name">Joueur 1</span> commence à donner son indice !</div>
+      </div>
+     </div>
+
+     <!-- Interactive Debate Timer -->
+     <div class="glass-panel" style="background: rgba(0,0,0,0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: center;">
+      <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Chronomètre de discussion</div>
+      <div id="imp-local-timer-display" style="font-family: var(--font-mono); font-size: 32px; font-weight: 900; color: #38bdf8;">02:00</div>
+      <div style="display: flex; justify-content: center; gap: 8px; margin-top: 8px;">
+       <button type="button" id="btn-imp-local-timer-toggle" class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 12px;">Démarrer</button>
+       <button type="button" id="btn-imp-local-timer-add" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 12px;">+30s</button>
+       <button type="button" id="btn-imp-local-timer-reset" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 12px;">Reset</button>
+      </div>
+     </div>
+
+     <!-- Players Roster Interactive Grid -->
+     <div class="input-group" style="margin-bottom: 1.25rem;">
+      <label style="display: block; margin-bottom: 8px; font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Joueurs dans la partie :</label>
+      <div id="imp-local-debate-players-list" style="display: flex; flex-direction: column; gap: 6px;">
+       <!-- Generated dynamically -->
+      </div>
+     </div>
+
+     <!-- Final Reveal Button -->
+     <button type="button" id="btn-imp-local-reveal-all" class="btn btn-accent btn-large btn-block" style="box-shadow: 0 4px 20px rgba(244, 63, 94, 0.4);">
+      <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      Révéler les imposteurs &amp; les mots
+     </button>
+    </section>
+
+    <!-- PHASE 3: FINAL REVEAL & REPLAY PANEL -->
+    <section id="imp-local-phase-results" class="glass-panel imposteur-panel view-hidden text-center" style="padding: 1.75rem 1.25rem; width: 100%;">
+     <div style="font-size: 42px; margin-bottom: 8px;">🎭</div>
+     <h2 class="text-gradient" style="font-size: 26px; font-weight: 900; margin-bottom: 4px;">Dénouement de la partie</h2>
+     <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem;">Voici les rôles et mots secrets de cette manche :</p>
+
+     <!-- Words Comparison Box -->
+     <div class="glass-panel" style="background: rgba(0,0,0,0.3); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+       <span style="font-size: 13px; color: var(--text-muted);">Mot des Civils :</span>
+       <strong id="imp-local-res-civil-word" style="font-size: 16px; color: #34d399; font-weight: 800;">------</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px;">
+       <span style="font-size: 13px; color: var(--text-muted);">Mot de l'Imposteur :</span>
+       <strong id="imp-local-res-impostor-word" style="font-size: 16px; color: #fb7185; font-weight: 800;">------</strong>
+      </div>
+     </div>
+
+     <!-- Impostor Identification -->
+     <div class="glass-panel" style="background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 14px; padding: 1rem; margin-bottom: 1.5rem;">
+      <div style="font-size: 11px; text-transform: uppercase; color: #fb7185; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 4px;">L'imposteur était :</div>
+      <div id="imp-local-res-impostors-names" style="font-size: 20px; font-weight: 900; color: #fff;">------</div>
+     </div>
+
+     <!-- Replay Actions -->
+     <div style="display: flex; flex-direction: column; gap: 10px;">
+      <button type="button" id="btn-imp-local-replay-same" class="btn btn-accent btn-large btn-block">
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+       Rejouer (Mêmes joueurs, nouveaux rôles)
+      </button>
+
+      <button type="button" id="btn-imp-local-back-config" class="btn btn-secondary btn-block">
+       Modifier les joueurs / paramètres
+      </button>
+     </div>
+    </section>
+
+   </div>
+  </main>
+
+  <!-- 6. GEOGRAPHIE GAME VIEW -->
+  <main class="app-container view-hidden" id="geographie-game-view">
   <div class="imposteur-layout">
    
    <!-- Left: Game Actions / Questions / Correction -->
@@ -3081,7 +3298,8 @@
  </div>
 
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
+ <script src="imposteur-words.js?v=20261008"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20260828_graouu_lobby_restored_v15"></script>
+ <script src="app.js?v=20261008_presentiel_v1"></script>
 </body>
 </html>
