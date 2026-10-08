@@ -1999,16 +1999,65 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ error: `Il faut au moins ${minPlayers} joueurs pour lancer une partie avec ${impCount} imposteur(s) !` }));
         }
         
-        const pairs = IMPOSTEUR_WORDS[theme] || IMPOSTEUR_WORDS.general;
-        const pair = pairs[Math.floor(Math.random() * pairs.length)];
-        
-        // True random selection of N unique impostor names
-        const shuffledForImpostors = [...playersList];
-        for (let i = shuffledForImpostors.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffledForImpostors[i], shuffledForImpostors[j]] = [shuffledForImpostors[j], shuffledForImpostors[i]];
+        // Anti-streak and fair rotation tracking
+        room.impostorHistory = room.impostorHistory || {};
+        room.lastImpostors = room.lastImpostors || [];
+        room.usedWordPairs = room.usedWordPairs || [];
+
+        // 1. Pick random word pair with session anti-repetition
+        const allPairs = IMPOSTEUR_WORDS[theme] || IMPOSTEUR_WORDS.general;
+        let availablePairs = allPairs.filter(p => !room.usedWordPairs.includes(`${p.civil}::${p.impostor}`));
+        if (availablePairs.length === 0) {
+          room.usedWordPairs = [];
+          availablePairs = allPairs;
         }
-        const impostorNames = shuffledForImpostors.slice(0, impCount);
+        const pair = availablePairs[Math.floor(Math.random() * availablePairs.length)] || allPairs[0];
+        room.usedWordPairs.push(`${pair.civil}::${pair.impostor}`);
+        
+        // 2. Fair Impostor Selection (No back-to-back repeats & balanced rotation)
+        let candidates = playersList.filter(name => !room.lastImpostors.includes(name));
+        if (candidates.length < impCount) {
+          candidates = [...playersList];
+        }
+
+        const buckets = {};
+        candidates.forEach(name => {
+          const count = room.impostorHistory[name] || 0;
+          if (!buckets[count]) buckets[count] = [];
+          buckets[count].push(name);
+        });
+
+        const sortedCounts = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+        const impostorNames = [];
+
+        for (const count of sortedCounts) {
+          const bucket = [...buckets[count]];
+          for (let i = bucket.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [bucket[i], bucket[j]] = [bucket[j], bucket[i]];
+          }
+          while (bucket.length > 0 && impostorNames.length < impCount) {
+            impostorNames.push(bucket.pop());
+          }
+          if (impostorNames.length >= impCount) break;
+        }
+
+        if (impostorNames.length < impCount) {
+          const remaining = playersList.filter(n => !impostorNames.includes(n));
+          for (let i = remaining.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+          }
+          while (remaining.length > 0 && impostorNames.length < impCount) {
+            impostorNames.push(remaining.pop());
+          }
+        }
+
+        // Update room impostor history
+        room.lastImpostors = [...impostorNames];
+        impostorNames.forEach(name => {
+          room.impostorHistory[name] = (room.impostorHistory[name] || 0) + 1;
+        });
         
         // Randomly swap civil and impostor roles
         const shouldSwap = Math.random() < 0.5;

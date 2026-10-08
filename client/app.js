@@ -4347,7 +4347,12 @@ const imposteurLocalState = {
   timerInterval: null,
   timerRunning: false,
   eliminated: new Set(),
-  suspects: new Set()
+  suspects: new Set(),
+  // Anti-streak and fair rotation tracking
+  impostorHistory: {}, // { playerName: count }
+  lastImpostors: [],   // [playerName, ...]
+  lastStarter: null,
+  usedWordPairs: []
 };
 
 function initImposteurLocalMode() {
@@ -4574,6 +4579,62 @@ function renderLocalPlayerInputs() {
   });
 }
 
+function getSecureLocalRandomInt(max) {
+  if (max <= 0) return 0;
+  if (window.crypto && window.crypto.getRandomValues) {
+    const arr = new Uint32Array(1);
+    window.crypto.getRandomValues(arr);
+    return arr[0] % max;
+  }
+  return Math.floor(Math.random() * max);
+}
+
+function secureLocalShuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = getSecureLocalRandomInt(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function selectFairLocalImpostors(playersList, impCount, historyMap, lastImpostorsList) {
+  // 1. Exclude players who were impostor in the previous game if enough other players exist
+  let candidates = playersList.filter(p => !lastImpostorsList.includes(p));
+  if (candidates.length < impCount) {
+    candidates = [...playersList];
+  }
+
+  // 2. Group candidates by how many times they have been impostor (least times first)
+  const buckets = {};
+  candidates.forEach(p => {
+    const count = historyMap[p] || 0;
+    if (!buckets[count]) buckets[count] = [];
+    buckets[count].push(p);
+  });
+
+  const sortedCounts = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+  const selected = [];
+
+  for (const count of sortedCounts) {
+    const bucket = secureLocalShuffle(buckets[count]);
+    while (bucket.length > 0 && selected.length < impCount) {
+      selected.push(bucket.pop());
+    }
+    if (selected.length >= impCount) break;
+  }
+
+  // Fallback if needed
+  if (selected.length < impCount) {
+    const remaining = secureLocalShuffle(playersList.filter(p => !selected.includes(p)));
+    while (remaining.length > 0 && selected.length < impCount) {
+      selected.push(remaining.pop());
+    }
+  }
+
+  return selected;
+}
+
 function startImposteurLocalGame() {
   const players = imposteurLocalState.players.map((p, i) => (p && p.trim()) ? p.trim() : `Joueur ${i + 1}`);
   if (players.length < 3) {
@@ -4588,14 +4649,14 @@ function startImposteurLocalGame() {
 
   const impCount = Math.min(imposteurLocalState.impostorCount || 1, players.length >= 5 ? 2 : 1);
 
-  // Pick random word pair
+  // Pick random word pair with anti-repetition
   const wordsData = window.IMPOSTEUR_WORDS || {};
   let pool = [];
   let themeName = 'Général';
 
   if (imposteurLocalState.theme === 'aleatoire') {
     const allThemes = Object.keys(wordsData);
-    const randTheme = allThemes[Math.floor(Math.random() * allThemes.length)] || 'general';
+    const randTheme = allThemes[getSecureLocalRandomInt(allThemes.length)] || 'general';
     pool = wordsData[randTheme] || wordsData.general;
     themeName = getThemeReadableName(randTheme);
   } else {
@@ -4607,24 +4668,44 @@ function startImposteurLocalGame() {
     pool = [{ civil: 'Café', impostor: 'Thé' }];
   }
 
-  const chosenPair = pool[Math.floor(Math.random() * pool.length)];
+  // Filter out recently used pairs
+  imposteurLocalState.usedWordPairs = imposteurLocalState.usedWordPairs || [];
+  let availablePairs = pool.filter(p => !imposteurLocalState.usedWordPairs.includes(`${p.civil}::${p.impostor}`));
+  if (availablePairs.length === 0) {
+    imposteurLocalState.usedWordPairs = [];
+    availablePairs = pool;
+  }
+
+  const chosenPair = availablePairs[getSecureLocalRandomInt(availablePairs.length)] || pool[0];
+  imposteurLocalState.usedWordPairs.push(`${chosenPair.civil}::${chosenPair.impostor}`);
+
   // 50% chance to swap civil and impostor words
-  const swap = Math.random() < 0.5;
+  const swap = getSecureLocalRandomInt(2) === 1;
   const civilWord = swap ? chosenPair.impostor : chosenPair.civil;
   const impostorWord = swap ? chosenPair.civil : chosenPair.impostor;
 
-  // Pick random impostors
-  const indices = players.map((_, i) => i);
-  // Shuffle indices
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  const impostorIndices = new Set(indices.slice(0, impCount));
+  // Fair Impostor Selection (No back-to-back repeats & balanced rotation)
+  imposteurLocalState.impostorHistory = imposteurLocalState.impostorHistory || {};
+  imposteurLocalState.lastImpostors = imposteurLocalState.lastImpostors || [];
+
+  const chosenImpostorNames = selectFairLocalImpostors(
+    players,
+    impCount,
+    imposteurLocalState.impostorHistory,
+    imposteurLocalState.lastImpostors
+  );
+
+  // Update history & last impostors
+  imposteurLocalState.lastImpostors = [...chosenImpostorNames];
+  chosenImpostorNames.forEach(name => {
+    imposteurLocalState.impostorHistory[name] = (imposteurLocalState.impostorHistory[name] || 0) + 1;
+  });
+
+  const chosenImpostorsSet = new Set(chosenImpostorNames);
 
   // Build assignments
-  imposteurLocalState.assignments = players.map((name, i) => {
-    const isImpostor = impostorIndices.has(i);
+  imposteurLocalState.assignments = players.map(name => {
+    const isImpostor = chosenImpostorsSet.has(name);
     return {
       name,
       role: isImpostor ? 'impostor' : 'civil',
@@ -4632,11 +4713,17 @@ function startImposteurLocalGame() {
     };
   });
 
+  // Pick starter player (rotating, avoiding last starter)
+  let starterCandidates = players.filter(p => p !== imposteurLocalState.lastStarter);
+  if (starterCandidates.length === 0) starterCandidates = [...players];
+  const chosenStarter = starterCandidates[getSecureLocalRandomInt(starterCandidates.length)];
+  imposteurLocalState.lastStarter = chosenStarter;
+
   imposteurLocalState.civilWord = civilWord;
   imposteurLocalState.impostorWord = impostorWord;
   imposteurLocalState.themeUsedName = themeName;
   imposteurLocalState.currentIndex = 0;
-  imposteurLocalState.starterName = players[Math.floor(Math.random() * players.length)];
+  imposteurLocalState.starterName = chosenStarter;
   imposteurLocalState.eliminated = new Set();
   imposteurLocalState.suspects = new Set();
   imposteurLocalState.timerSeconds = 120;
