@@ -445,22 +445,35 @@ const IMPOSTEUR_WORDS = {
   anime: [
     // Dragon Ball
     { civil: 'Son Goku', impostor: 'Végéta' },
-    { civil: 'Son Gohan', impostor: 'Trunks' },
+    { civil: 'Son Gohan', impostor: 'Trunks du Futur' },
     { civil: 'Piccolo', impostor: 'Kamé Sennin' },
     { civil: 'Freezer', impostor: 'Cell' },
     { civil: 'Krilin', impostor: 'Yamcha' },
     { civil: 'Majin Bou', impostor: 'Kid Bou' },
     { civil: 'Bardock', impostor: 'Broly' },
+    { civil: 'Beerus', impostor: 'Whis' },
+    { civil: 'Gogeta', impostor: 'Vegetto' },
+    { civil: 'Son Goten', impostor: 'Trunks' },
+    { civil: 'C-17', impostor: 'C-18' },
+    { civil: 'Raditz', impostor: 'Nappa' },
 
     // Naruto
     { civil: 'Naruto Uzumaki', impostor: 'Sasuke Uchiha' },
     { civil: 'Kakashi Hatake', impostor: 'Obito Uchiha' },
-    { civil: 'Itachi Uchiha', impostor: 'Sasuke Uchiha' },
+    { civil: 'Itachi Uchiha', impostor: 'Madara Uchiha' },
     { civil: 'Jiraiya', impostor: 'Orochimaru' },
+    { civil: 'Tsunade', impostor: 'Orochimaru' },
     { civil: 'Gaara', impostor: 'Kankurô' },
     { civil: 'Minato Namikaze', impostor: 'Tobirama Senju' },
+    { civil: 'Hashirama Senju', impostor: 'Madara Uchiha' },
     { civil: 'Hinata Hyûga', impostor: 'Sakura Haruno' },
     { civil: 'Shikamaru Nara', impostor: 'Chôji Akimichi' },
+    { civil: 'Rock Lee', impostor: 'Neji Hyûga' },
+    { civil: 'Pain (Nagato)', impostor: 'Konan' },
+    { civil: 'Deidara', impostor: 'Sasori' },
+    { civil: 'Hidan', impostor: 'Kakuzu' },
+    { civil: 'Zabuza Momochi', impostor: 'Haku' },
+    { civil: 'Kabuto Yakushi', impostor: 'Orochimaru' },
 
     // One Piece
     { civil: 'Monkey D. Luffy', impostor: 'Roronoa Zoro' },
@@ -470,28 +483,34 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Nami', impostor: 'Nico Robin' },
     { civil: 'Tony-Tony Chopper', impostor: 'Usopp' },
     { civil: 'Brook', impostor: 'Franky' },
+    { civil: 'Jinbe', impostor: 'Franky' },
     { civil: 'Kaido', impostor: 'Big Mom' },
     { civil: 'Gold Roger', impostor: 'Barbe Blanche' },
+    { civil: 'Trafalgar D. Water Law', impostor: 'Eustass Captain Kid' },
+    { civil: 'Barbe Noire', impostor: 'Doflamingo' },
+    { civil: 'Katakuri', impostor: 'King' },
+    { civil: 'Akainu (Sakazuki)', impostor: 'Aokiji (Kuzan)' },
+    { civil: 'Kizaru (Borsalino)', impostor: 'Fujitora (Issho)' },
+    { civil: 'Crocodile', impostor: 'Rob Lucci' },
+    { civil: 'Boa Hancock', impostor: 'Yamato' },
+    { civil: 'Smoker', impostor: 'Tashigi' },
 
     // Death Note
     { civil: 'Light Yagami', impostor: 'L (Ryuzaki)' },
     { civil: 'Near', impostor: 'Mello' },
     { civil: 'Misa Amane', impostor: 'Kiyomi Takada' },
     { civil: 'Ryuk', impostor: 'Rem' },
+    { civil: 'Soichiro Yagami', impostor: 'Touta Matsuda' },
 
     // Hunter x Hunter
     { civil: 'Gon Freecss', impostor: 'Killua Zoldyck' },
     { civil: 'Kurapika', impostor: 'Leorio Paradinight' },
     { civil: 'Hisoka Morow', impostor: 'Illumi Zoldyck' },
-    { civil: 'Netero', impostor: 'Meruem' },
+    { civil: 'Isaac Netero', impostor: 'Meruem' },
     { civil: 'Chrollo Lucilfer', impostor: 'Feitan Portor' },
-
-    // My Hero Academia
-    { civil: 'Izuku Midoriya', impostor: 'Katsuki Bakugo' },
-    { civil: 'Shoto Todoroki', impostor: 'Eijiro Kirishima' },
-    { civil: 'All Might', impostor: 'Endeavor' },
-    { civil: 'Tomura Shigaraki', impostor: 'Dabi' },
-    { civil: 'Ochaco Uraraka', impostor: 'Tsuyu Asui' },
+    { civil: 'Neferupito (Pitou)', impostor: 'Shaiapouf (Pouf)' },
+    { civil: 'Ging Freecss', impostor: 'Kite (Kaito)' },
+    { civil: 'Silva Zoldyck', impostor: 'Zeno Zoldyck' },
 
     // Jujutsu Kaisen
     { civil: 'Yuji Itadori', impostor: 'Megumi Fushiguro' },
@@ -500,6 +519,9 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Nobara Kugisaki', impostor: 'Maki Zen\'in' },
     { civil: 'Kento Nanami', impostor: 'Aoi Todo' },
     { civil: 'Yuta Okkotsu', impostor: 'Toge Inumaki' },
+    { civil: 'Toji Fushiguro', impostor: 'Naoya Zen\'in' },
+    { civil: 'Choso', impostor: 'Kenjaku' },
+    { civil: 'Panda', impostor: 'Toge Inumaki' },
 
     // Demon Slayer
     { civil: 'Tanjiro Kamado', impostor: 'Zenitsu Agatsuma' },
@@ -508,6 +530,10 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Kyojuro Rengoku', impostor: 'Giyu Tomioka' },
     { civil: 'Muzan Kibutsuji', impostor: 'Kokushibo' },
     { civil: 'Shinobu Kocho', impostor: 'Mitsuri Kanroji' },
+    { civil: 'Tengen Uzui', impostor: 'Muichiro Tokito' },
+    { civil: 'Sanemi Shinazugawa', impostor: 'Genya Shinazugawa' },
+    { civil: 'Akaza', impostor: 'Doma' },
+    { civil: 'Gyutaro', impostor: 'Daki' },
 
     // Attack on Titan
     { civil: 'Eren Jäger', impostor: 'Armin Arlert' },
@@ -515,6 +541,10 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Mikasa Ackerman', impostor: 'Annie Leonhart' },
     { civil: 'Reiner Braun', impostor: 'Bertholdt Hoover' },
     { civil: 'Sasha Blouse', impostor: 'Conny Springer' },
+    { civil: 'Zeke Jäger', impostor: 'Eren Jäger' },
+    { civil: 'Jean Kirschtein', impostor: 'Marco Bott' },
+    { civil: 'Hansi Zoe', impostor: 'Erwin Smith' },
+    { civil: 'Ymir', impostor: 'Historia Reiss' },
 
     // Bleach
     { civil: 'Ichigo Kurosaki', impostor: 'Uryu Ishida' },
@@ -522,210 +552,594 @@ const IMPOSTEUR_WORDS = {
     { civil: 'Sousuke Aizen', impostor: 'Kisuke Urahara' },
     { civil: 'Toshiro Hitsugaya', impostor: 'Byakuya Kuchiki' },
     { civil: 'Kenpachi Zaraki', impostor: 'Renji Abarai' },
+    { civil: 'Grimmjow Jaggerjack', impostor: 'Ulquiorra Cifer' },
+    { civil: 'Gin Ichimaru', impostor: 'Kaname Tosen' },
+    { civil: 'Genryusai Yamamoto', impostor: 'Shunsui Kyoraku' },
 
     // Fullmetal Alchemist
     { civil: 'Edward Elric', impostor: 'Alphonse Elric' },
     { civil: 'Roy Mustang', impostor: 'Riza Hawkeye' },
     { civil: 'Scar', impostor: 'King Bradley' },
+    { civil: 'Envy (Envie)', impostor: 'Greed (Avarice)' },
+    { civil: 'Winry Rockbell', impostor: 'Ling Yao' },
 
     // Chainsaw Man
     { civil: 'Denji', impostor: 'Aki Hayakawa' },
     { civil: 'Power', impostor: 'Makima' },
     { civil: 'Reze', impostor: 'Himeno' },
-
-    // Fairy Tail
-    { civil: 'Natsu Dragneel', impostor: 'Gray Fullbuster' },
-    { civil: 'Lucy Heartfilia', impostor: 'Erza Scarlet' },
-    { civil: 'Happy', impostor: 'Carla' },
-    { civil: 'Gajeel Redfox', impostor: 'Laxus Dreyar' },
-
-    // Neon Genesis Evangelion
-    { civil: 'Shinji Ikari', impostor: 'Asuka Langley Soryu' },
-    { civil: 'Rei Ayanami', impostor: 'Mari Makinami' },
-    { civil: 'Misato Katsuragi', impostor: 'Ritsuko Akagi' },
-
-    // Solo Leveling
-    { civil: 'Sung Jinwoo', impostor: 'Cha Hae-in' },
-    { civil: 'Yoo Jinho', impostor: 'Woo Jinchul' },
+    { civil: 'Kishibe', impostor: 'Kobeni' },
+    { civil: 'Pochita', impostor: 'Beam' },
 
     // One Punch Man
     { civil: 'Saitama', impostor: 'Genos' },
     { civil: 'Tatsumaki', impostor: 'Fubuki' },
     { civil: 'Garou', impostor: 'Bang' },
     { civil: 'King', impostor: 'Mumen Rider' },
+    { civil: 'Speed-o\'-Sound Sonic', impostor: 'Flashy Flash' },
 
-    // Tokyo Ghoul
-    { civil: 'Ken Kaneki', impostor: 'Touka Kirishima' },
-    { civil: 'Shu Tsukiyama', impostor: 'Koutarou Amon' },
+    // My Hero Academia
+    { civil: 'Izuku Midoriya', impostor: 'Katsuki Bakugo' },
+    { civil: 'Shoto Todoroki', impostor: 'Eijiro Kirishima' },
+    { civil: 'All Might', impostor: 'Endeavor' },
+    { civil: 'Tomura Shigaraki', impostor: 'Dabi' },
+    { civil: 'Ochaco Uraraka', impostor: 'Tsuyu Asui' },
+    { civil: 'Eraser Head (Aizawa)', impostor: 'Present Mic' },
+    { civil: 'Hawks', impostor: 'Mirko' },
+    { civil: 'Himiko Toga', impostor: 'Twice' },
 
-    // Black Clover
-    { civil: 'Asta', impostor: 'Yuno' },
-    { civil: 'Noelle Silva', impostor: 'Yami Sukehiro' },
+    // Blue Lock & Haikyu!!
+    { civil: 'Yoichi Isagi', impostor: 'Meguru Bachira' },
+    { civil: 'Rin Itoshi', impostor: 'Sae Itoshi' },
+    { civil: 'Seishiro Nagi', impostor: 'Reo Mikage' },
+    { civil: 'Hyoma Chigiri', impostor: 'Rensuke Kunigami' },
+    { civil: 'Shoyo Hinata', impostor: 'Tobio Kageyama' },
+    { civil: 'Kei Tsukishima', impostor: 'Tadashi Yamaguchi' },
+    { civil: 'Kenma Kozume', impostor: 'Tetsuro Kuroo' },
+    { civil: 'Toru Oikawa', impostor: 'Hajime Iwaizumi' },
 
-    // Code Geass
-    { civil: 'Lelouch vi Britannia', impostor: 'Suzaku Kururugi' },
-    { civil: 'C.C.', impostor: 'Kallen Stadtfeld' },
-
-    // Sword Art Online
-    { civil: 'Kirito (Kazuto Kirigaya)', impostor: 'Asuna Yuuki' },
-    { civil: 'Sinon (Shino Asada)', impostor: 'Leafa (Suguha Kirigaya)' },
-
-    // Steins;Gate
-    { civil: 'Okabe Rintarou', impostor: 'Makise Kurisu' },
-    { civil: 'Hashida Itaru', impostor: 'Shiina Mayuri' },
-
-    // Assassination Classroom
-    { civil: 'Koro-sensei', impostor: 'Nagisa Shiota' },
-    { civil: 'Karma Akabane', impostor: 'Nagisa Shiota' },
-
-    // Mob Psycho 100
-    { civil: 'Shigeo Kageyama (Mob)', impostor: 'Arataka Reigen' },
-    { civil: 'Ritsu Kageyama', impostor: 'Teruki Hanazawa' },
-
-    // Vinland Saga
-    { civil: 'Thorfinn', impostor: 'Askeladd' },
-    { civil: 'Canute', impostor: 'Thorkell' },
-
-    // JoJo's Bizarre Adventure
+    // Solo Leveling, JoJo & Autres
+    { civil: 'Sung Jinwoo', impostor: 'Cha Hae-in' },
+    { civil: 'Yoo Jinho', impostor: 'Woo Jinchul' },
+    { civil: 'Igris', impostor: 'Beru' },
     { civil: 'Jotaro Kujo', impostor: 'Dio Brando' },
     { civil: 'Jonathan Joestar', impostor: 'Joseph Joestar' },
     { civil: 'Josuke Higashikata', impostor: 'Giorno Giovanna' },
     { civil: 'Kakyoin Noriaki', impostor: 'Polnareff' },
-
-    // Cyberpunk Edgerunners
-    { civil: 'David Martinez', impostor: 'Lucy' },
-    { civil: 'Rebecca', impostor: 'Maine' },
-
-    // Seven Deadly Sins
-    { civil: 'Meliodas', impostor: 'Zeldris' },
-    { civil: 'Ban', impostor: 'King' },
-    { civil: 'Escanor', impostor: 'Merlin' },
-
-    // Blue Lock
-    { civil: 'Yoichi Isagi', impostor: 'Meguru Bachira' },
-    { civil: 'Rin Itoshi', impostor: 'Sae Itoshi' },
-    { civil: 'Seishiro Nagi', impostor: 'Reo Mikage' },
-
-    // Haikyu!!
-    { civil: 'Shoyo Hinata', impostor: 'Tobio Kageyama' },
-    { civil: 'Kei Tsukishima', impostor: 'Tadashi Yamaguchi' },
-    { civil: 'Kenma Kozume', impostor: 'Tetsuro Kuroo' },
-
-    // Spy x Family
     { civil: 'Loid Forger', impostor: 'Yor Forger' },
     { civil: 'Anya Forger', impostor: 'Bond Forger' },
+    { civil: 'David Martinez', impostor: 'Lucy' },
+    { civil: 'Rebecca', impostor: 'Maine' },
+    { civil: 'Lelouch vi Britannia', impostor: 'Suzaku Kururugi' },
+    { civil: 'C.C.', impostor: 'Kallen Stadtfeld' },
+    { civil: 'Thorfinn', impostor: 'Askeladd' },
+    { civil: 'Canute', impostor: 'Thorkell' },
+    { civil: 'Kenzo Tenma', impostor: 'Johan Liebert' }
+  ],
 
-    // Monster
-    { civil: 'Kenzo Tenma', impostor: 'Johan Liebert' },
+  jeux_video: [
+    // Super Mario & Nintendo Universe
+    { civil: 'Mario', impostor: 'Luigi' },
+    { civil: 'Princesse Peach', impostor: 'Princesse Daisy' },
+    { civil: 'Bowser', impostor: 'Bowser Jr.' },
+    { civil: 'Wario', impostor: 'Waluigi' },
+    { civil: 'Yoshi', impostor: 'Toad' },
+    { civil: 'Harmonie (Rosalina)', impostor: 'Princesse Peach' },
+    { civil: 'Donkey Kong', impostor: 'Diddy Kong' },
+    { civil: 'King K. Rool', impostor: 'Donkey Kong' },
+    { civil: 'Kirby', impostor: 'Meta Knight' },
+    { civil: 'Roi Dadidou', impostor: 'Kirby' },
+    { civil: 'Fox McCloud', impostor: 'Falco Lombardi' },
+    { civil: 'Captain Falcon', impostor: 'Samus Aran' },
 
-    // Studio Ghibli
-    { civil: 'Totoro', impostor: 'Calcifer' },
-    { civil: 'Chihiro', impostor: 'Haku' },
+    // The Legend of Zelda
+    { civil: 'Link', impostor: 'Princesse Zelda' },
+    { civil: 'Ganondorf', impostor: 'Vaati' },
+    { civil: 'Midona', impostor: 'Xanto' },
+    { civil: 'Mipha', impostor: 'Prince Sidon' },
+    { civil: 'Daruk', impostor: 'Urbosa' },
+    { civil: 'Revali', impostor: 'Teba' },
+    { civil: 'Skull Kid', impostor: 'Tingle' },
+    { civil: 'Impa', impostor: 'Princesse Zelda' },
 
     // Pokémon
     { civil: 'Pikachu', impostor: 'Évoli' },
-    { civil: 'Sacha Ketchum', impostor: 'Ondine' }
-  ],
-  jeux_video: [
-    { civil: 'Mario', impostor: 'Luigi' },
-    { civil: 'Zelda', impostor: 'Link' },
+    { civil: 'Dracaufeu', impostor: 'Tortank' },
+    { civil: 'Florizarre', impostor: 'Dracaufeu' },
+    { civil: 'Mewtwo', impostor: 'Mew' },
+    { civil: 'Lucario', impostor: 'Zoroark' },
+    { civil: 'Gengar (Ectoplasma)', impostor: 'Alakazam' },
+    { civil: 'Dialga', impostor: 'Palkia' },
+    { civil: 'Groudon', impostor: 'Kyogre' },
+    { civil: 'Rayquaza', impostor: 'Giratina' },
+    { civil: 'Red', impostor: 'Blue' },
+    { civil: 'Sacha Ketchum', impostor: 'Ondine' },
+    { civil: 'Pierre (Brock)', impostor: 'Régis Chen' },
+    { civil: 'Cynthia', impostor: 'Peter (Lance)' },
+
+    // Grand Theft Auto (GTA)
+    { civil: 'Michael De Santa', impostor: 'Trevor Philips' },
+    { civil: 'Franklin Clinton', impostor: 'Lamar Davis' },
+    { civil: 'Carl Johnson (CJ)', impostor: 'Big Smoke' },
+    { civil: 'Ryder', impostor: 'Sweet Johnson' },
+    { civil: 'Tommy Vercetti', impostor: 'Lance Vance' },
+    { civil: 'Niko Bellic', impostor: 'Roman Bellic' },
+    { civil: 'Lester Crest', impostor: 'Dave Norton' },
+
+    // Red Dead Redemption
+    { civil: 'Arthur Morgan', impostor: 'John Marston' },
+    { civil: 'Dutch van der Linde', impostor: 'Hosea Matthews' },
+    { civil: 'Micah Bell', impostor: 'Bill Williamson' },
+    { civil: 'Sadie Adler', impostor: 'Charles Smith' },
+    { civil: 'Javier Escuella', impostor: 'Lenny Summers' },
+
+    // The Witcher
+    { civil: 'Geralt de Riv', impostor: 'Ciri' },
+    { civil: 'Yennefer de Vengerberg', impostor: 'Triss Merigold' },
+    { civil: 'Jaskier', impostor: 'Zoltan Chivay' },
+    { civil: 'Vesemir', impostor: 'Eskel' },
+    { civil: 'Gaunter de Meuré', impostor: 'Olgierd von Everec' },
+
+    // God of War
+    { civil: 'Kratos', impostor: 'Atreus' },
+    { civil: 'Thor', impostor: 'Odin' },
+    { civil: 'Freya', impostor: 'Baldur' },
+    { civil: 'Mimir', impostor: 'Brok' },
+    { civil: 'Sindri', impostor: 'Brok' },
+    { civil: 'Zeus', impostor: 'Arès' },
+
+    // The Last of Us & Uncharted
+    { civil: 'Joel Miller', impostor: 'Ellie Williams' },
+    { civil: 'Tommy Miller', impostor: 'Joel Miller' },
+    { civil: 'Abby Anderson', impostor: 'Lev' },
+    { civil: 'Dina', impostor: 'Jesse' },
+    { civil: 'Nathan Drake', impostor: 'Victor Sullivan (Sully)' },
+    { civil: 'Elena Fisher', impostor: 'Chloe Frazer' },
+    { civil: 'Sam Drake', impostor: 'Rafe Adler' },
+
+    // Assassin's Creed
+    { civil: 'Ezio Auditore', impostor: 'Altaïr Ibn-La\'Ahad' },
+    { civil: 'Edward Kenway', impostor: 'Haytham Kenway' },
+    { civil: 'Connor Kenway', impostor: 'Shay Patrick Cormac' },
+    { civil: 'Bayek de Siwa', impostor: 'Aya d\'Alexandrie' },
+    { civil: 'Kassandra', impostor: 'Alexios' },
+    { civil: 'Eivor', impostor: 'Basim' },
+
+    // Souls & Elden Ring
+    { civil: 'Malenia', impostor: 'Général Radahn' },
+    { civil: 'Ranni la Sorcière', impostor: 'Melina' },
+    { civil: 'Godfrey', impostor: 'Radagon' },
+    { civil: 'Margit le Déchu', impostor: 'Morgott' },
+    { civil: 'Artorias de l\'Abysse', impostor: 'Solaire d\'Astora' },
+    { civil: 'Ornstein', impostor: 'Smough' },
+    { civil: 'Dame Maria', impostor: 'Père Gascoigne' },
+
+    // Resident Evil
+    { civil: 'Leon S. Kennedy', impostor: 'Chris Redfield' },
+    { civil: 'Claire Redfield', impostor: 'Jill Valentine' },
+    { civil: 'Albert Wesker', impostor: 'Nemesis' },
+    { civil: 'Ada Wong', impostor: 'Lady Dimitrescu' },
+    { civil: 'Ethan Winters', impostor: 'Mia Winters' },
+
+    // Cyberpunk 2077
+    { civil: 'V (Cyberpunk)', impostor: 'Johnny Silverhand' },
+    { civil: 'Jackie Welles', impostor: 'Panam Palmer' },
+    { civil: 'Judy Alvarez', impostor: 'Panam Palmer' },
+    { civil: 'Goro Takemura', impostor: 'Adam Smasher' },
+
+    // League of Legends / Arcane
+    { civil: 'Jinx', impostor: 'Vi' },
+    { civil: 'Yasuo', impostor: 'Yone' },
+    { civil: 'Garen', impostor: 'Darius' },
+    { civil: 'Lux', impostor: 'Morgana' },
+    { civil: 'Zed', impostor: 'Shen' },
+    { civil: 'Ahri', impostor: 'Akali' },
+    { civil: 'Silco', impostor: 'Vander' },
+    { civil: 'Jayce', impostor: 'Viktor' },
+    { civil: 'Caitlyn', impostor: 'Vi' },
+
+    // Overwatch
+    { civil: 'Tracer', impostor: 'Sombra' },
+    { civil: 'Genji', impostor: 'Hanzo' },
+    { civil: 'Reinhardt', impostor: 'Winston' },
+    { civil: 'Mercy (Ange)', impostor: 'Moira' },
+    { civil: 'Widowmaker (Fatale)', impostor: 'Ashe' },
+    { civil: 'Reaper (Faucheur)', impostor: 'Soldier: 76' },
+    { civil: 'D.Va', impostor: 'Kiriko' },
+
+    // Mortal Kombat & Street Fighter & Tekken
+    { civil: 'Scorpion', impostor: 'Sub-Zero' },
+    { civil: 'Liu Kang', impostor: 'Kung Lao' },
+    { civil: 'Raiden', impostor: 'Shang Tsung' },
+    { civil: 'Sonya Blade', impostor: 'Johnny Cage' },
+    { civil: 'Ryu', impostor: 'Ken Masters' },
+    { civil: 'Chun-Li', impostor: 'Cammy' },
+    { civil: 'Guile', impostor: 'M. Bison' },
+    { civil: 'Akuma', impostor: 'Gouken' },
+    { civil: 'Jin Kazama', impostor: 'Kazuya Mishima' },
+    { civil: 'Heihachi Mishima', impostor: 'Kazuya Mishima' },
+    { civil: 'King (Tekken)', impostor: 'Armor King' },
+
+    // Minecraft
+    { civil: 'Steve', impostor: 'Alex' },
+    { civil: 'Creeper', impostor: 'Zombie' },
+    { civil: 'Squelette', impostor: 'Spider (Araignée)' },
+    { civil: 'Enderman', impostor: 'Wither Squelette' },
+    { civil: 'Ender Dragon', impostor: 'Wither Boss' },
+    { civil: 'Villageois', impostor: 'Pillager (Pillard)' },
+
+    // Sonic the Hedgehog
     { civil: 'Sonic', impostor: 'Shadow' },
-    { civil: 'Kratos (God of War)', impostor: 'Master Chief (Halo)' },
-    { civil: 'Joel (The Last of Us)', impostor: 'Ellie (The Last of Us)' },
-    { civil: 'Lara Croft (Tomb Raider)', impostor: 'Nathan Drake (Uncharted)' },
-    { civil: 'Sans (Undertale)', impostor: 'Papyrus (Undertale)' },
-    { civil: 'Steve (Minecraft)', impostor: 'Alex (Minecraft)' },
-    { civil: 'Pikachu (Pokémon)', impostor: 'Évoli (Pokémon)' },
-    { civil: 'Sub-Zero (Mortal Kombat)', impostor: 'Scorpion (Mortal Kombat)' },
-    { civil: 'Ryu (Street Fighter)', impostor: 'Ken Masters (Street Fighter)' },
-    { civil: 'Geralt de Riv (The Witcher)', impostor: 'Arthur Morgan (RDR2)' },
-    { civil: 'Crash Bandicoot', impostor: 'Spyro le Dragon' },
-    { civil: 'Rayman', impostor: 'Lapin Crétin' },
-    { civil: 'Doom Slayer (Doom)', impostor: 'Duke Nukem' },
-    { civil: 'Bowser (Mario)', impostor: 'Donkey Kong' },
-    { civil: 'Princesse Peach', impostor: 'Princesse Daisy' },
-    { civil: 'Solid Snake (Metal Gear)', impostor: 'Sam Fisher (Splinter Cell)' },
-    { civil: 'Ezio Auditore (Assassin\'s Creed)', impostor: 'Altaïr Ibn-La\'Ahad (Assassin\'s Creed)' },
-    { civil: 'Trevor Philips (GTA V)', impostor: 'Michael De Santa (GTA V)' },
-    { civil: 'Arthur Morgan (RDR2)', impostor: 'John Marston (RDR)' },
-    { civil: 'Cloud Strife (Final Fantasy VII)', impostor: 'Sephiroth (Final Fantasy VII)' },
-    { civil: 'Kirby', impostor: 'Meta Knight' },
-    { civil: 'Tracer (Overwatch)', impostor: 'Widowmaker (Overwatch)' },
-    { civil: 'Phoenix Wright (Ace Attorney)', impostor: 'Professeur Layton' },
+    { civil: 'Tails', impostor: 'Knuckles' },
+    { civil: 'Docteur Eggman', impostor: 'Metal Sonic' },
+    { civil: 'Amy Rose', impostor: 'Rouge the Bat' },
+
+    // Final Fantasy VII
+    { civil: 'Cloud Strife', impostor: 'Zack Fair' },
+    { civil: 'Tifa Lockhart', impostor: 'Aerith Gainsborough' },
+    { civil: 'Sephiroth', impostor: 'Genesis' },
+    { civil: 'Barret Wallace', impostor: 'Red XIII' },
+
+    // Metal Gear Solid
+    { civil: 'Solid Snake', impostor: 'Liquid Snake' },
+    { civil: 'Big Boss (Naked Snake)', impostor: 'Revolver Ocelot' },
+    { civil: 'Raiden (Metal Gear)', impostor: 'Gray Fox' },
+
+    // Undertale & Deltarune
+    { civil: 'Sans le squelette', impostor: 'Papyrus' },
+    { civil: 'Frisk', impostor: 'Chara' },
+    { civil: 'Toriel', impostor: 'Asgore' },
+    { civil: 'Undyne', impostor: 'Alphys' },
+    { civil: 'Kris (Deltarune)', impostor: 'Susie (Deltarune)' },
+
+    // Portal, Hollow Knight & Cuphead
+    { civil: 'GLaDOS', impostor: 'Wheatley' },
+    { civil: 'Gordon Freeman', impostor: 'G-Man' },
+    { civil: 'Le Chevalier (Knight)', impostor: 'Hornet' },
     { civil: 'Cuphead', impostor: 'Mugman' },
-    { civil: 'Jinx (League of Legends)', impostor: 'Vi (League of Legends)' },
-    { civil: 'Glados (Portal)', impostor: 'Wheatley (Portal)' },
-    { civil: 'Sans (Undertale)', impostor: 'Flowey (Undertale)' },
-    { civil: 'Leon S. Kennedy (Resident Evil)', impostor: 'Chris Redfield (Resident Evil)' }
+    { civil: 'King Dice', impostor: 'Le Diable' },
+
+    // Genshin Impact
+    { civil: 'Aether (Voyageur)', impostor: 'Lumine (Voyageuse)' },
+    { civil: 'Zhongli', impostor: 'Raiden Shogun' },
+    { civil: 'Diluc', impostor: 'Kaeya' },
+    { civil: 'Hu Tao', impostor: 'Xiao' }
   ],
+
   films_series: [
-    { civil: 'Harry Potter', impostor: 'Lord Voldemort' },
-    { civil: 'Batman (Bruce Wayne)', impostor: 'Le Joker' },
-    { civil: 'Jack Sparrow', impostor: 'Indiana Jones' },
-    { civil: 'Shrek', impostor: 'Princesse Fiona' },
-    { civil: 'Luke Skywalker', impostor: 'Darth Vador' },
-    { civil: 'Walter White (Heisenberg)', impostor: 'Jesse Pinkman' },
-    { civil: 'Sherlock Holmes', impostor: 'Docteur Watson' },
-    { civil: 'Iron Man (Tony Stark)', impostor: 'Captain America (Steve Rogers)' },
-    { civil: 'Gandalf (LGDF)', impostor: 'Albus Dumbledore (Harry Potter)' },
+    // Harry Potter
+    { civil: 'Harry Potter', impostor: 'Ron Weasley' },
+    { civil: 'Hermione Granger', impostor: 'Luna Lovegood' },
+    { civil: 'Albus Dumbledore', impostor: 'Severus Rogue' },
+    { civil: 'Lord Voldemort', impostor: 'Bellatrix Lestrange' },
+    { civil: 'Sirius Black', impostor: 'Remus Lupin' },
+    { civil: 'Drago Malefoy', impostor: 'Lucius Malefoy' },
+    { civil: 'Rubeus Hagrid', impostor: 'Arthur Weasley' },
+    { civil: 'Minerva McGonagall', impostor: 'Dolores Ombrage' },
+    { civil: 'Fred Weasley', impostor: 'George Weasley' },
+    { civil: 'Dobby', impostor: 'Kreattur' },
+
+    // Star Wars
+    { civil: 'Luke Skywalker', impostor: 'Anakin Skywalker' },
+    { civil: 'Darth Vador', impostor: 'Empereur Palpatine' },
+    { civil: 'Obi-Wan Kenobi', impostor: 'Qui-Gon Jinn' },
+    { civil: 'Han Solo', impostor: 'Lando Calrissian' },
+    { civil: 'Princesse Leia', impostor: 'Padmé Amidala' },
+    { civil: 'Yoda', impostor: 'Mace Windu' },
+    { civil: 'Kylo Ren', impostor: 'Darth Maul' },
+    { civil: 'Boba Fett', impostor: 'Din Djarin (Mandalorian)' },
+    { civil: 'Chewbacca', impostor: 'C-3PO' },
+    { civil: 'R2-D2', impostor: 'BB-8' },
+    { civil: 'Ahsoka Tano', impostor: 'Bo-Katan Kryze' },
+    { civil: 'Comte Dooku', impostor: 'Général Grievous' },
+
+    // Le Seigneur des Anneaux (LOTR)
     { civil: 'Frodon Sacquet', impostor: 'Sam Gamegie' },
-    { civil: 'Shrek', impostor: 'L\'Âne' },
-    { civil: 'Jon Snow', impostor: 'Daenerys Targaryen' },
-    { civil: 'Neo (Matrix)', impostor: 'Morpheus (Matrix)' },
-    { civil: 'Michael Scott', impostor: 'Dwight Schrute' },
-    { civil: 'Rick Sanchez', impostor: 'Morty Smith' },
-    { civil: 'Mercredi Addams', impostor: 'Eleven (Stranger Things)' },
-    { civil: 'James Bond (007)', impostor: 'Ethan Hunt (Mission Impossible)' },
-    { civil: 'Marty McFly', impostor: 'Doc Brown (Emmett Brown)' },
-    { civil: 'Jack Dawson (Titanic)', impostor: 'Rose DeWitt Bukater' },
-    { civil: 'Le Joker', impostor: 'Harley Quinn' },
-    { civil: 'Thanos (Marvel)', impostor: 'Darth Vador (Star Wars)' },
-    { civil: 'Thor (Marvel)', impostor: 'Loki (Marvel)' },
-    { civil: 'Forrest Gump', impostor: 'Benjamin Button' },
-    { civil: 'Dominic Toretto (Fast & Furious)', impostor: 'Brian O\'Conner (Fast & Furious)' },
-    { civil: 'Barney Stinson (HIMYM)', impostor: 'Ted Mosby (HIMYM)' },
-    { civil: 'Chandler Bing (Friends)', impostor: 'Joey Tribbiani (Friends)' },
-    { civil: 'Spider-Man (Peter Parker)', impostor: 'Batman (Bruce Wayne)' },
-    { civil: 'Gollum', impostor: 'Bilbon Sacquet' },
+    { civil: 'Gandalf', impostor: 'Saroumane' },
+    { civil: 'Aragorn', impostor: 'Boromir' },
     { civil: 'Legolas', impostor: 'Gimli' },
-    { civil: 'Thomas Shelby (Peaky Blinders)', impostor: 'Alfie Solomons (Peaky Blinders)' },
+    { civil: 'Gollum', impostor: 'Bilbon Sacquet' },
+    { civil: 'Sauron', impostor: 'Roi-Sorcier d\'Angmar' },
+    { civil: 'Pippin', impostor: 'Merry' },
+    { civil: 'Théoden', impostor: 'Éomer' },
+    { civil: 'Faramir', impostor: 'Boromir' },
+
+    // Marvel Cinematic Universe (MCU)
+    { civil: 'Iron Man (Tony Stark)', impostor: 'Captain America (Steve Rogers)' },
+    { civil: 'Thor', impostor: 'Loki' },
+    { civil: 'Spider-Man (Peter Parker)', impostor: 'Miles Morales' },
+    { civil: 'Hulk (Bruce Banner)', impostor: 'Thor' },
+    { civil: 'Black Widow (Natasha)', impostor: 'Hawkeye (Clint Barton)' },
+    { civil: 'Doctor Strange', impostor: 'Wong' },
+    { civil: 'Wanda Maximoff (Scarlet Witch)', impostor: 'Vision' },
+    { civil: 'Thanos', impostor: 'Kang le Conquérant' },
+    { civil: 'Black Panther (T\'Challa)', impostor: 'Killmonger' },
+    { civil: 'Star-Lord (Peter Quill)', impostor: 'Rocket Raccoon' },
+    { civil: 'Groot', impostor: 'Rocket Raccoon' },
+    { civil: 'Deadpool (Wade Wilson)', impostor: 'Wolverine (Logan)' },
+    { civil: 'Professeur X', impostor: 'Magnéto' },
+    { civil: 'Bucky Barnes (Soldat de l\'Hiver)', impostor: 'Sam Wilson (Falcon)' },
+
+    // DC Universe / Batman
+    { civil: 'Batman (Bruce Wayne)', impostor: 'Nightwing (Dick Grayson)' },
+    { civil: 'Le Joker', impostor: 'Le Sphinx (Riddler)' },
+    { civil: 'Le Joker', impostor: 'Harley Quinn' },
+    { civil: 'Superman (Clark Kent)', impostor: 'Supergirl' },
+    { civil: 'Lex Luthor', impostor: 'Général Zod' },
+    { civil: 'Wonder Woman', impostor: 'Aquaman' },
+    { civil: 'Flash (Barry Allen)', impostor: 'Reverse Flash' },
+    { civil: 'Catwoman', impostor: 'Poison Ivy' },
+    { civil: 'Double-Face (Harvey Dent)', impostor: 'Le Pingouin' },
+    { civil: 'Bane', impostor: 'Ra\'s al Ghul' },
+    { civil: 'Robin (Damian Wayne)', impostor: 'Red Hood (Jason Todd)' },
+
+    // Breaking Bad & Better Call Saul
+    { civil: 'Walter White (Heisenberg)', impostor: 'Jesse Pinkman' },
+    { civil: 'Saul Goodman (Jimmy McGill)', impostor: 'Kim Wexler' },
+    { civil: 'Gustavo Fring', impostor: 'Lalo Salamanca' },
+    { civil: 'Mike Ehrmantraut', impostor: 'Hank Schrader' },
+    { civil: 'Tuco Salamanca', impostor: 'Hector Salamanca' },
+    { civil: 'Skyler White', impostor: 'Marie Schrader' },
+    { civil: 'Todd Alquist', impostor: 'Jack Welker' },
+
+    // Game of Thrones & House of the Dragon
+    { civil: 'Jon Snow', impostor: 'Robb Stark' },
+    { civil: 'Daenerys Targaryen', impostor: 'Rhaenyra Targaryen' },
+    { civil: 'Arya Stark', impostor: 'Sansa Stark' },
+    { civil: 'Tyrion Lannister', impostor: 'Jaime Lannister' },
+    { civil: 'Cersei Lannister', impostor: 'Margaery Tyrell' },
+    { civil: 'Daemon Targaryen', impostor: 'Aemond Targaryen' },
+    { civil: 'Ned Stark', impostor: 'Robert Baratheon' },
+    { civil: 'Joffrey Baratheon', impostor: 'Ramsay Bolton' },
+    { civil: 'Le Limier (Sandor Clegane)', impostor: 'La Montagne (Gregor Clegane)' },
+    { civil: 'Viserys Targaryen', impostor: 'Otto Hightower' },
+
+    // Peaky Blinders
+    { civil: 'Thomas Shelby', impostor: 'Arthur Shelby' },
+    { civil: 'Thomas Shelby', impostor: 'Alfie Solomons' },
+    { civil: 'Polly Gray', impostor: 'Ada Thorne' },
+    { civil: 'John Shelby', impostor: 'Finn Shelby' },
+    { civil: 'Oswald Mosley', impostor: 'Luca Changretta' },
+
+    // The Office (US)
+    { civil: 'Michael Scott', impostor: 'Dwight Schrute' },
     { civil: 'Jim Halpert', impostor: 'Pam Beesly' },
+    { civil: 'Ryan Howard', impostor: 'Kelly Kapoor' },
+    { civil: 'Stanley Hudson', impostor: 'Phyllis Vance' },
+    { civil: 'Kevin Malone', impostor: 'Oscar Martinez' },
+    { civil: 'Creed Bratton', impostor: 'Meredith Palmer' },
+    { civil: 'Andy Bernard', impostor: 'Toby Flenderson' },
+
+    // Friends
+    { civil: 'Chandler Bing', impostor: 'Joey Tribbiani' },
+    { civil: 'Ross Geller', impostor: 'Chandler Bing' },
+    { civil: 'Monica Geller', impostor: 'Rachel Green' },
+    { civil: 'Phoebe Buffay', impostor: 'Rachel Green' },
+
+    // Stranger Things
+    { civil: 'Eleven (Onze)', impostor: 'Max Mayfield' },
+    { civil: 'Mike Wheeler', impostor: 'Will Byers' },
+    { civil: 'Dustin Henderson', impostor: 'Lucas Sinclair' },
+    { civil: 'Steve Harrington', impostor: 'Robin Buckley' },
+    { civil: 'Jim Hopper', impostor: 'Joyce Byers' },
+    { civil: 'Eddie Munson', impostor: 'Jonathan Byers' },
+    { civil: 'Vecna', impostor: 'Demogorgon' },
+
+    // Pirates des Caraïbes
+    { civil: 'Jack Sparrow', impostor: 'Hector Barbossa' },
+    { civil: 'Will Turner', impostor: 'Elizabeth Swann' },
+    { civil: 'Davy Jones', impostor: 'Barbe Noire' },
+
+    // Shrek & DreamWorks
+    { civil: 'Shrek', impostor: 'L\'Âne' },
+    { civil: 'Shrek', impostor: 'Princesse Fiona' },
+    { civil: 'Le Chat Potté', impostor: 'L\'Âne' },
+    { civil: 'Lord Farquaad', impostor: 'Prince Charmant' },
+    { civil: 'Tibiscuit (P\'tit Biscuit)', impostor: 'Pinocchio' },
+    { civil: 'Po (Kung Fu Panda)', impostor: 'Maître Shifu' },
+    { civil: 'Tai Lung', impostor: 'Seigneur Shen' },
+    { civil: 'Alex le Lion', impostor: 'Marty le Zèbre' },
+
+    // Disney & Pixar
+    { civil: 'Woody (Toy Story)', impostor: 'Buzz l\'Éclair' },
+    { civil: 'Rex (Toy Story)', impostor: 'Bayonne' },
+    { civil: 'Flash McQueen', impostor: 'Martin (Cars)' },
+    { civil: 'Bob Razowski', impostor: 'Jacques Sullivent (Sulley)' },
+    { civil: 'Némo', impostor: 'Dory' },
+    { civil: 'Simba (Roi Lion)', impostor: 'Mufasa' },
+    { civil: 'Timon', impostor: 'Pumbaa' },
+    { civil: 'Scar', impostor: 'Jafar' },
+    { civil: 'Aladdin', impostor: 'Le Génie' },
+    { civil: 'Elsa (La Reine des Neiges)', impostor: 'Anna' },
+    { civil: 'Olaf', impostor: 'Sven' },
+    { civil: 'Rémy (Ratatouille)', impostor: 'Linguini' },
+    { civil: 'WALL-E', impostor: 'EVE' },
+
+    // Matrix, Hunger Games & Fast/Furious
+    { civil: 'Neo (Matrix)', impostor: 'Morpheus' },
+    { civil: 'Trinity', impostor: 'Agent Smith' },
+    { civil: 'Katniss Everdeen', impostor: 'Peeta Mellark' },
+    { civil: 'Gale Hawthorne', impostor: 'Finnick Odair' },
+    { civil: 'Haymitch Abernathy', impostor: 'Effie Trinket' },
+    { civil: 'Président Snow', impostor: 'Présidente Coin' },
+    { civil: 'Dominic Toretto', impostor: 'Brian O\'Conner' },
+    { civil: 'Letty Ortiz', impostor: 'Mia Toretto' },
+    { civil: 'Luke Hobbs', impostor: 'Deckard Shaw' },
+
+    // Retour vers le Futur, Titanic & Séries cultes
+    { civil: 'Marty McFly', impostor: 'Doc Brown' },
+    { civil: 'Biff Tannen', impostor: 'George McFly' },
+    { civil: 'Jack Dawson', impostor: 'Rose DeWitt Bukater' },
+    { civil: 'Sergio Marquina (Le Professeur)', impostor: 'Berlin (Andrés)' },
+    { civil: 'Tokyo (Silene)', impostor: 'Rio (Aníbal)' },
+    { civil: 'Denver', impostor: 'Moscou' },
+    { civil: 'Seong Gi-hun (Squid Game)', impostor: 'Cho Sang-woo' },
+    { civil: 'Kang Sae-byeok', impostor: 'Ji-yeong' },
+    { civil: 'Homelander (Le Protecteur)', impostor: 'Billy Butcher' },
+    { civil: 'Hughie Campbell', impostor: 'La Crème (Mother\'s Milk)' },
+    { civil: 'Starlight', impostor: 'Reine Maeve' },
+    { civil: 'Ragnar Lothbrok', impostor: 'Bjorn Côtes-de-Fer' },
+    { civil: 'Lagertha', impostor: 'Aslaug' },
+    { civil: 'Ivar le Désossé', impostor: 'Ubbe' },
+    { civil: 'Ted Mosby', impostor: 'Barney Stinson' },
+    { civil: 'Marshall Eriksen', impostor: 'Lily Aldrin' },
     { civil: 'Sheldon Cooper', impostor: 'Leonard Hofstadter' },
-    { civil: 'Dracula', impostor: 'Monstre de Frankenstein' }
+    { civil: 'Howard Wolowitz', impostor: 'Rajesh Koothrappali' },
+    { civil: 'Sherlock Holmes', impostor: 'Docteur John Watson' },
+    { civil: 'Jim Moriarty', impostor: 'Mycroft Holmes' }
   ],
+
   general: [
+    // Boissons & Nourriture
     { civil: 'Café', impostor: 'Thé' },
-    { civil: 'Chien', impostor: 'Chat' },
-    { civil: 'Lion', impostor: 'Tigre' },
-    { civil: 'Dauphin', impostor: 'Baleine' },
+    { civil: 'Chocolat chaud', impostor: 'Cappuccino' },
     { civil: 'Pizza', impostor: 'Burger' },
-    { civil: 'Avion', impostor: 'Train' },
-    { civil: 'Lune', impostor: 'Soleil' },
-    { civil: 'Chocolat', impostor: 'Vanille' },
-    { civil: 'Mer', impostor: 'Piscine' },
-    { civil: 'Guitare', impostor: 'Piano' },
-    { civil: 'Orage', impostor: 'Pluie' },
-    { civil: 'Vélo', impostor: 'Trottinette' },
-    { civil: 'Paris', impostor: 'Londres' },
-    { civil: 'Mer', impostor: 'Océan' },
-    { civil: 'Pluie', impostor: 'Neige' },
-    { civil: 'Orage', impostor: 'Tempête' },
-    { civil: 'Moto', impostor: 'Scooter' },
-    { civil: 'Fraise', impostor: 'Framboise' },
-    { civil: 'Pomme', impostor: 'Poire' },
+    { civil: 'Frites', impostor: 'Potatoes' },
     { civil: 'Pain', impostor: 'Croissant' },
+    { civil: 'Brioche', impostor: 'Pain au chocolat' },
     { civil: 'Beurre', impostor: 'Margarine' },
     { civil: 'Sel', impostor: 'Poivre' },
-    { civil: 'Or', impostor: 'Argent' },
-    { civil: 'Diamant', impostor: 'Rubis' },
+    { civil: 'Sucre', impostor: 'Miel' },
+    { civil: 'Ketchup', impostor: 'Mayonnaise' },
+    { civil: 'Moutarde', impostor: 'Wasabi' },
+    { civil: 'Fraise', impostor: 'Framboise' },
+    { civil: 'Pomme', impostor: 'Poire' },
+    { civil: 'Orange', impostor: 'Clémentine' },
+    { civil: 'Citron', impostor: 'Pamplemousse' },
+    { civil: 'Banane', impostor: 'Plantain' },
+    { civil: 'Pêche', impostor: 'Abricot' },
+    { civil: 'Pâtes', impostor: 'Riz' },
+    { civil: 'Semoule', impostor: 'Quinoa' },
+    { civil: 'Bière', impostor: 'Cidre' },
+    { civil: 'Vin rouge', impostor: 'Vin blanc' },
+    { civil: 'Champagne', impostor: 'Prosecco' },
+    { civil: 'Coca-Cola', impostor: 'Pepsi' },
+    { civil: 'Eau plate', impostor: 'Eau gazeuse' },
+    { civil: 'Lait', impostor: 'Lait d\'avoine' },
+    { civil: 'Chocolat noir', impostor: 'Chocolat au lait' },
+    { civil: 'Glace', impostor: 'Sorbet' },
+    { civil: 'Crêpe', impostor: 'Gaufre' },
+    { civil: 'Fromage', impostor: 'Yaourt' },
+    { civil: 'Camembert', impostor: 'Brie' },
+    { civil: 'Mozzarella', impostor: 'Burrata' },
+    { civil: 'Raclette', impostor: 'Fondue' },
+    { civil: 'Tacos', impostor: 'Burrito' },
+    { civil: 'Sushis', impostor: 'Makis' },
+    { civil: 'Nems', impostor: 'Samoussas' },
+
+    // Animaux & Nature
+    { civil: 'Chien', impostor: 'Chat' },
+    { civil: 'Loup', impostor: 'Renard' },
+    { civil: 'Lion', impostor: 'Tigre' },
+    { civil: 'Léopard', impostor: 'Guépard' },
+    { civil: 'Dauphin', impostor: 'Baleine' },
+    { civil: 'Requin', impostor: 'Orque' },
+    { civil: 'Éléphant', impostor: 'Rhinocéros' },
+    { civil: 'Hippopotame', impostor: 'Rhinocéros' },
+    { civil: 'Cheval', impostor: 'Zèbre' },
+    { civil: 'Âne', impostor: 'Mule' },
+    { civil: 'Aigle', impostor: 'Faucon' },
+    { civil: 'Corbeau', impostor: 'Pie' },
+    { civil: 'Pigeon', impostor: 'Colombe' },
+    { civil: 'Canard', impostor: 'Cygne' },
+    { civil: 'Poule', impostor: 'Dindon' },
+    { civil: 'Lapin', impostor: 'Lièvre' },
+    { civil: 'Souris', impostor: 'Rat' },
+    { civil: 'Écureuil', impostor: 'Castor' },
+    { civil: 'Serpent', impostor: 'Lézard' },
+    { civil: 'Crocodile', impostor: 'Alligator' },
+    { civil: 'Grenouille', impostor: 'Crapaud' },
+    { civil: 'Abeille', impostor: 'Guêpe' },
+    { civil: 'Papillon', impostor: 'Libellule' },
+    { civil: 'Araignée', impostor: 'Scorpion' },
+    { civil: 'Fourmi', impostor: 'Termite' },
+    { civil: 'Forêt', impostor: 'Jungle' },
+    { civil: 'Mer', impostor: 'Océan' },
+    { civil: 'Rivière', impostor: 'Fleuve' },
+    { civil: 'Lac', impostor: 'Étang' },
+    { civil: 'Montagne', impostor: 'Colline' },
+    { civil: 'Volcan', impostor: 'Montagne' },
+    { civil: 'Désert', impostor: 'Savane' },
+    { civil: 'Pluie', impostor: 'Neige' },
+    { civil: 'Orage', impostor: 'Tempête' },
+    { civil: 'Brouillard', impostor: 'Brume' },
+    { civil: 'Lune', impostor: 'Soleil' },
+    { civil: 'Étoile', impostor: 'Planète' },
+
+    // Objets, Vêtements & Maison
     { civil: 'Livre', impostor: 'Liseuse' },
     { civil: 'Stylo', impostor: 'Crayon' },
+    { civil: 'Feutre', impostor: 'Surligneur' },
+    { civil: 'Cahier', impostor: 'Bloc-notes' },
     { civil: 'Chapeau', impostor: 'Casquette' },
-    { civil: 'Chaussures', impostor: 'Chaussettes' },
-    { civil: 'Lunettes', impostor: 'Lentilles' },
+    { civil: 'Bonnet', impostor: 'Béret' },
+    { civil: 'Chaussures', impostor: 'Baskets' },
+    { civil: 'Bottes', impostor: 'Bottines' },
+    { civil: 'Chaussettes', impostor: 'Collants' },
+    { civil: 'Pantoufle', impostor: 'Chausson' },
+    { civil: 'Manteau', impostor: 'Veste' },
+    { civil: 'Pull', impostor: 'Sweat à capuche' },
+    { civil: 'Chemise', impostor: 'T-shirt' },
+    { civil: 'Pantalon', impostor: 'Jean' },
+    { civil: 'Short', impostor: 'Bermuda' },
+    { civil: 'Lunettes de vue', impostor: 'Lentilles de contact' },
+    { civil: 'Lunettes de soleil', impostor: 'Masque de ski' },
+    { civil: 'Montre', impostor: 'Réveil' },
+    { civil: 'Bague', impostor: 'Bracelet' },
+    { civil: 'Collier', impostor: 'Pendentif' },
+    { civil: 'Or', impostor: 'Argent' },
+    { civil: 'Diamant', impostor: 'Rubis' },
+    { civil: 'Télévision', impostor: 'Vidéoprojecteur' },
+    { civil: 'Ordinateur portable', impostor: 'Tablette' },
+    { civil: 'Smartphone', impostor: 'Talkie-walkie' },
+    { civil: 'Casque audio', impostor: 'Écouteurs' },
+    { civil: 'Enceinte Bluetooth', impostor: 'Barre de son' },
+    { civil: 'Four', impostor: 'Micro-ondes' },
+    { civil: 'Poêle', impostor: 'Casserole' },
+    { civil: 'Fourchette', impostor: 'Cuillère' },
+    { civil: 'Couteau', impostor: 'Ciseaux' },
+    { civil: 'Verre', impostor: 'Tasse' },
+    { civil: 'Assiette', impostor: 'Bol' },
+    { civil: 'Savon', impostor: 'Gel douche' },
+    { civil: 'Shampoing', impostor: 'Après-shampoing' },
+    { civil: 'Brosse à dents', impostor: 'Fil dentaire' },
+    { civil: 'Lit', impostor: 'Canapé' },
+    { civil: 'Chaise', impostor: 'Tabouret' },
+    { civil: 'Table', impostor: 'Bureau' },
+    { civil: 'Porte', impostor: 'Fenêtre' },
+    { civil: 'Rideau', impostor: 'Store' },
+    { civil: 'Miroir', impostor: 'Vitre' },
+
+    // Véhicules & Transports
+    { civil: 'Voiture', impostor: 'Camion' },
+    { civil: 'Moto', impostor: 'Scooter' },
+    { civil: 'Vélo', impostor: 'Trottinette' },
+    { civil: 'Avion', impostor: 'Hélicoptère' },
+    { civil: 'Train', impostor: 'Métro' },
+    { civil: 'Tramway', impostor: 'Bus' },
+    { civil: 'Bateau', impostor: 'Sous-marin' },
+    { civil: 'Ferry', impostor: 'Paquebot' },
+    { civil: 'Fusée', impostor: 'Satellite' },
+    { civil: 'Skateboard', impostor: 'Roller' },
+
+    // Culture, Sports & Métiers
+    { civil: 'Guitare', impostor: 'Basse' },
+    { civil: 'Piano', impostor: 'Synthétiseur' },
+    { civil: 'Batterie', impostor: 'Tam-tam' },
+    { civil: 'Violon', impostor: 'Violoncelle' },
     { civil: 'Cinéma', impostor: 'Théâtre' },
-    { civil: 'Télévision', impostor: 'Projecteur' },
-    { civil: 'Coca-Cola', impostor: 'Pepsi' }
+    { civil: 'Concert', impostor: 'Festival' },
+    { civil: 'Musée', impostor: 'Galerie d\'art' },
+    { civil: 'Football', impostor: 'Rugby' },
+    { civil: 'Tennis', impostor: 'Badminton' },
+    { civil: 'Basketball', impostor: 'Handball' },
+    { civil: 'Ski', impostor: 'Snowboard' },
+    { civil: 'Échecs', impostor: 'Dames' },
+    { civil: 'Médecin', impostor: 'Infirmier' },
+    { civil: 'Dentiste', impostor: 'Orthodontiste' },
+    { civil: 'Pompier', impostor: 'Policier' },
+    { civil: 'Avocat', impostor: 'Juge' },
+    { civil: 'Architecte', impostor: 'Ingénieur' },
+    { civil: 'Professeur', impostor: 'Instituteur' }
   ]
 };
 
