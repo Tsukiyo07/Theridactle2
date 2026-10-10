@@ -4749,6 +4749,7 @@ function getThemeReadableName(themeKey) {
     anime: 'Mangas & Animes',
     jeux_video: 'Jeux Vidéo',
     films_series: 'Films & Séries',
+    minecraft: 'Minecraft',
     aleatoire: 'Aléatoire'
   };
   return names[themeKey] || 'Général';
