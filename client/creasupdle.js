@@ -142,6 +142,23 @@
       .replace(/[\u0300-\u036f]/g, '');
   }
 
+  // Normalize situation (handles "couple", "en couple", "celibataire", "celib")
+  function normSituation(s) {
+    const n = norm(s);
+    if (n.includes('couple')) return 'couple';
+    if (n.includes('celib')) return 'celibataire';
+    return n;
+  }
+
+  // Split string into sorted unique tokens (for multi-values like "Graph, Ancien" or "Alfred Grévin, Marguerite de Bourgogne")
+  function splitTokens(str) {
+    if (!str) return [];
+    return norm(str)
+      .split(/[,/]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
   // Compare Hair (supports partial matches for multi-colors like "Châtain, Blond" or similar shades)
   function isCloseHair(h1, h2) {
     if (!h1 || !h2) return false;
@@ -152,18 +169,44 @@
     const partsB = b.split(/[,/ ]+/).filter(Boolean);
     const hasOverlap = partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
     if (hasOverlap) return true;
-    if ((a.includes('marron') && b.includes('chatain')) || (a.includes('chatain') && b.includes('marron'))) return true;
-    return false;
+    const shades = [
+      ['marron', 'chatain'],
+      ['marron', 'brun'],
+      ['chatain', 'brun'],
+      ['brun', 'noir']
+    ];
+    return shades.some(([s1, s2]) => (a.includes(s1) && b.includes(s2)) || (a.includes(s2) && b.includes(s1)));
   }
 
-  // Compare Role (supports partial matches like "Graph, Ancien" with "Graph" or "Ancien")
+  // Compare Role exact match (irrespective of order: "Graph, Ancien" === "Ancien, Graph")
+  function isRoleExact(r1, r2) {
+    const p1 = splitTokens(r1).sort().join(',');
+    const p2 = splitTokens(r2).sort().join(',');
+    return p1 === p2;
+  }
+
+  // Compare Role partial match (supports partial matches like "Graph, Ancien" with "Graph" or "Ancien")
   function isCloseRole(r1, r2) {
     if (!r1 || !r2) return false;
-    const a = norm(r1);
-    const b = norm(r2);
-    if (a === b) return false;
-    const partsA = a.split(/[,/ ]+/).filter(Boolean);
-    const partsB = b.split(/[,/ ]+/).filter(Boolean);
+    if (isRoleExact(r1, r2)) return false;
+    const partsA = splitTokens(r1);
+    const partsB = splitTokens(r2);
+    return partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
+  }
+
+  // Compare Promo exact match (handles single or double promos)
+  function isPromoExact(p1, p2) {
+    const p1Sorted = splitTokens(p1 || 'Alfred Grévin').sort().join(',');
+    const p2Sorted = splitTokens(p2 || 'Alfred Grévin').sort().join(',');
+    return p1Sorted === p2Sorted;
+  }
+
+  // Compare Promo partial match (e.g. sharing "Alfred Grévin")
+  function isClosePromo(p1, p2) {
+    if (!p1 || !p2) return false;
+    if (isPromoExact(p1, p2)) return false;
+    const partsA = splitTokens(p1);
+    const partsB = splitTokens(p2);
     return partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
   }
 
@@ -188,18 +231,18 @@
     return pool[randomIndex];
   }
 
-  // Compare a guess with the target across all 9 categories
+  // Compare a guess with the target across all 8 categories
   function compareGuess(guess, target) {
     // 1. Genre
     const genreMatch = norm(guess.genre) === norm(target.genre);
 
     // 2. Situation (Célibataire / Couple)
-    const situationMatch = norm(guess.situation) === norm(target.situation);
+    const situationMatch = normSituation(guess.situation) === normSituation(target.situation);
 
-    // 3. Orientation (Hétéro / Suspicieux / Polyvalent)
+    // 3. Orientation (Hétéro / Suspicieux / Polyvalent / Inconnu)
     const orientationMatch = norm(guess.orientation) === norm(target.orientation);
 
-    // 4. Cheveux (Marron / Châtain / Châtain, Blond)
+    // 4. Cheveux (Noir / Marron / Châtain / Blond / Roux / Brun / Bonnet)
     const cheveuxMatch = norm(guess.cheveux) === norm(target.cheveux);
     const cheveuxPartial = !cheveuxMatch && isCloseHair(guess.cheveux, target.cheveux);
 
@@ -211,12 +254,13 @@
     if (targetCm > guessCm) tailleArrow = 'up';
     else if (targetCm < guessCm) tailleArrow = 'down';
 
-    // 6. Rôle (Graph, Ancien / Graph / Dev / Ancien)
-    const roleMatch = norm(guess.role) === norm(target.role);
+    // 6. Rôle (Graph, Ancien / Graph / Dev / Ancien / Concepteur)
+    const roleMatch = isRoleExact(guess.role, target.role);
     const rolePartial = !roleMatch && isCloseRole(guess.role, target.role);
 
-    // 7. Promo (Alfred Grévin)
-    const promoMatch = norm(guess.promo) === norm(target.promo);
+    // 7. Promo (Alfred Grévin / Louise de Clairemont / Marguerite de Bourgogne)
+    const promoMatch = isPromoExact(guess.promo, target.promo);
+    const promoPartial = !promoMatch && isClosePromo(guess.promo, target.promo);
 
     // 8. Âge (numeric comparison with ▲ / ▼ arrows)
     const guessAge = Number(guess.age);
@@ -255,7 +299,7 @@
       },
       promo: {
         value: guess.promo || 'Alfred Grévin',
-        status: promoMatch ? 'correct' : 'wrong'
+        status: promoMatch ? 'correct' : (promoPartial ? 'partial' : 'wrong')
       },
       age: {
         value: guess.age,
@@ -313,7 +357,7 @@
     };
   }
 
-  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v3';
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v4';
 
   function saveSessionState() {
     try {
@@ -762,7 +806,7 @@
       // 6. Role
       row.push(g.role.status === 'correct' ? '🟩' : (g.role.status === 'partial' ? '🟧' : '🟥'));
       // 7. Promo
-      row.push(g.promo.status === 'correct' ? '🟩' : '🟥');
+      row.push(g.promo.status === 'correct' ? '🟩' : (g.promo.status === 'partial' ? '🟧' : '🟥'));
       // 8. Age
       if (g.age.status === 'correct') row.push('🟩');
       else row.push(g.age.arrow === 'up' ? '⬆️' : '⬇️');
