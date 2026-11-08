@@ -355,7 +355,7 @@
     };
   }
 
-  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v6';
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v7';
 
   function saveSessionState() {
     try {

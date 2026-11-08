@@ -81,7 +81,7 @@
       genre: 'Homme',
       situation: 'Couple',
       orientation: 'Hétéro',
-      cheveux: 'Marron',
+      cheveux: 'Brun',
       taille: '1m82',
       role: 'Graph, Ancien',
       promo: 'Alfred Grévin',
@@ -364,9 +364,9 @@
     }
   ];
 
-  // Storage key bumped to v4 to cleanly refresh the full 21-member roster
-  const STORAGE_KEY = 'supercaraquiz_creasupdle_roster_v4';
-  const STATS_STORAGE_KEY = 'supercaraquiz_creasupdle_stats_v4';
+  // Storage key bumped to v5 to cleanly refresh the roster (Ethan -> Brun)
+  const STORAGE_KEY = 'supercaraquiz_creasupdle_roster_v5';
+  const STATS_STORAGE_KEY = 'supercaraquiz_creasupdle_stats_v5';
 
   // Retrieve current active roster (custom + defaults)
   function getCreasupdleRoster() {
