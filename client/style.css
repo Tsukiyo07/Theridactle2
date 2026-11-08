@@ -7907,10 +7907,10 @@ select option:focus,
 
 .creasupdle-table-header {
   display: grid;
-  grid-template-columns: 190px repeat(9, minmax(95px, 1fr));
+  grid-template-columns: 190px repeat(8, minmax(95px, 1fr));
   gap: 8px;
   margin-bottom: 8px;
-  min-width: 1060px;
+  min-width: 980px;
 }
 
 .th-cell {
@@ -7933,13 +7933,13 @@ select option:focus,
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 1060px;
+  min-width: 980px;
 }
 
 /* Guess Row */
 .creasupdle-guess-row {
   display: grid;
-  grid-template-columns: 190px repeat(9, minmax(95px, 1fr));
+  grid-template-columns: 190px repeat(8, minmax(95px, 1fr));
   gap: 8px;
 }
 

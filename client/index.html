@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261108_click_fixed_v5">
+ <link rel="stylesheet" href="style.css?v=20261108_no_beaumoche_v6">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -277,11 +277,11 @@
        <span class="spotlight-subtitle-badge">Le OnePieceDle de Créasup</span>
       </div>
       <p class="spotlight-desc">
-       Trouvez le membre mystère en comparant ses 9 attributs : <strong>genre</strong>, <strong>situation</strong>, <strong>orientation</strong>, <strong>cheveux</strong>, <strong>taille</strong> (▲/▼), <strong>rôle</strong>, <strong>promo</strong>, <strong>âge</strong> (▲/▼) et <strong>Beau / Moche</strong> !
+       Trouvez le membre mystère en comparant ses 8 attributs : <strong>genre</strong>, <strong>situation</strong>, <strong>orientation</strong>, <strong>cheveux</strong>, <strong>taille</strong> (▲/▼), <strong>rôle</strong>, <strong>promo</strong> et <strong>âge</strong> (▲/▼) !
       </p>
       
       <div class="spotlight-features-list">
-       <span class="sfeat">🎯 9 Attributs Comparés</span>
+       <span class="sfeat">🎯 8 Attributs Comparés</span>
        <span class="sfeat">👥 Promo Alfred Grévin</span>
        <span class="sfeat">📅 Quotidien &amp; ♾️ Infini</span>
        <span class="sfeat">🧩 Indices Progressifs</span>
@@ -3240,7 +3240,6 @@
       <div class="th-cell">Rôle</div>
       <div class="th-cell">Promo</div>
       <div class="th-cell">Âge</div>
-      <div class="th-cell">Beau / Moche</div>
      </div>
 
      <!-- Guesses Rows List -->
@@ -3310,7 +3309,7 @@
       </div>
       <div class="legend-item">
        <span class="legend-badge badge-orange">Orange 🟧</span>
-       <span class="legend-desc"><strong>Très proche !</strong> Teinte de cheveux voisine (ex: Châtain / Brun) ou pôle créatif similaire (ex: Graphiste / DA).</span>
+       <span class="legend-desc"><strong>Très proche !</strong> Teinte de cheveux voisine (ex: Châtain / Marron) ou rôle créatif partagé (ex: Graph / Graph, Ancien).</span>
       </div>
       <div class="legend-item">
        <span class="legend-badge badge-red">Rouge 🟥</span>
@@ -3318,11 +3317,7 @@
       </div>
       <div class="legend-item">
        <span class="legend-badge badge-arrow">Flèches ▲ / ▼</span>
-       <span class="legend-desc"><strong>Indicateur de direction :</strong> La personne mystère est plus grande/agée/récente (▲) ou plus petite/jeune/ancienne (▼).</span>
-      </div>
-      <div class="legend-item">
-       <span class="legend-badge badge-humor">Beau / Moche</span>
-       <span class="legend-desc"><strong>Le vote du peuple :</strong> L'attribut culte pour trancher sans pitié entre créatifs !</span>
+       <span class="legend-desc"><strong>Indicateur de direction :</strong> La personne mystère est plus grande/agée (▲) ou plus petite/jeune (▼).</span>
       </div>
      </div>
     </div>
@@ -3426,13 +3421,6 @@
       <div class="form-group flex-1">
        <label for="member-age">Âge</label>
        <input type="number" id="member-age" min="16" max="99" value="21" required>
-      </div>
-      <div class="form-group flex-1">
-       <label for="member-apparence">Beau / Moche *</label>
-       <select id="member-apparence">
-        <option value="Beau" selected>Beau ✨</option>
-        <option value="Moche">Moche 💀</option>
-       </select>
       </div>
      </div>
 
@@ -3682,9 +3670,9 @@
 
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
  <script src="imposteur-words.js?v=20261008"></script>
- <script src="creasupdle-data.js?v=20261108_click_fixed_v5"></script>
- <script src="creasupdle.js?v=20261108_click_fixed_v5"></script>
+ <script src="creasupdle-data.js?v=20261108_no_beaumoche_v6"></script>
+ <script src="creasupdle.js?v=20261108_no_beaumoche_v6"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20261108_click_fixed_v5"></script>
+ <script src="app.js?v=20261108_no_beaumoche_v6"></script>
 </body>
 </html>

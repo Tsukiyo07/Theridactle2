@@ -226,9 +226,6 @@
     if (targetAge > guessAge) ageArrow = 'up';
     else if (targetAge < guessAge) ageArrow = 'down';
 
-    // 9. Beau / Moche
-    const apparenceMatch = norm(guess.apparence) === norm(target.apparence);
-
     const result = {
       person: guess,
       genre: {
@@ -264,17 +261,13 @@
         value: guess.age,
         status: ageMatch ? 'correct' : 'wrong',
         arrow: ageArrow
-      },
-      apparence: {
-        value: guess.apparence,
-        status: apparenceMatch ? 'correct' : 'wrong'
       }
     };
 
     const isMatch = guess.id === target.id || (
       genreMatch && situationMatch && orientationMatch &&
       cheveuxMatch && tailleMatch && roleMatch &&
-      promoMatch && ageMatch && apparenceMatch
+      promoMatch && ageMatch
     );
 
     return { result, isMatch };
@@ -320,7 +313,7 @@
     };
   }
 
-  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v2';
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v3';
 
   function saveSessionState() {
     try {
@@ -618,7 +611,6 @@
     // 7. Rôle
     // 8. Promo
     // 9. Âge (avec flèche)
-    // 10. Beau / Moche
 
     const tilesData = [
       {
@@ -670,11 +662,6 @@
         label: `${guessResult.age.value} ans`,
         status: guessResult.age.status,
         arrow: guessResult.age.arrow
-      },
-      {
-        type: 'apparence',
-        label: guessResult.apparence.value === 'Beau' ? 'Beau ✨' : 'Moche 💀',
-        status: guessResult.apparence.status
       }
     ];
 
@@ -745,7 +732,7 @@
       avatarEl.style.backgroundColor = t.avatarColor || '#6366f1';
     }
     if (nameEl) nameEl.textContent = t.nomComplet || t.nom;
-    if (bioEl) bioEl.textContent = `${t.role} • Promo ${t.annee} • ${t.age} ans • ${t.taille} • Cheveux ${t.cheveux} • ${t.apparence}`;
+    if (bioEl) bioEl.textContent = `${t.role} • Promo ${t.promo || 'Alfred Grévin'} • ${t.age} ans • ${t.taille} • Cheveux ${t.cheveux}`;
     if (countEl) countEl.textContent = `${state.guesses.length} tentative${state.guesses.length > 1 ? 's' : ''}`;
     if (quoteEl) quoteEl.textContent = t.punchline || `« C'est bien moi le membre mystère ! »`;
 
@@ -779,8 +766,6 @@
       // 8. Age
       if (g.age.status === 'correct') row.push('🟩');
       else row.push(g.age.arrow === 'up' ? '⬆️' : '⬇️');
-      // 9. Beau / Moche
-      row.push(g.apparence.status === 'correct' ? '🟩' : '🟥');
       return row.join('');
     }).join('\n');
 
@@ -833,7 +818,6 @@
             <div class="creasupdle-roster-header">
               <span class="creasupdle-roster-name">${m.nomComplet || m.nom}</span>
               ${m.surnom ? `<span class="creasupdle-roster-surnom">« ${m.surnom} »</span>` : ''}
-              <span class="badge ${m.apparence === 'Beau' ? 'badge-beau' : 'badge-moche'}">${m.apparence}</span>
             </div>
             <div class="creasupdle-roster-tags">
               <span class="rtag">👤 ${m.genre}</span>
@@ -907,7 +891,6 @@
       role: form.querySelector('#member-role') ? form.querySelector('#member-role').value.trim() : 'Graph',
       promo: form.querySelector('#member-promo') ? form.querySelector('#member-promo').value.trim() : 'Alfred Grévin',
       age: parseInt(form.querySelector('#member-age') ? form.querySelector('#member-age').value : '21', 10) || 21,
-      apparence: form.querySelector('#member-apparence') ? form.querySelector('#member-apparence').value : 'Beau',
       punchline: form.querySelector('#member-punchline') ? form.querySelector('#member-punchline').value.trim() : '',
       initiales: initials,
       avatarColor: randomColor

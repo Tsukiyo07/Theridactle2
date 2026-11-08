@@ -18,7 +18,6 @@
       role: 'Graph, Ancien',
       promo: 'Alfred Grévin',
       age: 21,
-      apparence: 'Beau',
       initiales: 'TB',
       avatarColor: '#6366f1',
       punchline: '« Toujours dans la place, le graphisme dans le sang ! »'
@@ -36,7 +35,6 @@
       role: 'Graph',
       promo: 'Alfred Grévin',
       age: 21,
-      apparence: 'Beau',
       initiales: 'CL',
       avatarColor: '#8b5cf6',
       punchline: '« T\'as l\'air bien suspicieux toi... »'
@@ -54,7 +52,6 @@
       role: 'Dev',
       promo: 'Alfred Grévin',
       age: 22,
-      apparence: 'Beau',
       initiales: 'CH',
       avatarColor: '#06b6d4',
       punchline: '« Tout est codé, tout est polyvalent ! »'
@@ -72,7 +69,6 @@
       role: 'Ancien',
       promo: 'Alfred Grévin',
       age: 21,
-      apparence: 'Beau',
       initiales: 'TH',
       avatarColor: '#10b981',
       punchline: '« Un vrai ancien sait toujours s\'adapter. »'
@@ -90,16 +86,15 @@
       role: 'Graph, Ancien',
       promo: 'Alfred Grévin',
       age: 21,
-      apparence: 'Beau',
       initiales: 'ET',
       avatarColor: '#f59e0b',
       punchline: '« 1m82 au compteur, du haut de mon expérience ! »'
     }
   ];
 
-  // Storage key bumped to v2 so old cached 20-member roster is cleanly replaced
-  const STORAGE_KEY = 'supercaraquiz_creasupdle_roster_v2';
-  const STATS_STORAGE_KEY = 'supercaraquiz_creasupdle_stats_v2';
+  // Storage key bumped to v3 to refresh active roster
+  const STORAGE_KEY = 'supercaraquiz_creasupdle_roster_v3';
+  const STATS_STORAGE_KEY = 'supercaraquiz_creasupdle_stats_v3';
 
   // Retrieve current active roster (custom + defaults)
   function getCreasupdleRoster() {
