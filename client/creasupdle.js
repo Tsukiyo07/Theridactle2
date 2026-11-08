@@ -112,45 +112,59 @@
     history: []
   };
 
-  // Ranking helpers for comparisons
-  const TAILLE_RANKS = {
-    'petit': 1,
-    'moyen': 2,
-    'grand': 3
-  };
-
-  function getTailleRank(tailleStr) {
-    if (!tailleStr) return 2;
-    const clean = tailleStr.toLowerCase().trim();
-    if (clean.includes('petit')) return 1;
-    if (clean.includes('grand')) return 3;
-    return 2; // moyen
+  // Parse height in cm from string (e.g. "1m73" -> 173, "1m82" -> 182)
+  function parseTailleCm(str) {
+    if (!str) return 170;
+    if (typeof str === 'number') return str;
+    const s = String(str).toLowerCase().trim();
+    const mMatch = s.match(/(\d+)m(\d+)/);
+    if (mMatch) {
+      const meters = parseInt(mMatch[1], 10);
+      const cm = parseInt(mMatch[2], 10);
+      return meters * 100 + (cm < 10 ? cm * 10 : cm);
+    }
+    const numMatch = s.match(/(\d+)/);
+    if (numMatch) {
+      const val = parseInt(numMatch[1], 10);
+      if (val < 3) return Math.round(val * 100);
+      return val;
+    }
+    return 170;
   }
 
+  // Normalize string for clean comparison (lowercase, trim, strip accents)
+  function norm(str) {
+    if (!str) return '';
+    return String(str)
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // Compare Hair (supports partial matches for multi-colors like "Châtain, Blond" or similar shades)
   function isCloseHair(h1, h2) {
     if (!h1 || !h2) return false;
-    const a = h1.toLowerCase().trim();
-    const b = h2.toLowerCase().trim();
+    const a = norm(h1);
+    const b = norm(h2);
     if (a === b) return false;
-    // Châtain and Brun are close
-    if ((a.includes('brun') && b.includes('châtain')) || (a.includes('châtain') && b.includes('brun'))) return true;
-    if ((a.includes('blond') && b.includes('châtain')) || (a.includes('châtain') && b.includes('blond'))) return true;
-    if ((a.includes('noir') && b.includes('brun')) || (a.includes('brun') && b.includes('noir'))) return true;
+    const partsA = a.split(/[,/ ]+/).filter(Boolean);
+    const partsB = b.split(/[,/ ]+/).filter(Boolean);
+    const hasOverlap = partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
+    if (hasOverlap) return true;
+    if ((a.includes('marron') && b.includes('chatain')) || (a.includes('chatain') && b.includes('marron'))) return true;
     return false;
   }
 
+  // Compare Role (supports partial matches like "Graph, Ancien" with "Graph" or "Ancien")
   function isCloseRole(r1, r2) {
     if (!r1 || !r2) return false;
-    const a = r1.toLowerCase().trim();
-    const b = r2.toLowerCase().trim();
+    const a = norm(r1);
+    const b = norm(r2);
     if (a === b) return false;
-    // Graphiste and DA are close
-    if ((a.includes('graph') && b.includes('da')) || (a.includes('da') && b.includes('graph'))) return true;
-    // Graphiste and Motion are close
-    if ((a.includes('graph') && b.includes('motion')) || (a.includes('motion') && b.includes('graph'))) return true;
-    // Concepteur and DA are close
-    if ((a.includes('conce') && b.includes('da')) || (a.includes('da') && b.includes('conce'))) return true;
-    return false;
+    const partsA = a.split(/[,/ ]+/).filter(Boolean);
+    const partsB = b.split(/[,/ ]+/).filter(Boolean);
+    return partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
   }
 
   // Pick deterministic Daily Target based on current calendar date
@@ -174,67 +188,93 @@
     return pool[randomIndex];
   }
 
-  // Compare a guess with the target
+  // Compare a guess with the target across all 9 categories
   function compareGuess(guess, target) {
+    // 1. Genre
+    const genreMatch = norm(guess.genre) === norm(target.genre);
+
+    // 2. Situation (Célibataire / Couple)
+    const situationMatch = norm(guess.situation) === norm(target.situation);
+
+    // 3. Orientation (Hétéro / Suspicieux / Polyvalent)
+    const orientationMatch = norm(guess.orientation) === norm(target.orientation);
+
+    // 4. Cheveux (Marron / Châtain / Châtain, Blond)
+    const cheveuxMatch = norm(guess.cheveux) === norm(target.cheveux);
+    const cheveuxPartial = !cheveuxMatch && isCloseHair(guess.cheveux, target.cheveux);
+
+    // 5. Taille (numeric cm comparison with ▲ / ▼ arrows)
+    const guessCm = parseTailleCm(guess.taille);
+    const targetCm = parseTailleCm(target.taille);
+    const tailleMatch = guessCm === targetCm;
+    let tailleArrow = '';
+    if (targetCm > guessCm) tailleArrow = 'up';
+    else if (targetCm < guessCm) tailleArrow = 'down';
+
+    // 6. Rôle (Graph, Ancien / Graph / Dev / Ancien)
+    const roleMatch = norm(guess.role) === norm(target.role);
+    const rolePartial = !roleMatch && isCloseRole(guess.role, target.role);
+
+    // 7. Promo (Alfred Grévin)
+    const promoMatch = norm(guess.promo) === norm(target.promo);
+
+    // 8. Âge (numeric comparison with ▲ / ▼ arrows)
+    const guessAge = Number(guess.age);
+    const targetAge = Number(target.age);
+    const ageMatch = guessAge === targetAge;
+    let ageArrow = '';
+    if (targetAge > guessAge) ageArrow = 'up';
+    else if (targetAge < guessAge) ageArrow = 'down';
+
+    // 9. Beau / Moche
+    const apparenceMatch = norm(guess.apparence) === norm(target.apparence);
+
     const result = {
       person: guess,
       genre: {
         value: guess.genre,
-        status: guess.genre.toLowerCase() === target.genre.toLowerCase() ? 'correct' : 'wrong'
+        status: genreMatch ? 'correct' : 'wrong'
+      },
+      situation: {
+        value: guess.situation,
+        status: situationMatch ? 'correct' : 'wrong'
+      },
+      orientation: {
+        value: guess.orientation,
+        status: orientationMatch ? 'correct' : 'wrong'
       },
       cheveux: {
         value: guess.cheveux,
-        status: guess.cheveux.toLowerCase() === target.cheveux.toLowerCase() 
-          ? 'correct' 
-          : (isCloseHair(guess.cheveux, target.cheveux) ? 'partial' : 'wrong')
+        status: cheveuxMatch ? 'correct' : (cheveuxPartial ? 'partial' : 'wrong')
       },
       taille: {
         value: guess.taille,
-        status: guess.taille.toLowerCase() === target.taille.toLowerCase() ? 'correct' : 'wrong',
-        arrow: ''
+        status: tailleMatch ? 'correct' : 'wrong',
+        arrow: tailleArrow
       },
       role: {
         value: guess.role,
-        status: guess.role.toLowerCase() === target.role.toLowerCase() 
-          ? 'correct' 
-          : (isCloseRole(guess.role, target.role) ? 'partial' : 'wrong')
+        status: roleMatch ? 'correct' : (rolePartial ? 'partial' : 'wrong')
       },
-      annee: {
-        value: guess.annee,
-        status: Number(guess.annee) === Number(target.annee) ? 'correct' : 'wrong',
-        arrow: ''
+      promo: {
+        value: guess.promo || 'Alfred Grévin',
+        status: promoMatch ? 'correct' : 'wrong'
       },
       age: {
         value: guess.age,
-        status: Number(guess.age) === Number(target.age) ? 'correct' : 'wrong',
-        arrow: ''
+        status: ageMatch ? 'correct' : 'wrong',
+        arrow: ageArrow
       },
       apparence: {
         value: guess.apparence,
-        status: guess.apparence.toLowerCase() === target.apparence.toLowerCase() ? 'correct' : 'wrong'
+        status: apparenceMatch ? 'correct' : 'wrong'
       }
     };
 
-    // Calculate Directional Arrows
-    const guessRank = getTailleRank(guess.taille);
-    const targetRank = getTailleRank(target.taille);
-    if (targetRank > guessRank) result.taille.arrow = 'up';
-    else if (targetRank < guessRank) result.taille.arrow = 'down';
-
-    if (Number(target.annee) > Number(guess.annee)) result.annee.arrow = 'up';
-    else if (Number(target.annee) < Number(guess.annee)) result.annee.arrow = 'down';
-
-    if (Number(target.age) > Number(guess.age)) result.age.arrow = 'up';
-    else if (Number(target.age) < Number(guess.age)) result.age.arrow = 'down';
-
     const isMatch = guess.id === target.id || (
-      result.genre.status === 'correct' &&
-      result.cheveux.status === 'correct' &&
-      result.taille.status === 'correct' &&
-      result.role.status === 'correct' &&
-      result.annee.status === 'correct' &&
-      result.age.status === 'correct' &&
-      result.apparence.status === 'correct'
+      genreMatch && situationMatch && orientationMatch &&
+      cheveuxMatch && tailleMatch && roleMatch &&
+      promoMatch && ageMatch && apparenceMatch
     );
 
     return { result, isMatch };
@@ -280,7 +320,7 @@
     };
   }
 
-  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v1';
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v2';
 
   function saveSessionState() {
     try {
@@ -416,36 +456,36 @@
 
   function updateCluesUI() {
     const tries = state.guesses.length;
-    // Clue 1: Initiales (unlocks after 3 tries)
+    // Clue 1: Initiales (unlocks after 2 tries)
     if (dom.clueInitiales) {
-      if (tries >= 3 || state.isWon) {
+      if (tries >= 2 || state.isWon) {
         dom.clueInitiales.classList.remove('locked');
         dom.clueInitiales.innerHTML = `<span class="clue-tag">Indice 1</span> <strong>Initiales :</strong> ${state.target.initiales || state.target.nom.charAt(0)}`;
       } else {
         dom.clueInitiales.classList.add('locked');
-        dom.clueInitiales.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 3 essais (${tries}/3)`;
+        dom.clueInitiales.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 2 essais (${tries}/2)`;
       }
     }
 
-    // Clue 2: Logiciel & Rôle (unlocks after 6 tries)
+    // Clue 2: Rôle & Orientation (unlocks after 3 tries)
     if (dom.clueRole) {
-      if (tries >= 6 || state.isWon) {
+      if (tries >= 3 || state.isWon) {
         dom.clueRole.classList.remove('locked');
-        dom.clueRole.innerHTML = `<span class="clue-tag">Indice 2</span> <strong>Outil :</strong> ${state.target.logiciel || 'Figma'}`;
+        dom.clueRole.innerHTML = `<span class="clue-tag">Indice 2</span> <strong>Rôle &amp; Orientation :</strong> ${state.target.role} • ${state.target.orientation}`;
       } else {
         dom.clueRole.classList.add('locked');
-        dom.clueRole.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 6 essais (${tries}/6)`;
+        dom.clueRole.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 3 essais (${tries}/3)`;
       }
     }
 
-    // Clue 3: Punchline (unlocks after 9 tries)
+    // Clue 3: Citation culte (unlocks after 4 tries)
     if (dom.cluePunchline) {
-      if (tries >= 9 || state.isWon) {
+      if (tries >= 4 || state.isWon) {
         dom.cluePunchline.classList.remove('locked');
         dom.cluePunchline.innerHTML = `<span class="clue-tag">Indice 3</span> <em>${state.target.punchline || '« Pas d\'inspi sur ce coup-là... »'}</em>`;
       } else {
         dom.cluePunchline.classList.add('locked');
-        dom.cluePunchline.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 9 essais (${tries}/9)`;
+        dom.cluePunchline.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 4 essais (${tries}/4)`;
       }
     }
   }
@@ -495,7 +535,7 @@
           </div>
           <div class="creasupdle-dropdown-info">
             <div class="creasupdle-dropdown-name">${m.nomComplet || m.nom} ${m.surnom ? `<span class="creasupdle-dropdown-surnom">(${m.surnom})</span>` : ''}</div>
-            <div class="creasupdle-dropdown-role">${m.role} • Promo ${m.annee}</div>
+            <div class="creasupdle-dropdown-role">${m.role} • Promo ${m.promo || 'Alfred Grévin'} • ${m.age} ans</div>
           </div>
           <span class="creasupdle-dropdown-arrow">↵</span>
         </div>
@@ -571,12 +611,14 @@
     // Tiles configuration:
     // 1. Photo / Nom
     // 2. Genre
-    // 3. Cheveux
-    // 4. Taille (Grand/Moyen/Petit avec flèche)
-    // 5. Rôle (Graph/Conce)
-    // 6. Promo / Intégration (Année avec flèche)
-    // 7. Âge (avec flèche)
-    // 8. Beau / Moche (Beau / Moche)
+    // 3. Situation
+    // 4. Orientation
+    // 5. Cheveux
+    // 6. Taille (avec flèche)
+    // 7. Rôle
+    // 8. Promo
+    // 9. Âge (avec flèche)
+    // 10. Beau / Moche
 
     const tilesData = [
       {
@@ -591,6 +633,16 @@
         type: 'genre',
         label: guessResult.genre.value,
         status: guessResult.genre.status
+      },
+      {
+        type: 'situation',
+        label: guessResult.situation.value,
+        status: guessResult.situation.status
+      },
+      {
+        type: 'orientation',
+        label: guessResult.orientation.value,
+        status: guessResult.orientation.status
       },
       {
         type: 'cheveux',
@@ -609,10 +661,9 @@
         status: guessResult.role.status
       },
       {
-        type: 'annee',
-        label: `${guessResult.annee.value}`,
-        status: guessResult.annee.status,
-        arrow: guessResult.annee.arrow
+        type: 'promo',
+        label: guessResult.promo.value,
+        status: guessResult.promo.status
       },
       {
         type: 'age',
@@ -711,22 +762,25 @@
     const reversedGuesses = state.guesses.slice().reverse();
     const matrix = reversedGuesses.map(g => {
       const row = [];
-      // Genre
+      // 1. Genre
       row.push(g.genre.status === 'correct' ? '🟩' : '🟥');
-      // Cheveux
+      // 2. Situation
+      row.push(g.situation.status === 'correct' ? '🟩' : '🟥');
+      // 3. Orientation
+      row.push(g.orientation.status === 'correct' ? '🟩' : '🟥');
+      // 4. Cheveux
       row.push(g.cheveux.status === 'correct' ? '🟩' : (g.cheveux.status === 'partial' ? '🟧' : '🟥'));
-      // Taille
+      // 5. Taille
       if (g.taille.status === 'correct') row.push('🟩');
       else row.push(g.taille.arrow === 'up' ? '⬆️' : '⬇️');
-      // Role
+      // 6. Role
       row.push(g.role.status === 'correct' ? '🟩' : (g.role.status === 'partial' ? '🟧' : '🟥'));
-      // Annee
-      if (g.annee.status === 'correct') row.push('🟩');
-      else row.push(g.annee.arrow === 'up' ? '⬆️' : '⬇️');
-      // Age
+      // 7. Promo
+      row.push(g.promo.status === 'correct' ? '🟩' : '🟥');
+      // 8. Age
       if (g.age.status === 'correct') row.push('🟩');
       else row.push(g.age.arrow === 'up' ? '⬆️' : '⬇️');
-      // Beau / Moche
+      // 9. Beau / Moche
       row.push(g.apparence.status === 'correct' ? '🟩' : '🟥');
       return row.join('');
     }).join('\n');
@@ -784,10 +838,12 @@
             </div>
             <div class="creasupdle-roster-tags">
               <span class="rtag">👤 ${m.genre}</span>
+              <span class="rtag">💍 ${m.situation || 'Célibataire'}</span>
+              <span class="rtag">🧭 ${m.orientation || 'Hétéro'}</span>
               <span class="rtag">💇 ${m.cheveux}</span>
               <span class="rtag">📏 ${m.taille}</span>
               <span class="rtag">💼 ${m.role}</span>
-              <span class="rtag">📅 Promo ${m.annee}</span>
+              <span class="rtag">🎓 ${m.promo || 'Alfred Grévin'}</span>
               <span class="rtag">🎂 ${m.age} ans</span>
             </div>
             ${m.punchline ? `<div class="creasupdle-roster-punchline">${m.punchline}</div>` : ''}
@@ -843,16 +899,17 @@
       id: 'custom-' + Date.now(),
       nom: nom.split(' ')[0],
       nomComplet: nom,
-      surnom: form.querySelector('#member-surnom').value.trim(),
-      genre: form.querySelector('#member-genre').value,
-      cheveux: form.querySelector('#member-cheveux').value,
-      taille: form.querySelector('#member-taille').value,
-      role: form.querySelector('#member-role').value,
-      annee: parseInt(form.querySelector('#member-annee').value, 10) || 2024,
-      age: parseInt(form.querySelector('#member-age').value, 10) || 22,
-      apparence: form.querySelector('#member-apparence').value,
-      logiciel: form.querySelector('#member-logiciel').value.trim() || 'Figma',
-      punchline: form.querySelector('#member-punchline').value.trim() || '« Prêt pour le rendu de minuit ! »',
+      surnom: form.querySelector('#member-surnom') ? form.querySelector('#member-surnom').value.trim() : '',
+      genre: form.querySelector('#member-genre') ? form.querySelector('#member-genre').value : 'Homme',
+      situation: form.querySelector('#member-situation') ? form.querySelector('#member-situation').value : 'Célibataire',
+      orientation: form.querySelector('#member-orientation') ? form.querySelector('#member-orientation').value : 'Hétéro',
+      cheveux: form.querySelector('#member-cheveux') ? form.querySelector('#member-cheveux').value : 'Marron',
+      taille: form.querySelector('#member-taille') ? form.querySelector('#member-taille').value.trim() : '1m73',
+      role: form.querySelector('#member-role') ? form.querySelector('#member-role').value.trim() : 'Graph',
+      promo: form.querySelector('#member-promo') ? form.querySelector('#member-promo').value.trim() : 'Alfred Grévin',
+      age: parseInt(form.querySelector('#member-age') ? form.querySelector('#member-age').value : '21', 10) || 21,
+      apparence: form.querySelector('#member-apparence') ? form.querySelector('#member-apparence').value : 'Beau',
+      punchline: form.querySelector('#member-punchline') ? form.querySelector('#member-punchline').value.trim() : '',
       initiales: initials,
       avatarColor: randomColor
     };

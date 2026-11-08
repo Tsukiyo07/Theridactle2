@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261108_creasupdle_fix_v2">
+ <link rel="stylesheet" href="style.css?v=20261108_roster_grevin_v3">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -277,13 +277,13 @@
        <span class="spotlight-subtitle-badge">Le OnePieceDle de Créasup</span>
       </div>
       <p class="spotlight-desc">
-       Trouvez le membre mystère en comparant 8 caractéristiques : son <strong>genre</strong>, ses <strong>cheveux</strong>, sa <strong>taille</strong> (▲/▼), son <strong>rôle</strong>, sa <strong>promo</strong>, son <strong>âge</strong> et s'il est <strong>Beau ou Moche</strong> !
+       Trouvez le membre mystère en comparant ses 9 attributs : <strong>genre</strong>, <strong>situation</strong>, <strong>orientation</strong>, <strong>cheveux</strong>, <strong>taille</strong> (▲/▼), <strong>rôle</strong>, <strong>promo</strong>, <strong>âge</strong> (▲/▼) et <strong>Beau / Moche</strong> !
       </p>
       
       <div class="spotlight-features-list">
-       <span class="sfeat">🎯 8 Attributs Comparés</span>
+       <span class="sfeat">🎯 9 Attributs Comparés</span>
+       <span class="sfeat">👥 Promo Alfred Grévin</span>
        <span class="sfeat">📅 Quotidien &amp; ♾️ Infini</span>
-       <span class="sfeat">👥 Trombinoscope</span>
        <span class="sfeat">🧩 Indices Progressifs</span>
       </div>
      </div>
@@ -3233,6 +3233,8 @@
      <div class="creasupdle-table-header">
       <div class="th-cell th-person">Personne</div>
       <div class="th-cell">Genre</div>
+      <div class="th-cell">Situation</div>
+      <div class="th-cell">Orientation</div>
       <div class="th-cell">Cheveux</div>
       <div class="th-cell">Taille</div>
       <div class="th-cell">Rôle</div>
@@ -3358,12 +3360,12 @@
     <form id="creasupdle-member-form" class="creasupdle-form">
      <div class="form-row">
       <div class="form-group flex-2">
-       <label for="member-nom">Prénom & Nom *</label>
-       <input type="text" id="member-nom" required placeholder="Ex: Lucas Dupont">
+       <label for="member-nom">Prénom ou Nom *</label>
+       <input type="text" id="member-nom" required placeholder="Ex: Tibo, Clément...">
       </div>
       <div class="form-group flex-1">
        <label for="member-surnom">Surnom / Titre</label>
-       <input type="text" id="member-surnom" placeholder="Ex: Le Goat du Motion">
+       <input type="text" id="member-surnom" placeholder="Ex: Le Graph Suspicieux">
       </div>
      </div>
 
@@ -3371,71 +3373,72 @@
       <div class="form-group flex-1">
        <label for="member-genre">Genre</label>
        <select id="member-genre">
-        <option value="Homme">Homme</option>
+        <option value="Homme" selected>Homme</option>
         <option value="Femme">Femme</option>
        </select>
       </div>
       <div class="form-group flex-1">
+       <label for="member-situation">Situation</label>
+       <select id="member-situation">
+        <option value="Célibataire" selected>Célibataire</option>
+        <option value="Couple">Couple</option>
+       </select>
+      </div>
+      <div class="form-group flex-1">
+       <label for="member-orientation">Orientation</label>
+       <select id="member-orientation">
+        <option value="Hétéro" selected>Hétéro</option>
+        <option value="Suspicieux">Suspicieux</option>
+        <option value="Polyvalent">Polyvalent</option>
+       </select>
+      </div>
+     </div>
+
+     <div class="form-row">
+      <div class="form-group flex-1">
        <label for="member-cheveux">Cheveux</label>
        <select id="member-cheveux">
-        <option value="Brun">Brun</option>
+        <option value="Marron" selected>Marron</option>
         <option value="Châtain">Châtain</option>
+        <option value="Châtain, Blond">Châtain, Blond</option>
         <option value="Blond">Blond</option>
         <option value="Noir">Noir</option>
         <option value="Roux">Roux</option>
-        <option value="Chauve">Chauve</option>
         <option value="Coloré">Coloré</option>
+        <option value="Chauve">Chauve</option>
        </select>
       </div>
       <div class="form-group flex-1">
        <label for="member-taille">Taille</label>
-       <select id="member-taille">
-        <option value="Grand">Grand (&gt; 1m80)</option>
-        <option value="Moyen" selected>Moyen (1m70 - 1m80)</option>
-        <option value="Petit">Petit (&lt; 1m70)</option>
-       </select>
+       <input type="text" id="member-taille" placeholder="Ex: 1m73" value="1m73" required>
+      </div>
+      <div class="form-group flex-1">
+       <label for="member-role">Rôle Créasup</label>
+       <input type="text" id="member-role" placeholder="Ex: Graph, Ancien, Dev..." value="Graph" required>
       </div>
      </div>
 
      <div class="form-row">
       <div class="form-group flex-2">
-       <label for="member-role">Rôle Créasup</label>
-       <select id="member-role">
-        <option value="Graphiste">Graphiste</option>
-        <option value="Concepteur">Concepteur</option>
-        <option value="DA (Direction Artistique)">DA (Direction Artistique)</option>
-        <option value="Motion Designer">Motion Designer</option>
-        <option value="Développeur / Tech">Développeur / Tech</option>
-        <option value="Staff / Intervenant">Staff / Intervenant</option>
-       </select>
-      </div>
-      <div class="form-group flex-1">
-       <label for="member-annee">Promo (Année)</label>
-       <input type="number" id="member-annee" min="2015" max="2030" value="2023" required>
+       <label for="member-promo">Promo</label>
+       <input type="text" id="member-promo" placeholder="Ex: Alfred Grévin" value="Alfred Grévin" required>
       </div>
       <div class="form-group flex-1">
        <label for="member-age">Âge</label>
-       <input type="number" id="member-age" min="16" max="99" value="22" required>
+       <input type="number" id="member-age" min="16" max="99" value="21" required>
       </div>
-     </div>
-
-     <div class="form-row">
       <div class="form-group flex-1">
-       <label for="member-apparence">Catégorie Beau / Moche *</label>
+       <label for="member-apparence">Beau / Moche *</label>
        <select id="member-apparence">
         <option value="Beau" selected>Beau ✨</option>
         <option value="Moche">Moche 💀</option>
        </select>
       </div>
-      <div class="form-group flex-2">
-       <label for="member-logiciel">Logiciel / Outil fétiche</label>
-       <input type="text" id="member-logiciel" placeholder="Ex: After Effects, Figma, Blender...">
-      </div>
      </div>
 
      <div class="form-group">
       <label for="member-punchline">Citation culte / Habitude</label>
-      <input type="text" id="member-punchline" placeholder="Ex: « Mon rendu plante encore à 99% ! »">
+      <input type="text" id="member-punchline" placeholder="Ex: « Toujours dans la place ! »">
      </div>
 
      <div class="form-actions-row">
@@ -3679,9 +3682,9 @@
 
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
  <script src="imposteur-words.js?v=20261008"></script>
- <script src="creasupdle-data.js?v=20261108_fix_v2"></script>
- <script src="creasupdle.js?v=20261108_fix_v2"></script>
+ <script src="creasupdle-data.js?v=20261108_roster_grevin_v3"></script>
+ <script src="creasupdle.js?v=20261108_roster_grevin_v3"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20261108_fix_v2"></script>
+ <script src="app.js?v=20261108_roster_grevin_v3"></script>
 </body>
 </html>
