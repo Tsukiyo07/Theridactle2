@@ -8502,21 +8502,27 @@ select option:focus,
   position: relative;
   max-width: 1140px;
   width: 100%;
-  margin: 1.5rem auto 2.25rem auto;
+  margin: 0 auto 2.25rem auto;
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(20px) saturate(180%);
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.88) 0%, rgba(15, 23, 42, 0.92) 100%);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
   border: 1.5px solid rgba(139, 92, 246, 0.45);
-  box-shadow: 0 16px 40px -10px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.15);
-  overflow: hidden;
+  box-shadow: 0 16px 40px -10px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  flex-shrink: 0 !important;
+  min-height: auto !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  overflow: hidden;
+  display: block;
 }
 
 .portal-spotlight-box:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   border-color: rgba(168, 85, 247, 0.75);
-  box-shadow: 0 24px 50px -10px rgba(99, 102, 241, 0.5), 0 0 30px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 24px 50px -10px rgba(99, 102, 241, 0.5), 0 0 30px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .portal-spotlight-box:active {
@@ -8527,19 +8533,22 @@ select option:focus,
   position: absolute;
   top: 0;
   right: 0;
-  width: 60%;
+  width: 55%;
   height: 100%;
   background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.12) 40%, transparent 70%);
   pointer-events: none;
+  z-index: 0;
 }
 
 .spotlight-content {
   position: relative;
-  padding: 1.5rem 1.75rem;
+  padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
   z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .spotlight-badge-row {
@@ -8547,6 +8556,7 @@ select option:focus,
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .spotlight-pill {
@@ -8556,7 +8566,7 @@ select option:focus,
   background: rgba(139, 92, 246, 0.2);
   color: #c7d2fe;
   border: 1px solid rgba(139, 92, 246, 0.4);
-  padding: 4px 12px;
+  padding: 5px 12px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 800;
@@ -8582,23 +8592,38 @@ select option:focus,
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-muted);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
+  padding: 5px 11px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
 
+.spotlight-status-tag {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
 .spotlight-main-row {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: space-between;
+  gap: 1.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .spotlight-icon-wrap {
   width: 76px;
   height: 76px;
-  border-radius: 20px;
+  min-width: 76px;
+  border-radius: 18px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   display: flex;
   align-items: center;
@@ -8610,16 +8635,18 @@ select option:focus,
 }
 
 .portal-spotlight-box:hover .spotlight-icon-wrap {
-  transform: scale(1.08) rotate(3deg);
+  transform: scale(1.06) rotate(2deg);
 }
 
 .spotlight-icon-wrap svg {
   width: 38px;
   height: 38px;
+  display: block;
 }
 
 .spotlight-text-col {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -8633,6 +8660,7 @@ select option:focus,
 }
 
 .spotlight-title {
+  font-family: var(--font-title);
   font-size: 1.75rem;
   font-weight: 850;
   margin: 0;
@@ -8640,6 +8668,7 @@ select option:focus,
   background: linear-gradient(135deg, #ffffff 0%, #ddd6fe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.2;
 }
 
 .spotlight-subtitle-badge {
@@ -8655,13 +8684,14 @@ select option:focus,
 .spotlight-desc {
   font-size: 13.5px;
   color: #cbd5e1;
-  line-height: 1.5;
+  line-height: 1.55;
   margin: 0;
-  max-width: 680px;
+  max-width: 720px;
 }
 
 .spotlight-desc strong {
   color: #f1f5f9;
+  font-weight: 700;
 }
 
 .spotlight-features-list {
@@ -8680,10 +8710,13 @@ select option:focus,
   padding: 3px 9px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
 }
 
 .spotlight-action-col {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .btn-spotlight-play {
@@ -8692,14 +8725,15 @@ select option:focus,
   border: none;
   border-radius: 14px;
   padding: 14px 26px;
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
   font-weight: 800;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.2s ease, background 0.2s ease;
   white-space: nowrap;
 }
 
@@ -8713,11 +8747,18 @@ select option:focus,
   transform: scale(0.97);
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
+  .portal-spotlight-box {
+    margin-bottom: 1.5rem;
+  }
+  .spotlight-content {
+    padding: 1.25rem 1.25rem;
+    gap: 1rem;
+  }
   .spotlight-main-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 1.25rem;
   }
   .spotlight-action-col {
     width: 100%;

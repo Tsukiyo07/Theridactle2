@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20260828_graouu_lobby_restored_v15">
+ <link rel="stylesheet" href="style.css?v=20261108_creasupdle_fix_v2">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -249,6 +249,55 @@
 
  <!-- 1. MAIN PORTAL VIEW -->
  <section id="portal-view" class="portal-container active-view">
+  <!-- ENCADRÉ VEDETTE TOUT EN HAUT: CREASUPDLE -->
+  <div class="portal-spotlight-box" id="spotlight-creasupdle" role="region" aria-label="Jeu à la une Creasupdle">
+   <div class="spotlight-glow"></div>
+   <div class="spotlight-content">
+    <div class="spotlight-badge-row">
+     <span class="spotlight-pill">
+      <span class="spotlight-dot"></span>
+      À LA UNE • SPÉCIAL CRÉASUP
+     </span>
+     <span class="spotlight-tag">ONEPIECEDLE GAME</span>
+     <span class="spotlight-status-tag">NOUVEAU</span>
+    </div>
+
+    <div class="spotlight-main-row">
+     <div class="spotlight-icon-wrap" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+       <path d="m12 19 7-7 3 3-7 7-3-3z"/>
+       <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+       <circle cx="11" cy="11" r="2" fill="currentColor"/>
+      </svg>
+     </div>
+
+     <div class="spotlight-text-col">
+      <div class="spotlight-title-row">
+       <h2 class="spotlight-title">Creasupdle</h2>
+       <span class="spotlight-subtitle-badge">Le OnePieceDle de Créasup</span>
+      </div>
+      <p class="spotlight-desc">
+       Trouvez le membre mystère en comparant 8 caractéristiques : son <strong>genre</strong>, ses <strong>cheveux</strong>, sa <strong>taille</strong> (▲/▼), son <strong>rôle</strong>, sa <strong>promo</strong>, son <strong>âge</strong> et s'il est <strong>Beau ou Moche</strong> !
+      </p>
+      
+      <div class="spotlight-features-list">
+       <span class="sfeat">🎯 8 Attributs Comparés</span>
+       <span class="sfeat">📅 Quotidien &amp; ♾️ Infini</span>
+       <span class="sfeat">👥 Trombinoscope</span>
+       <span class="sfeat">🧩 Indices Progressifs</span>
+      </div>
+     </div>
+
+     <div class="spotlight-action-col">
+      <button class="btn btn-spotlight-play" id="btn-spotlight-creasupdle" type="button">
+       <span>Jouer à Creasupdle</span>
+       <svg class="inline-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+     </div>
+    </div>
+   </div>
+  </div>
+
   <div class="portal-hero">
    <div class="hero-logo-center">
     <div class="hero-shader-logo-wrap" id="hero-logo-shader">
@@ -263,54 +312,6 @@
    </div>
    <h1 class="hero-title"><span class="hero-super-red">Super</span><span class="hero-title-brand">CaraQuiz</span> — L'Arcade Ultime de vos <span class="text-gradient">Soirées</span></h1>
    <p class="hero-subtitle">8 expériences interactives instantanées sur SuperCaraQuiz. Défiez vos amis, explorez les encyclopédies et grimpez au sommet du classement SuperCaraQuiz.</p>
-  </div>
-
-  <!-- ENCADRÉ VEDETTE TOUT EN HAUT: CREASUPDLE -->
-  <div class="portal-spotlight-box glass-panel" id="spotlight-creasupdle">
-   <div class="spotlight-glow"></div>
-   <div class="spotlight-content">
-    <div class="spotlight-badge-row">
-     <span class="spotlight-pill">
-      <span class="spotlight-dot"></span>
-      À LA UNE • SPÉCIAL CRÉASUP
-     </span>
-     <span class="spotlight-tag">ONEPIECEDLE GAME</span>
-    </div>
-
-    <div class="spotlight-main-row">
-     <div class="spotlight-icon-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-       <path d="m12 19 7-7 3 3-7 7-3-3z"/>
-       <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-       <circle cx="11" cy="11" r="2" fill="currentColor"/>
-      </svg>
-     </div>
-
-     <div class="spotlight-text-col">
-      <div class="spotlight-title-row">
-       <h2 class="spotlight-title">Creasupdle</h2>
-       <span class="spotlight-subtitle-badge">Le OnePieceDle de Créasup</span>
-      </div>
-      <p class="spotlight-desc">
-       Trouvez le membre mystère de Créasup en comparant 8 caractéristiques : son <strong>genre</strong>, ses <strong>cheveux</strong>, sa <strong>taille</strong> (avec flèches ▲/▼), son <strong>rôle (graph/conce)</strong>, sa <strong>promo</strong>, son <strong>âge</strong>... et s'il est <strong>Beau ou Moche</strong> !
-      </p>
-      
-      <div class="spotlight-features-list">
-       <span class="sfeat">🎯 8 Attributs Comparés</span>
-       <span class="sfeat">📅 Quotidien &amp; ♾️ Infini</span>
-       <span class="sfeat">👥 Trombinoscope de Promo</span>
-       <span class="sfeat">🧩 Indices Progressifs</span>
-      </div>
-     </div>
-
-     <div class="spotlight-action-col">
-      <button class="btn btn-spotlight-play" id="btn-spotlight-creasupdle">
-       <span>Jouer à Creasupdle</span>
-       <svg class="inline-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-      </button>
-     </div>
-    </div>
-   </div>
   </div>
 
   <div class="portal-grid">
@@ -453,6 +454,22 @@
      <h2 class="card-title">Blind Test²</h2>
      <p class="card-desc">Le jeu musical à l'oreille absolue. Devinez le titre et l'artiste en continu à partir d'extraits de 0.1s à 10s. Enchaînez les morceaux à l'infini !</p>
      <button class="btn btn-card btn-card-songless" id="btn-portal-songless" onclick="event.stopPropagation(); showView('songlessMenu');">Jouer à Blind Test²</button>
+    </div>
+   </div>
+
+   <!-- Game Card: Creasupdle -->
+   <div class="game-card card-creasupdle" id="card-creasupdle">
+    <div class="card-glow"></div>
+    <div class="card-content">
+     <div class="card-header-row">
+      <div class="card-icon-badge card-icon-badge-creasup">
+       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><circle cx="11" cy="11" r="2" fill="currentColor"/></svg>
+      </div>
+      <span class="card-meta-tag tag-creasup">SPÉCIAL CRÉASUP</span>
+     </div>
+     <h2 class="card-title">Creasupdle</h2>
+     <p class="card-desc">Le OnePieceDle de Créasup. Trouvez le membre mystère en comparant ses 8 attributs physiques et de promo en mode quotidien ou infini !</p>
+     <button class="btn btn-card btn-card-creasup" id="btn-portal-creasupdle">Jouer à Creasupdle</button>
     </div>
    </div>
 
@@ -3662,9 +3679,9 @@
 
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
  <script src="imposteur-words.js?v=20261008"></script>
- <script src="creasupdle-data.js?v=20261108"></script>
- <script src="creasupdle.js?v=20261108"></script>
+ <script src="creasupdle-data.js?v=20261108_fix_v2"></script>
+ <script src="creasupdle.js?v=20261108_fix_v2"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20261008_presentiel_v1"></script>
+ <script src="app.js?v=20261108_fix_v2"></script>
 </body>
 </html>
