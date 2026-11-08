@@ -159,23 +159,21 @@
       .filter(Boolean);
   }
 
-  // Compare Hair (supports partial matches for multi-colors like "Châtain, Blond" or similar shades)
+  // Compare Hair exact match
+  function isHairExact(h1, h2) {
+    const p1 = splitTokens(h1).sort().join(',');
+    const p2 = splitTokens(h2).sort().join(',');
+    return p1 === p2;
+  }
+
+  // Compare Hair partial match (ONLY for shared color tokens in multi-colored hair like "Châtain, Blond" or "Brun, Blond")
   function isCloseHair(h1, h2) {
     if (!h1 || !h2) return false;
-    const a = norm(h1);
-    const b = norm(h2);
-    if (a === b) return false;
-    const partsA = a.split(/[,/ ]+/).filter(Boolean);
-    const partsB = b.split(/[,/ ]+/).filter(Boolean);
-    const hasOverlap = partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
-    if (hasOverlap) return true;
-    const shades = [
-      ['marron', 'chatain'],
-      ['marron', 'brun'],
-      ['chatain', 'brun'],
-      ['brun', 'noir']
-    ];
-    return shades.some(([s1, s2]) => (a.includes(s1) && b.includes(s2)) || (a.includes(s2) && b.includes(s1)));
+    if (isHairExact(h1, h2)) return false;
+    const partsA = splitTokens(h1);
+    const partsB = splitTokens(h2);
+    // Strict exact token match: e.g. "Brun, Blond" shares "Blond" with "Châtain, Blond", but NEVER matches "Noir"
+    return partsA.some(p => partsB.some(q => p === q));
   }
 
   // Compare Role exact match (irrespective of order: "Graph, Ancien" === "Ancien, Graph")
@@ -191,7 +189,7 @@
     if (isRoleExact(r1, r2)) return false;
     const partsA = splitTokens(r1);
     const partsB = splitTokens(r2);
-    return partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
+    return partsA.some(p => partsB.some(q => p === q));
   }
 
   // Compare Promo exact match (handles single or double promos)
@@ -207,7 +205,7 @@
     if (isPromoExact(p1, p2)) return false;
     const partsA = splitTokens(p1);
     const partsB = splitTokens(p2);
-    return partsA.some(p => partsB.some(q => p === q || p.includes(q) || q.includes(p)));
+    return partsA.some(p => partsB.some(q => p === q));
   }
 
   // Pick deterministic Daily Target based on current calendar date
@@ -243,7 +241,7 @@
     const orientationMatch = norm(guess.orientation) === norm(target.orientation);
 
     // 4. Cheveux (Noir / Marron / Châtain / Blond / Roux / Brun / Bonnet)
-    const cheveuxMatch = norm(guess.cheveux) === norm(target.cheveux);
+    const cheveuxMatch = isHairExact(guess.cheveux, target.cheveux);
     const cheveuxPartial = !cheveuxMatch && isCloseHair(guess.cheveux, target.cheveux);
 
     // 5. Taille (numeric cm comparison with ▲ / ▼ arrows)
@@ -357,7 +355,7 @@
     };
   }
 
-  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v4';
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v5';
 
   function saveSessionState() {
     try {
