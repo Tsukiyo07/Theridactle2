@@ -728,7 +728,6 @@
       });
     }
   }
-  }
 
   // --- Victory Modal & Share ---
   function showVictoryModal() {
@@ -1107,5 +1106,27 @@
     cacheDom();
     startNewRound(mode);
   };
+
+  window.openCreasupdle = function(mode = 'daily') {
+    if (typeof window.showView === 'function') {
+      window.showView('creasupdleGame');
+    } else {
+      document.querySelectorAll('.portal-container, .menu-container, .app-container').forEach(el => el.classList.add('view-hidden'));
+      const game = document.getElementById('creasupdle-game-view');
+      if (game) game.classList.remove('view-hidden');
+    }
+    if (typeof window.startCreasupdle === 'function') {
+      window.startCreasupdle(mode);
+    }
+  };
+
+  // Auto-initialize as soon as DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.initCreasupdle();
+    });
+  } else {
+    window.initCreasupdle();
+  }
 
 })(window);
