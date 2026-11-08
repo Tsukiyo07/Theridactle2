@@ -781,7 +781,28 @@
       });
     }
 
-    // Portal Game Card click
+    // Portal Game Spotlight & Card click
+    const spotlightPortal = document.getElementById('spotlight-creasupdle');
+    if (spotlightPortal) {
+      spotlightPortal.addEventListener('click', () => {
+        if (typeof window.showView === 'function') {
+          window.showView('creasupdleGame');
+          startNewRound('daily');
+        }
+      });
+    }
+
+    const btnSpotlight = document.getElementById('btn-spotlight-creasupdle');
+    if (btnSpotlight) {
+      btnSpotlight.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.showView === 'function') {
+          window.showView('creasupdleGame');
+          startNewRound('daily');
+        }
+      });
+    }
+
     const cardPortal = document.getElementById('card-creasupdle');
     if (cardPortal) {
       cardPortal.addEventListener('click', () => {
