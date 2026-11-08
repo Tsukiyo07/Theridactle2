@@ -1,0 +1,937 @@
+// client/creasupdle.js - Creasupdle Game Engine (OnePieceDle style for Creasup)
+(function(window) {
+  'use strict';
+
+  // --- Sound Effects Synthesizer (Web Audio API, zero dependencies) ---
+  const CreasupdleAudio = {
+    ctx: null,
+    muted: false,
+
+    init() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          this.ctx = new AudioContext();
+        }
+        const savedMute = localStorage.getItem('creasupdle_muted');
+        if (savedMute !== null) {
+          this.muted = savedMute === 'true';
+        }
+      } catch (e) {
+        console.warn('Web Audio not supported', e);
+      }
+    },
+
+    resume() {
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    },
+
+    playFlip(index = 0) {
+      if (this.muted || !this.ctx) return;
+      this.resume();
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const baseFreq = 320 + (index * 45);
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq + 80, this.ctx.currentTime + 0.08);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      } catch (e) {}
+    },
+
+    playWin() {
+      if (this.muted || !this.ctx) return;
+      this.resume();
+      try {
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const startTime = this.ctx.currentTime + (i * 0.11);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
+
+          gain.gain.setValueAtTime(0.12, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.35);
+        });
+      } catch (e) {}
+    },
+
+    playError() {
+      if (this.muted || !this.ctx) return;
+      this.resume();
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+      } catch (e) {}
+    },
+
+    toggleMute() {
+      this.muted = !this.muted;
+      localStorage.setItem('creasupdle_muted', String(this.muted));
+      return this.muted;
+    }
+  };
+
+  // --- Game Engine State ---
+  const state = {
+    mode: 'daily', // 'daily' or 'infinite'
+    target: null,
+    guesses: [],
+    isWon: false,
+    dailyDateStr: '',
+    selectedDropdownIndex: -1,
+    history: []
+  };
+
+  // Ranking helpers for comparisons
+  const TAILLE_RANKS = {
+    'petit': 1,
+    'moyen': 2,
+    'grand': 3
+  };
+
+  function getTailleRank(tailleStr) {
+    if (!tailleStr) return 2;
+    const clean = tailleStr.toLowerCase().trim();
+    if (clean.includes('petit')) return 1;
+    if (clean.includes('grand')) return 3;
+    return 2; // moyen
+  }
+
+  function isCloseHair(h1, h2) {
+    if (!h1 || !h2) return false;
+    const a = h1.toLowerCase().trim();
+    const b = h2.toLowerCase().trim();
+    if (a === b) return false;
+    // Châtain and Brun are close
+    if ((a.includes('brun') && b.includes('châtain')) || (a.includes('châtain') && b.includes('brun'))) return true;
+    if ((a.includes('blond') && b.includes('châtain')) || (a.includes('châtain') && b.includes('blond'))) return true;
+    if ((a.includes('noir') && b.includes('brun')) || (a.includes('brun') && b.includes('noir'))) return true;
+    return false;
+  }
+
+  function isCloseRole(r1, r2) {
+    if (!r1 || !r2) return false;
+    const a = r1.toLowerCase().trim();
+    const b = r2.toLowerCase().trim();
+    if (a === b) return false;
+    // Graphiste and DA are close
+    if ((a.includes('graph') && b.includes('da')) || (a.includes('da') && b.includes('graph'))) return true;
+    // Graphiste and Motion are close
+    if ((a.includes('graph') && b.includes('motion')) || (a.includes('motion') && b.includes('graph'))) return true;
+    // Concepteur and DA are close
+    if ((a.includes('conce') && b.includes('da')) || (a.includes('da') && b.includes('conce'))) return true;
+    return false;
+  }
+
+  // Pick deterministic Daily Target based on current calendar date
+  function getDailyTarget(roster) {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    let hash = 0;
+    for (let i = 0; i < dateStr.length; i++) {
+      hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
+      hash |= 0;
+    }
+    const index = Math.abs(hash) % roster.length;
+    return { target: roster[index], dateStr };
+  }
+
+  // Pick random target for infinite mode
+  function getRandomTarget(roster, excludeId = null) {
+    const pool = roster.filter(m => m.id !== excludeId);
+    if (pool.length === 0) return roster[0];
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    return pool[randomIndex];
+  }
+
+  // Compare a guess with the target
+  function compareGuess(guess, target) {
+    const result = {
+      person: guess,
+      genre: {
+        value: guess.genre,
+        status: guess.genre.toLowerCase() === target.genre.toLowerCase() ? 'correct' : 'wrong'
+      },
+      cheveux: {
+        value: guess.cheveux,
+        status: guess.cheveux.toLowerCase() === target.cheveux.toLowerCase() 
+          ? 'correct' 
+          : (isCloseHair(guess.cheveux, target.cheveux) ? 'partial' : 'wrong')
+      },
+      taille: {
+        value: guess.taille,
+        status: guess.taille.toLowerCase() === target.taille.toLowerCase() ? 'correct' : 'wrong',
+        arrow: ''
+      },
+      role: {
+        value: guess.role,
+        status: guess.role.toLowerCase() === target.role.toLowerCase() 
+          ? 'correct' 
+          : (isCloseRole(guess.role, target.role) ? 'partial' : 'wrong')
+      },
+      annee: {
+        value: guess.annee,
+        status: Number(guess.annee) === Number(target.annee) ? 'correct' : 'wrong',
+        arrow: ''
+      },
+      age: {
+        value: guess.age,
+        status: Number(guess.age) === Number(target.age) ? 'correct' : 'wrong',
+        arrow: ''
+      },
+      apparence: {
+        value: guess.apparence,
+        status: guess.apparence.toLowerCase() === target.apparence.toLowerCase() ? 'correct' : 'wrong'
+      }
+    };
+
+    // Calculate Directional Arrows
+    const guessRank = getTailleRank(guess.taille);
+    const targetRank = getTailleRank(target.taille);
+    if (targetRank > guessRank) result.taille.arrow = 'up';
+    else if (targetRank < guessRank) result.taille.arrow = 'down';
+
+    if (Number(target.annee) > Number(guess.annee)) result.annee.arrow = 'up';
+    else if (Number(target.annee) < Number(guess.annee)) result.annee.arrow = 'down';
+
+    if (Number(target.age) > Number(guess.age)) result.age.arrow = 'up';
+    else if (Number(target.age) < Number(guess.age)) result.age.arrow = 'down';
+
+    const isMatch = guess.id === target.id || (
+      result.genre.status === 'correct' &&
+      result.cheveux.status === 'correct' &&
+      result.taille.status === 'correct' &&
+      result.role.status === 'correct' &&
+      result.annee.status === 'correct' &&
+      result.age.status === 'correct' &&
+      result.apparence.status === 'correct'
+    );
+
+    return { result, isMatch };
+  }
+
+  // --- DOM Elements Cache ---
+  let dom = {};
+
+  function cacheDom() {
+    dom = {
+      view: document.getElementById('creasupdle-game-view'),
+      btnBack: document.getElementById('btn-back-creasupdle'),
+      btnRules: document.getElementById('btn-creasupdle-rules'),
+      btnRoster: document.getElementById('btn-creasupdle-roster'),
+      btnStats: document.getElementById('btn-creasupdle-stats'),
+      btnSound: document.getElementById('btn-creasupdle-sound'),
+      modeDailyBtn: document.getElementById('creasupdle-mode-daily'),
+      modeInfiniteBtn: document.getElementById('creasupdle-mode-infinite'),
+      searchInput: document.getElementById('creasupdle-search-input'),
+      dropdown: document.getElementById('creasupdle-search-dropdown'),
+      btnSubmit: document.getElementById('creasupdle-submit-btn'),
+      guessesContainer: document.getElementById('creasupdle-guesses-list'),
+      guessesCountBadge: document.getElementById('creasupdle-guesses-count'),
+      rosterCountBadge: document.getElementById('creasupdle-roster-count'),
+      // Clues
+      clueInitiales: document.getElementById('creasupdle-clue-initiales'),
+      clueRole: document.getElementById('creasupdle-clue-role'),
+      cluePunchline: document.getElementById('creasupdle-clue-punchline'),
+      // Modals
+      winModal: document.getElementById('creasupdle-win-modal'),
+      btnWinShare: document.getElementById('btn-creasupdle-win-share'),
+      btnWinReplay: document.getElementById('btn-creasupdle-win-replay'),
+      btnWinClose: document.getElementById('btn-creasupdle-win-close'),
+      rulesModal: document.getElementById('creasupdle-rules-modal'),
+      btnRulesClose: document.getElementById('btn-creasupdle-rules-close'),
+      rosterModal: document.getElementById('creasupdle-roster-modal'),
+      btnRosterClose: document.getElementById('btn-creasupdle-roster-close'),
+      btnAddMemberModal: document.getElementById('btn-creasupdle-add-member'),
+      rosterListContainer: document.getElementById('creasupdle-roster-items'),
+      memberFormModal: document.getElementById('creasupdle-member-form-modal'),
+      memberForm: document.getElementById('creasupdle-member-form'),
+      btnCancelMemberForm: document.getElementById('btn-creasupdle-form-cancel')
+    };
+  }
+
+  // Initialize new game round
+  function startNewRound(mode = 'daily') {
+    const roster = window.CREASUPDLE.getRoster();
+    state.mode = mode;
+    state.guesses = [];
+    state.isWon = false;
+    state.selectedDropdownIndex = -1;
+
+    if (mode === 'daily') {
+      const { target, dateStr } = getDailyTarget(roster);
+      state.target = target;
+      state.dailyDateStr = dateStr;
+      if (dom.modeDailyBtn) dom.modeDailyBtn.classList.add('active');
+      if (dom.modeInfiniteBtn) dom.modeInfiniteBtn.classList.remove('active');
+    } else {
+      state.target = getRandomTarget(roster, state.target ? state.target.id : null);
+      if (dom.modeDailyBtn) dom.modeDailyBtn.classList.remove('active');
+      if (dom.modeInfiniteBtn) dom.modeInfiniteBtn.classList.add('active');
+    }
+
+    // Reset UI
+    if (dom.searchInput) {
+      dom.searchInput.value = '';
+      dom.searchInput.disabled = false;
+      dom.searchInput.focus();
+    }
+    if (dom.btnSubmit) dom.btnSubmit.disabled = false;
+    if (dom.dropdown) dom.dropdown.classList.add('hidden');
+    if (dom.guessesContainer) dom.guessesContainer.innerHTML = '';
+    
+    updateGuessesCounter();
+    updateCluesUI();
+    updateSoundButtonUI();
+
+    if (dom.winModal) dom.winModal.classList.add('hidden');
+  }
+
+  function updateGuessesCounter() {
+    const roster = window.CREASUPDLE.getRoster();
+    if (dom.guessesCountBadge) {
+      dom.guessesCountBadge.textContent = `${state.guesses.length} essai${state.guesses.length > 1 ? 's' : ''}`;
+    }
+    if (dom.rosterCountBadge) {
+      dom.rosterCountBadge.textContent = `${roster.length} membres`;
+    }
+  }
+
+  function updateCluesUI() {
+    const tries = state.guesses.length;
+    // Clue 1: Initiales (unlocks after 3 tries)
+    if (dom.clueInitiales) {
+      if (tries >= 3 || state.isWon) {
+        dom.clueInitiales.classList.remove('locked');
+        dom.clueInitiales.innerHTML = `<span class="clue-tag">Indice 1</span> <strong>Initiales :</strong> ${state.target.initiales || state.target.nom.charAt(0)}`;
+      } else {
+        dom.clueInitiales.classList.add('locked');
+        dom.clueInitiales.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 3 essais (${tries}/3)`;
+      }
+    }
+
+    // Clue 2: Logiciel & Rôle (unlocks after 6 tries)
+    if (dom.clueRole) {
+      if (tries >= 6 || state.isWon) {
+        dom.clueRole.classList.remove('locked');
+        dom.clueRole.innerHTML = `<span class="clue-tag">Indice 2</span> <strong>Outil :</strong> ${state.target.logiciel || 'Figma'}`;
+      } else {
+        dom.clueRole.classList.add('locked');
+        dom.clueRole.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 6 essais (${tries}/6)`;
+      }
+    }
+
+    // Clue 3: Punchline (unlocks after 9 tries)
+    if (dom.cluePunchline) {
+      if (tries >= 9 || state.isWon) {
+        dom.cluePunchline.classList.remove('locked');
+        dom.cluePunchline.innerHTML = `<span class="clue-tag">Indice 3</span> <em>${state.target.punchline || '« Pas d\'inspi sur ce coup-là... »'}</em>`;
+      } else {
+        dom.cluePunchline.classList.add('locked');
+        dom.cluePunchline.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 9 essais (${tries}/9)`;
+      }
+    }
+  }
+
+  function updateSoundButtonUI() {
+    if (!dom.btnSound) return;
+    if (CreasupdleAudio.muted) {
+      dom.btnSound.innerHTML = `<svg class="inline-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+      dom.btnSound.setAttribute('title', 'Activer le son');
+    } else {
+      dom.btnSound.innerHTML = `<svg class="inline-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+      dom.btnSound.setAttribute('title', 'Couper le son');
+    }
+  }
+
+  // --- Autocomplete Search ---
+  function filterRoster(query) {
+    const clean = query.trim().toLowerCase();
+    const roster = window.CREASUPDLE.getRoster();
+    const guessedIds = new Set(state.guesses.map(g => g.person.id));
+
+    return roster.filter(m => {
+      if (guessedIds.has(m.id)) return false;
+      if (!clean) return true;
+      const nom = (m.nom || '').toLowerCase();
+      const nomComplet = (m.nomComplet || '').toLowerCase();
+      const surnom = (m.surnom || '').toLowerCase();
+      const role = (m.role || '').toLowerCase();
+      return nom.includes(clean) || nomComplet.includes(clean) || surnom.includes(clean) || role.includes(clean);
+    });
+  }
+
+  function renderDropdown(matches) {
+    if (!dom.dropdown) return;
+    if (matches.length === 0) {
+      dom.dropdown.innerHTML = `<div class="creasupdle-dropdown-empty">Aucun étudiant ou membre Créasup trouvé</div>`;
+      dom.dropdown.classList.remove('hidden');
+      return;
+    }
+
+    const html = matches.slice(0, 8).map((m, idx) => {
+      const isSelected = idx === state.selectedDropdownIndex;
+      return `
+        <div class="creasupdle-dropdown-item ${isSelected ? 'selected' : ''}" data-id="${m.id}" data-index="${idx}">
+          <div class="creasupdle-mini-avatar" style="background-color: ${m.avatarColor || '#6366f1'};">
+            ${m.initiales || m.nom.charAt(0)}
+          </div>
+          <div class="creasupdle-dropdown-info">
+            <div class="creasupdle-dropdown-name">${m.nomComplet || m.nom} ${m.surnom ? `<span class="creasupdle-dropdown-surnom">(${m.surnom})</span>` : ''}</div>
+            <div class="creasupdle-dropdown-role">${m.role} • Promo ${m.annee}</div>
+          </div>
+          <span class="creasupdle-dropdown-arrow">↵</span>
+        </div>
+      `;
+    }).join('');
+
+    dom.dropdown.innerHTML = html;
+    dom.dropdown.classList.remove('hidden');
+
+    // Attach click events
+    dom.dropdown.querySelectorAll('.creasupdle-dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const id = item.getAttribute('data-id');
+        const roster = window.CREASUPDLE.getRoster();
+        const selected = roster.find(m => m.id === id);
+        if (selected) {
+          submitGuess(selected);
+        }
+      });
+    });
+  }
+
+  // --- Submit Guess ---
+  function submitGuess(person) {
+    if (state.isWon || !person) return;
+    
+    // Close dropdown
+    if (dom.dropdown) dom.dropdown.classList.add('hidden');
+    if (dom.searchInput) {
+      dom.searchInput.value = '';
+      dom.searchInput.focus();
+    }
+
+    const { result, isMatch } = compareGuess(person, state.target);
+    state.guesses.unshift(result); // prepend so newest is on top
+
+    // Render Row with Animated Tile Reveal
+    appendGuessRow(result, isMatch);
+    updateGuessesCounter();
+    updateCluesUI();
+
+    if (isMatch) {
+      state.isWon = true;
+      if (dom.searchInput) dom.searchInput.disabled = true;
+      if (dom.btnSubmit) dom.btnSubmit.disabled = true;
+      
+      // Record Stats
+      window.CREASUPDLE.recordWin(state.guesses.length);
+
+      // Trigger Confetti & Victory Audio
+      setTimeout(() => {
+        CreasupdleAudio.playWin();
+        if (typeof window.triggerConfetti === 'function') {
+          window.triggerConfetti();
+        } else if (typeof window.createConfetti === 'function') {
+          window.createConfetti();
+        }
+        showVictoryModal();
+      }, 1200);
+    }
+  }
+
+  function appendGuessRow(guessResult, isMatch) {
+    if (!dom.guessesContainer) return;
+
+    const row = document.createElement('div');
+    row.className = `creasupdle-guess-row ${isMatch ? 'match-win' : ''}`;
+
+    const p = guessResult.person;
+    
+    // Tiles configuration:
+    // 1. Photo / Nom
+    // 2. Genre
+    // 3. Cheveux
+    // 4. Taille (Grand/Moyen/Petit avec flèche)
+    // 5. Rôle (Graph/Conce)
+    // 6. Promo / Intégration (Année avec flèche)
+    // 7. Âge (avec flèche)
+    // 8. Beau / Moche (Beau / Moche)
+
+    const tilesData = [
+      {
+        type: 'person',
+        label: p.nomComplet || p.nom,
+        sub: p.surnom || p.role,
+        status: isMatch ? 'correct' : 'person-tile',
+        initiales: p.initiales || p.nom.charAt(0),
+        color: p.avatarColor || '#6366f1'
+      },
+      {
+        type: 'genre',
+        label: guessResult.genre.value,
+        status: guessResult.genre.status
+      },
+      {
+        type: 'cheveux',
+        label: guessResult.cheveux.value,
+        status: guessResult.cheveux.status
+      },
+      {
+        type: 'taille',
+        label: guessResult.taille.value,
+        status: guessResult.taille.status,
+        arrow: guessResult.taille.arrow
+      },
+      {
+        type: 'role',
+        label: guessResult.role.value,
+        status: guessResult.role.status
+      },
+      {
+        type: 'annee',
+        label: `${guessResult.annee.value}`,
+        status: guessResult.annee.status,
+        arrow: guessResult.annee.arrow
+      },
+      {
+        type: 'age',
+        label: `${guessResult.age.value} ans`,
+        status: guessResult.age.status,
+        arrow: guessResult.age.arrow
+      },
+      {
+        type: 'apparence',
+        label: guessResult.apparence.value === 'Beau' ? 'Beau ✨' : 'Moche 💀',
+        status: guessResult.apparence.status
+      }
+    ];
+
+    row.innerHTML = tilesData.map((tile, i) => {
+      let arrowHtml = '';
+      if (tile.arrow === 'up') {
+        arrowHtml = `<span class="creasupdle-arrow-indicator arrow-up" title="La personne mystère est au-dessus !">▲</span>`;
+      } else if (tile.arrow === 'down') {
+        arrowHtml = `<span class="creasupdle-arrow-indicator arrow-down" title="La personne mystère est en-dessous !">▼</span>`;
+      }
+
+      if (tile.type === 'person') {
+        return `
+          <div class="creasupdle-tile creasupdle-tile-person flip-tile" style="animation-delay: ${i * 110}ms;">
+            <div class="creasupdle-tile-inner">
+              <div class="creasupdle-mini-avatar" style="background-color: ${tile.color};">
+                ${tile.initiales}
+              </div>
+              <div class="creasupdle-tile-name-wrap">
+                <span class="creasupdle-tile-name">${tile.label}</span>
+                <span class="creasupdle-tile-role-sub">${tile.sub}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="creasupdle-tile tile-${tile.status} flip-tile" style="animation-delay: ${i * 110}ms;">
+          <div class="creasupdle-tile-content">
+            <span class="creasupdle-tile-val">${tile.label}</span>
+            ${arrowHtml}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Prepend to list
+    dom.guessesContainer.prepend(row);
+
+    // Audio flips
+    tilesData.forEach((_, i) => {
+      setTimeout(() => {
+        CreasupdleAudio.playFlip(i);
+      }, i * 110);
+    });
+  }
+
+  // --- Victory Modal & Share ---
+  function showVictoryModal() {
+    if (!dom.winModal) return;
+    const t = state.target;
+
+    const avatarEl = document.getElementById('creasupdle-win-avatar');
+    const nameEl = document.getElementById('creasupdle-win-name');
+    const bioEl = document.getElementById('creasupdle-win-bio');
+    const countEl = document.getElementById('creasupdle-win-count');
+    const quoteEl = document.getElementById('creasupdle-win-quote');
+
+    if (avatarEl) {
+      avatarEl.textContent = t.initiales || t.nom.charAt(0);
+      avatarEl.style.backgroundColor = t.avatarColor || '#6366f1';
+    }
+    if (nameEl) nameEl.textContent = t.nomComplet || t.nom;
+    if (bioEl) bioEl.textContent = `${t.role} • Promo ${t.annee} • ${t.age} ans • ${t.taille} • Cheveux ${t.cheveux} • ${t.apparence}`;
+    if (countEl) countEl.textContent = `${state.guesses.length} tentative${state.guesses.length > 1 ? 's' : ''}`;
+    if (quoteEl) quoteEl.textContent = t.punchline || `« C'est bien moi le membre mystère ! »`;
+
+    dom.winModal.classList.remove('hidden');
+  }
+
+  function generateShareText() {
+    const isDaily = state.mode === 'daily';
+    const title = isDaily 
+      ? `🎓 Creasupdle Quotidien (${state.dailyDateStr}) — ${state.guesses.length} essais` 
+      : `🎓 Creasupdle Infini — Trouvé en ${state.guesses.length} essais !`;
+
+    const reversedGuesses = state.guesses.slice().reverse();
+    const matrix = reversedGuesses.map(g => {
+      const row = [];
+      // Genre
+      row.push(g.genre.status === 'correct' ? '🟩' : '🟥');
+      // Cheveux
+      row.push(g.cheveux.status === 'correct' ? '🟩' : (g.cheveux.status === 'partial' ? '🟧' : '🟥'));
+      // Taille
+      if (g.taille.status === 'correct') row.push('🟩');
+      else row.push(g.taille.arrow === 'up' ? '⬆️' : '⬇️');
+      // Role
+      row.push(g.role.status === 'correct' ? '🟩' : (g.role.status === 'partial' ? '🟧' : '🟥'));
+      // Annee
+      if (g.annee.status === 'correct') row.push('🟩');
+      else row.push(g.annee.arrow === 'up' ? '⬆️' : '⬇️');
+      // Age
+      if (g.age.status === 'correct') row.push('🟩');
+      else row.push(g.age.arrow === 'up' ? '⬆️' : '⬇️');
+      // Beau / Moche
+      row.push(g.apparence.status === 'correct' ? '🟩' : '🟥');
+      return row.join('');
+    }).join('\n');
+
+    return `${title}\n\n${matrix}\n\n👉 Jouer sur SuperCaraQuiz : https://supercaraquiz.duckdns.org`;
+  }
+
+  function handleShare() {
+    const text = generateShareText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Score copié dans le presse-papier ! 📋');
+      }).catch(() => {
+        showShareFallback(text);
+      });
+    } else {
+      showShareFallback(text);
+    }
+  }
+
+  function showShareFallback(text) {
+    prompt('Copiez votre résultat :', text);
+  }
+
+  function showToast(msg) {
+    let toast = document.getElementById('creasupdle-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'creasupdle-toast';
+      toast.className = 'creasupdle-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  // --- Trombinoscope & Roster Manager ---
+  function renderRosterList() {
+    if (!dom.rosterListContainer) return;
+    const roster = window.CREASUPDLE.getRoster();
+    
+    dom.rosterListContainer.innerHTML = roster.map(m => {
+      const isCustom = m.id.startsWith('custom-');
+      return `
+        <div class="creasupdle-roster-card">
+          <div class="creasupdle-roster-avatar" style="background-color: ${m.avatarColor || '#6366f1'};">
+            ${m.initiales || m.nom.charAt(0)}
+          </div>
+          <div class="creasupdle-roster-details">
+            <div class="creasupdle-roster-header">
+              <span class="creasupdle-roster-name">${m.nomComplet || m.nom}</span>
+              ${m.surnom ? `<span class="creasupdle-roster-surnom">« ${m.surnom} »</span>` : ''}
+              <span class="badge ${m.apparence === 'Beau' ? 'badge-beau' : 'badge-moche'}">${m.apparence}</span>
+            </div>
+            <div class="creasupdle-roster-tags">
+              <span class="rtag">👤 ${m.genre}</span>
+              <span class="rtag">💇 ${m.cheveux}</span>
+              <span class="rtag">📏 ${m.taille}</span>
+              <span class="rtag">💼 ${m.role}</span>
+              <span class="rtag">📅 Promo ${m.annee}</span>
+              <span class="rtag">🎂 ${m.age} ans</span>
+            </div>
+            ${m.punchline ? `<div class="creasupdle-roster-punchline">${m.punchline}</div>` : ''}
+          </div>
+          <div class="creasupdle-roster-actions">
+            ${isCustom ? `
+              <button class="btn btn-sm btn-danger btn-delete-member" data-id="${m.id}" title="Supprimer">
+                <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            ` : `<span class="badge badge-default-roster" title="Profil de base Créasup">Fixe</span>`}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach delete listeners
+    dom.rosterListContainer.querySelectorAll('.btn-delete-member').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (confirm('Voulez-vous vraiment retirer cette personne du roster Créasupdle ?')) {
+          window.CREASUPDLE.deleteMember(id);
+          renderRosterList();
+          updateGuessesCounter();
+          showToast('Personne retirée du roster.');
+        }
+      });
+    });
+  }
+
+  function openAddMemberModal() {
+    if (!dom.memberFormModal) return;
+    if (dom.memberForm) dom.memberForm.reset();
+    dom.memberFormModal.classList.remove('hidden');
+  }
+
+  function handleSaveMember(e) {
+    e.preventDefault();
+    const form = dom.memberForm;
+    if (!form) return;
+
+    const nom = form.querySelector('#member-nom').value.trim();
+    if (!nom) {
+      alert('Veuillez renseigner le prénom ou nom.');
+      return;
+    }
+
+    const initials = nom.split(' ').map(w => w.charAt(0).toUpperCase()).join('').slice(0, 2) || nom.charAt(0).toUpperCase();
+
+    const colors = ['#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#3b82f6'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    const newMember = {
+      id: 'custom-' + Date.now(),
+      nom: nom.split(' ')[0],
+      nomComplet: nom,
+      surnom: form.querySelector('#member-surnom').value.trim(),
+      genre: form.querySelector('#member-genre').value,
+      cheveux: form.querySelector('#member-cheveux').value,
+      taille: form.querySelector('#member-taille').value,
+      role: form.querySelector('#member-role').value,
+      annee: parseInt(form.querySelector('#member-annee').value, 10) || 2024,
+      age: parseInt(form.querySelector('#member-age').value, 10) || 22,
+      apparence: form.querySelector('#member-apparence').value,
+      logiciel: form.querySelector('#member-logiciel').value.trim() || 'Figma',
+      punchline: form.querySelector('#member-punchline').value.trim() || '« Prêt pour le rendu de minuit ! »',
+      initiales: initials,
+      avatarColor: randomColor
+    };
+
+    window.CREASUPDLE.saveMember(newMember);
+    dom.memberFormModal.classList.add('hidden');
+    renderRosterList();
+    updateGuessesCounter();
+    showToast(`${newMember.nomComplet} a été ajouté(e) au roster ! 🎉`);
+  }
+
+  // --- Attach Event Listeners ---
+  function attachEvents() {
+    CreasupdleAudio.init();
+
+    // Portal Navigation
+    if (dom.btnBack) {
+      dom.btnBack.addEventListener('click', () => {
+        if (typeof window.showView === 'function') {
+          window.showView('portal');
+        }
+      });
+    }
+
+    // Portal Game Card click
+    const cardPortal = document.getElementById('card-creasupdle');
+    if (cardPortal) {
+      cardPortal.addEventListener('click', () => {
+        if (typeof window.showView === 'function') {
+          window.showView('creasupdleGame');
+          startNewRound('daily');
+        }
+      });
+    }
+
+    const btnPortal = document.getElementById('btn-portal-creasupdle');
+    if (btnPortal) {
+      btnPortal.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.showView === 'function') {
+          window.showView('creasupdleGame');
+          startNewRound('daily');
+        }
+      });
+    }
+
+    // Sound toggle
+    if (dom.btnSound) {
+      dom.btnSound.addEventListener('click', () => {
+        CreasupdleAudio.toggleMute();
+        updateSoundButtonUI();
+      });
+    }
+
+    // Mode Switcher
+    if (dom.modeDailyBtn) {
+      dom.modeDailyBtn.addEventListener('click', () => startNewRound('daily'));
+    }
+    if (dom.modeInfiniteBtn) {
+      dom.modeInfiniteBtn.addEventListener('click', () => startNewRound('infinite'));
+    }
+
+    // Search Input Autocomplete
+    if (dom.searchInput) {
+      dom.searchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        state.selectedDropdownIndex = -1;
+        if (query.trim().length === 0) {
+          if (dom.dropdown) dom.dropdown.classList.add('hidden');
+          return;
+        }
+        const matches = filterRoster(query);
+        renderDropdown(matches);
+      });
+
+      dom.searchInput.addEventListener('keydown', (e) => {
+        const items = dom.dropdown ? dom.dropdown.querySelectorAll('.creasupdle-dropdown-item') : [];
+        if (!items || items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          state.selectedDropdownIndex = (state.selectedDropdownIndex + 1) % items.length;
+          items.forEach((item, idx) => item.classList.toggle('selected', idx === state.selectedDropdownIndex));
+          items[state.selectedDropdownIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          state.selectedDropdownIndex = (state.selectedDropdownIndex - 1 + items.length) % items.length;
+          items.forEach((item, idx) => item.classList.toggle('selected', idx === state.selectedDropdownIndex));
+          items[state.selectedDropdownIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (state.selectedDropdownIndex >= 0 && items[state.selectedDropdownIndex]) {
+            const id = items[state.selectedDropdownIndex].getAttribute('data-id');
+            const roster = window.CREASUPDLE.getRoster();
+            const person = roster.find(m => m.id === id);
+            if (person) submitGuess(person);
+          } else if (items.length > 0) {
+            // Pick first match by default
+            const id = items[0].getAttribute('data-id');
+            const roster = window.CREASUPDLE.getRoster();
+            const person = roster.find(m => m.id === id);
+            if (person) submitGuess(person);
+          }
+        } else if (e.key === 'Escape') {
+          if (dom.dropdown) dom.dropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    // Document click to close search dropdown
+    document.addEventListener('click', (e) => {
+      if (dom.dropdown && !dom.dropdown.contains(e.target) && e.target !== dom.searchInput) {
+        dom.dropdown.classList.add('hidden');
+      }
+    });
+
+    // Modals: Rules
+    if (dom.btnRules && dom.rulesModal) {
+      dom.btnRules.addEventListener('click', () => dom.rulesModal.classList.remove('hidden'));
+    }
+    if (dom.btnRulesClose && dom.rulesModal) {
+      dom.btnRulesClose.addEventListener('click', () => dom.rulesModal.classList.add('hidden'));
+    }
+
+    // Modals: Roster & Trombinoscope
+    if (dom.btnRoster && dom.rosterModal) {
+      dom.btnRoster.addEventListener('click', () => {
+        renderRosterList();
+        dom.rosterModal.classList.remove('hidden');
+      });
+    }
+    if (dom.btnRosterClose && dom.rosterModal) {
+      dom.btnRosterClose.addEventListener('click', () => dom.rosterModal.classList.add('hidden'));
+    }
+    if (dom.btnAddMemberModal) {
+      dom.btnAddMemberModal.addEventListener('click', openAddMemberModal);
+    }
+    if (dom.btnCancelMemberForm && dom.memberFormModal) {
+      dom.btnCancelMemberForm.addEventListener('click', () => dom.memberFormModal.classList.add('hidden'));
+    }
+    if (dom.memberForm) {
+      dom.memberForm.addEventListener('submit', handleSaveMember);
+    }
+
+    // Victory Modal Actions
+    if (dom.btnWinShare) {
+      dom.btnWinShare.addEventListener('click', handleShare);
+    }
+    if (dom.btnWinReplay) {
+      dom.btnWinReplay.addEventListener('click', () => {
+        startNewRound('infinite');
+      });
+    }
+    if (dom.btnWinClose && dom.winModal) {
+      dom.btnWinClose.addEventListener('click', () => dom.winModal.classList.add('hidden'));
+    }
+
+    // Stats modal button
+    if (dom.btnStats) {
+      dom.btnStats.addEventListener('click', () => {
+        const stats = window.CREASUPDLE.getStats();
+        alert(`📊 Statistiques Creasupdle :\n\n• Parties jouées : ${stats.played}\n• Victoires : ${stats.won}\n• Série actuelle : ${stats.currentStreak}\n• Meilleure série : ${stats.maxStreak}`);
+      });
+    }
+  }
+
+  // --- Public Entrypoint ---
+  window.initCreasupdle = function() {
+    cacheDom();
+    attachEvents();
+  };
+
+  window.startCreasupdle = function(mode = 'daily') {
+    cacheDom();
+    startNewRound(mode);
+  };
+
+})(window);

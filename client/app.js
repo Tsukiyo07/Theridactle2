@@ -476,7 +476,8 @@ const views = {
   impGame: dom.impGameView,
   impLocalGame: document.getElementById('imposteur-local-game-view'),
   geoGame: dom.geoGameView,
-  lgGame: document.getElementById('loup-garou-game-view')
+  lgGame: document.getElementById('loup-garou-game-view'),
+  creasupdleGame: document.getElementById('creasupdle-game-view')
 };
 
 // --- Room Top Nav Display Helper ---
@@ -10777,6 +10778,9 @@ function initPokecriesUI() {
 init();
 initSonglessUI();
 initPokecriesUI();
+if (typeof window.initCreasupdle === 'function') {
+  window.initCreasupdle();
+}
 syncAllNicknameInputs();
 
 
