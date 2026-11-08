@@ -280,9 +280,95 @@
     };
   }
 
-  // Initialize new game round
-  function startNewRound(mode = 'daily') {
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v1';
+
+  function saveSessionState() {
+    try {
+      if (!state.target) return;
+      const data = {
+        mode: state.mode,
+        targetId: state.target.id,
+        guesses: state.guesses,
+        isWon: state.isWon,
+        dailyDateStr: state.dailyDateStr
+      };
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {}
+  }
+
+  function clearSessionState() {
+    try {
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  // Initialize new game round (with automatic session restore on reload F5)
+  function startNewRound(mode = 'daily', forceReset = false) {
     const roster = window.CREASUPDLE.getRoster();
+    cacheDom();
+
+    // Synchronize unique page URL so refreshing stays in Creasupdle
+    const url = new URL(window.location.href);
+    url.searchParams.set('game', 'creasupdle');
+    window.history.replaceState({ game: 'creasupdle' }, document.title, url.toString());
+
+    // Restore existing session on reload (if not a manual new game)
+    if (!forceReset) {
+      try {
+        const rawSaved = localStorage.getItem(SESSION_STORAGE_KEY);
+        if (rawSaved) {
+          const saved = JSON.parse(rawSaved);
+          const todayDateStr = getDailyTarget(roster).dateStr;
+          const isDailyMatch = (mode === 'daily' && saved.mode === 'daily' && saved.dailyDateStr === todayDateStr);
+          const isInfiniteMatch = (mode === 'infinite' && saved.mode === 'infinite');
+
+          if (isDailyMatch || isInfiniteMatch) {
+            const restoredTarget = roster.find(m => m.id === saved.targetId);
+            if (restoredTarget && Array.isArray(saved.guesses)) {
+              state.mode = saved.mode;
+              state.target = restoredTarget;
+              state.dailyDateStr = saved.dailyDateStr || todayDateStr;
+              state.guesses = saved.guesses;
+              state.isWon = !!saved.isWon;
+              state.selectedDropdownIndex = -1;
+
+              if (dom.modeDailyBtn) dom.modeDailyBtn.classList.toggle('active', state.mode === 'daily');
+              if (dom.modeInfiniteBtn) dom.modeInfiniteBtn.classList.toggle('active', state.mode === 'infinite');
+
+              if (dom.searchInput) {
+                dom.searchInput.value = '';
+                dom.searchInput.disabled = state.isWon;
+              }
+              if (dom.btnSubmit) dom.btnSubmit.disabled = state.isWon;
+              if (dom.dropdown) dom.dropdown.classList.add('hidden');
+              if (dom.guessesContainer) {
+                dom.guessesContainer.innerHTML = '';
+                // Render restored guesses (reverse so newest is on top) without animation delay
+                saved.guesses.slice().reverse().forEach(g => {
+                  appendGuessRow(g, g.person.id === state.target.id, false);
+                });
+              }
+
+              updateGuessesCounter();
+              updateCluesUI();
+              updateSoundButtonUI();
+
+              if (state.isWon) {
+                showVictoryModal();
+              } else if (dom.winModal) {
+                dom.winModal.classList.add('hidden');
+              }
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to restore Creasupdle session', e);
+      }
+    }
+
+    // Fresh round setup
+    clearSessionState();
     state.mode = mode;
     state.guesses = [];
     state.isWon = false;
@@ -315,6 +401,7 @@
     updateSoundButtonUI();
 
     if (dom.winModal) dom.winModal.classList.add('hidden');
+    saveSessionState();
   }
 
   function updateGuessesCounter() {
@@ -446,14 +533,16 @@
     state.guesses.unshift(result); // prepend so newest is on top
 
     // Render Row with Animated Tile Reveal
-    appendGuessRow(result, isMatch);
+    appendGuessRow(result, isMatch, true);
     updateGuessesCounter();
     updateCluesUI();
+    saveSessionState();
 
     if (isMatch) {
       state.isWon = true;
       if (dom.searchInput) dom.searchInput.disabled = true;
       if (dom.btnSubmit) dom.btnSubmit.disabled = true;
+      saveSessionState();
       
       // Record Stats
       window.CREASUPDLE.recordWin(state.guesses.length);
@@ -471,7 +560,7 @@
     }
   }
 
-  function appendGuessRow(guessResult, isMatch) {
+  function appendGuessRow(guessResult, isMatch, animate = true) {
     if (!dom.guessesContainer) return;
 
     const row = document.createElement('div');
@@ -547,8 +636,10 @@
       }
 
       if (tile.type === 'person') {
+        const animStyle = animate ? `style="animation-delay: ${i * 110}ms;"` : 'style="opacity:1;"';
+        const animClass = animate ? 'flip-tile' : '';
         return `
-          <div class="creasupdle-tile creasupdle-tile-person flip-tile" style="animation-delay: ${i * 110}ms;">
+          <div class="creasupdle-tile creasupdle-tile-person ${animClass}" ${animStyle}>
             <div class="creasupdle-tile-inner">
               <div class="creasupdle-mini-avatar" style="background-color: ${tile.color};">
                 ${tile.initiales}
@@ -562,8 +653,10 @@
         `;
       }
 
+      const animStyle = animate ? `style="animation-delay: ${i * 110}ms;"` : 'style="opacity:1;"';
+      const animClass = animate ? 'flip-tile' : '';
       return `
-        <div class="creasupdle-tile tile-${tile.status} flip-tile" style="animation-delay: ${i * 110}ms;">
+        <div class="creasupdle-tile tile-${tile.status} ${animClass}" ${animStyle}>
           <div class="creasupdle-tile-content">
             <span class="creasupdle-tile-val">${tile.label}</span>
             ${arrowHtml}
@@ -575,12 +668,15 @@
     // Prepend to list
     dom.guessesContainer.prepend(row);
 
-    // Audio flips
-    tilesData.forEach((_, i) => {
-      setTimeout(() => {
-        CreasupdleAudio.playFlip(i);
-      }, i * 110);
-    });
+    // Audio flips only on live guess
+    if (animate) {
+      tilesData.forEach((_, i) => {
+        setTimeout(() => {
+          CreasupdleAudio.playFlip(i);
+        }, i * 110);
+      });
+    }
+  }
   }
 
   // --- Victory Modal & Share ---
@@ -928,7 +1024,7 @@
     }
     if (dom.btnWinReplay) {
       dom.btnWinReplay.addEventListener('click', () => {
-        startNewRound('infinite');
+        startNewRound('infinite', true);
       });
     }
     if (dom.btnWinClose && dom.winModal) {

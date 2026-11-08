@@ -480,17 +480,46 @@ const views = {
   creasupdleGame: document.getElementById('creasupdle-game-view')
 };
 
+// --- URL Sync & Room Persistence Helper ---
+function setPartyUrl(code, gameType = '') {
+  if (code && code !== 'SOLO') {
+    const url = new URL(window.location.href);
+    url.searchParams.set('room', code);
+    if (gameType) url.searchParams.set('game', gameType);
+    url.searchParams.delete('page');
+    window.history.replaceState({ room: code, game: gameType }, document.title, url.toString());
+    localStorage.setItem('scq_active_room', code);
+    if (gameType) localStorage.setItem('scq_active_game', gameType);
+  }
+}
+
+function clearPartyUrl() {
+  localStorage.removeItem('scq_active_room');
+  localStorage.removeItem('scq_active_game');
+  const url = new URL(window.location.href);
+  if (url.searchParams.has('room')) {
+    url.searchParams.delete('room');
+    window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ''));
+  }
+}
+
 // --- Room Top Nav Display Helper ---
-function updateRoomDisplay(visible, code = '') {
+function updateRoomDisplay(visible, code = '', gameType = '') {
   const topNav = document.querySelector('.top-nav');
   if (visible) {
     dom.roomDisplay.style.display = 'inline-flex';
     dom.roomCodeSpan.textContent = code;
     if (topNav) topNav.classList.add('in-room');
+    if (code && code !== 'SOLO') {
+      setPartyUrl(code, gameType);
+      if (dom.btnCopyInvite) dom.btnCopyInvite.style.display = 'inline-flex';
+    }
   } else {
     dom.roomDisplay.style.display = 'none';
     dom.roomCodeSpan.textContent = '';
     if (topNav) topNav.classList.remove('in-room');
+    if (dom.btnCopyInvite) dom.btnCopyInvite.style.display = 'none';
+    clearPartyUrl();
   }
 }
 
@@ -517,6 +546,38 @@ function showView(viewName) {
   } else {
     if (dom.navHome) dom.navHome.classList.remove('active');
     if (dom.btnLeaveNav) dom.btnLeaveNav.style.display = 'none';
+  }
+
+  // Synchronize browser address bar with unique shareable game URL (when not in an active room)
+  const currentUrl = new URL(window.location.href);
+  if (!currentUrl.searchParams.get('room')) {
+    const VIEW_URL_PARAMS = {
+      portal: null,
+      creasupdleGame: { key: 'game', val: 'creasupdle' },
+      impLocalGame: { key: 'game', val: 'imposteur-local' },
+      impMenu: { key: 'game', val: 'imposteur' },
+      geoMenu: { key: 'game', val: 'geographie' },
+      lgMenu: { key: 'game', val: 'loup-garou' },
+      songlessMenu: { key: 'game', val: 'songless' },
+      pokecriesMenu: { key: 'game', val: 'pokecries' },
+      theriMenu: { key: 'game', val: 'theridactle' },
+      pokedactleMenu: { key: 'game', val: 'pokedactle' },
+      merrydactleMenu: { key: 'game', val: 'merrydactle' },
+      statsMenu: { key: 'page', val: 'stats' }
+    };
+    if (VIEW_URL_PARAMS[viewName] !== undefined) {
+      const entry = VIEW_URL_PARAMS[viewName];
+      if (!entry) {
+        currentUrl.searchParams.delete('game');
+        currentUrl.searchParams.delete('page');
+        window.history.replaceState({ view: 'portal' }, document.title, currentUrl.pathname);
+      } else {
+        currentUrl.searchParams.set(entry.key, entry.val);
+        if (entry.key === 'game') currentUrl.searchParams.delete('page');
+        if (entry.key === 'page') currentUrl.searchParams.delete('game');
+        window.history.replaceState({ view: viewName }, document.title, currentUrl.toString());
+      }
+    }
   }
 }
 
@@ -1467,99 +1528,27 @@ function init() {
     });
   }
 
-  // Check invitation link parameter first
+  // --- Active Room Detection, URL Routing & Instant Reload Persistence ---
   const urlParams = new URLSearchParams(window.location.search);
   const inviteRoom = urlParams.get('room');
+  const gameParam = urlParams.get('game');
+  const pageParam = urlParams.get('page');
+  const savedActiveRoom = localStorage.getItem('scq_active_room') || 
+                          localStorage.getItem('imposteur-roomId') ||
+                          localStorage.getItem('loup-garou-roomId') ||
+                          localStorage.getItem('theridactle-roomId') ||
+                          localStorage.getItem('pokedactle-roomId') ||
+                          localStorage.getItem('merrydactle-roomId') ||
+                          localStorage.getItem('songless-roomId') ||
+                          localStorage.getItem('pokecries-roomId');
 
-  // If no invite link is being accessed, perform silent auto-reconnects
-  if (!inviteRoom) {
-    // 0. Silent Auto-reconnect for Theridactle
-    const theriActiveRoomId = localStorage.getItem('theridactle-roomId');
-    if (theriActiveRoomId) {
-      fetch('/api/room/check?roomId=' + theriActiveRoomId)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.gameType === 'theridactle') {
-            joinTheridactleRoom(theriActiveRoomId);
-          } else {
-            localStorage.removeItem('theridactle-roomId');
-          }
-        }).catch(() => {});
-    }
-
-    // 0.5. Silent Auto-reconnect for Pokedactle
-    const pokeActiveRoomId = localStorage.getItem('pokedactle-roomId');
-    if (pokeActiveRoomId) {
-      fetch('/api/room/check?roomId=' + pokeActiveRoomId)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.gameType === 'pokedactle') {
-            joinPokedactleRoom(pokeActiveRoomId);
-          } else {
-            localStorage.removeItem('pokedactle-roomId');
-          }
-        }).catch(() => {});
-    }
-
-    // 0.6. Silent Auto-reconnect for Merrydactle
-    const merryActiveRoomId = localStorage.getItem('merrydactle-roomId');
-    if (merryActiveRoomId) {
-      fetch('/api/room/check?roomId=' + merryActiveRoomId)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.gameType === 'merrydactle') {
-            joinMerrydactleRoom(merryActiveRoomId);
-          } else {
-            localStorage.removeItem('merrydactle-roomId');
-          }
-        }).catch(() => {});
-    }
-
-    // 1. Silent Auto-reconnect for L'Imposteur
-    const activeRoomId = localStorage.getItem('imposteur-roomId');
-    const activeNickname = localStorage.getItem('imposteur-nickname');
-    if (activeRoomId && activeNickname) {
-      console.log(`Silent auto-reconnection to ${activeRoomId} as ${activeNickname}`);
-      fetch('/api/imposteur/room/join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: activeRoomId, nickname: activeNickname })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          startPlayingImposteur(data.roomId, activeNickname);
-        } else {
-          localStorage.removeItem('imposteur-roomId');
-        }
-      })
-      .catch(() => console.log('Reconnection failed'));
-    }
-
-    // 2. Silent Auto-reconnect for Loup-Garou
-    const lgActiveRoomId = localStorage.getItem('loup-garou-roomId');
-    const lgActiveNickname = localStorage.getItem('loup-garou-nickname');
-    if (lgActiveRoomId && lgActiveNickname) {
-      console.log(`Silent auto-reconnection to Loup-Garou room ${lgActiveRoomId} as ${lgActiveNickname}`);
-      fetch('/api/loup-garou/room/join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: lgActiveRoomId, nickname: lgActiveNickname })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          startPlayingLoupGarou(data.roomId, lgActiveNickname);
-        } else {
-          localStorage.removeItem('loup-garou-roomId');
-        }
-      })
-      .catch(() => console.log('Loup-Garou reconnection failed'));
-    }
-  }
+  const targetRoomCode = (inviteRoom || savedActiveRoom || '').trim().toUpperCase();
 
   // Helper function to handle manual routing with neon glows
   function routeToManualJoin(gameType, code) {
+    if (code) {
+      setPartyUrl(code, gameType);
+    }
     if (gameType === 'imposteur') {
       showView('impMenu');
       if (dom.impJoinCodeInput) dom.impJoinCodeInput.value = code;
@@ -1626,78 +1615,109 @@ function init() {
     }
   }
 
-  // 3. Invitation link detection & auto-join
-  if (inviteRoom) {
-    const code = inviteRoom.trim().toUpperCase();
-    window.history.replaceState({}, document.title, window.location.pathname);
-    
-    fetch(`/api/room/check?roomId=${code}`)
+  // Active party or invitation link handling
+  if (targetRoomCode) {
+    // Preserve the room in URL so users can copy the direct party link from the address bar
+    setPartyUrl(targetRoomCode);
+
+    fetch(`/api/room/check?roomId=${targetRoomCode}`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           const gameType = data.gameType;
-          
           let savedNickname = currentProfile.nickname;
           if (!savedNickname) {
-            if (gameType === 'imposteur') {
-              savedNickname = localStorage.getItem('imposteur-nickname');
-            } else if (gameType === 'geographie') {
-              savedNickname = localStorage.getItem('geographie-nickname');
-            } else if (gameType === 'loup_garou') {
-              savedNickname = localStorage.getItem('loup-garou-nickname');
-            } else if (gameType === 'pokecries') {
-              savedNickname = localStorage.getItem('pokecries-nickname');
-            }
+            if (gameType === 'imposteur') savedNickname = localStorage.getItem('imposteur-nickname');
+            else if (gameType === 'geographie') savedNickname = localStorage.getItem('geographie-nickname');
+            else if (gameType === 'loup_garou') savedNickname = localStorage.getItem('loup-garou-nickname');
+            else if (gameType === 'pokecries') savedNickname = localStorage.getItem('pokecries-nickname');
+            else if (gameType === 'songless') savedNickname = localStorage.getItem('songless-nickname');
           }
-          
+
           if (savedNickname && gameType !== 'theridactle' && gameType !== 'pokedactle' && gameType !== 'merrydactle') {
-            console.log(`Auto-joining room ${code} as ${savedNickname} for game ${gameType}`);
+            console.log(`Auto-reconnecting to room ${targetRoomCode} as ${savedNickname} for game ${gameType}`);
             const apiGameType = gameType === 'loup_garou' ? 'loup-garou' : gameType;
             fetch(`/api/${apiGameType}/room/join`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ roomId: code, nickname: savedNickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
+              body: JSON.stringify({ roomId: targetRoomCode, nickname: savedNickname, avatar: currentProfile.avatar, avatarIsPhoto: currentProfile.avatarIsPhoto })
             })
             .then(res => res.json())
             .then(joinData => {
               if (joinData.success) {
-                localStorage.setItem(`${gameType}-roomId`, code);
+                localStorage.setItem(`${gameType}-roomId`, targetRoomCode);
+                localStorage.setItem('scq_active_room', targetRoomCode);
+                localStorage.setItem('scq_active_game', gameType);
                 if (gameType === 'imposteur') {
-                  startPlayingImposteur(code, savedNickname);
+                  startPlayingImposteur(targetRoomCode, savedNickname);
                 } else if (gameType === 'geographie') {
-                  startPlayingGeographie(code, savedNickname);
+                  startPlayingGeographie(targetRoomCode, savedNickname);
                 } else if (gameType === 'loup_garou') {
-                  startPlayingLoupGarou(code, savedNickname);
+                  startPlayingLoupGarou(targetRoomCode, savedNickname);
                 } else if (gameType === 'pokecries') {
-                  joinPokecriesRoom(code, savedNickname);
+                  joinPokecriesRoom(targetRoomCode, savedNickname);
+                } else if (gameType === 'songless') {
+                  joinSonglessRoom(targetRoomCode, savedNickname);
                 }
-                showToast("Connexion au salon réussie !");
+                showToast("Reconnexion au salon réussie !");
               } else {
-                routeToManualJoin(gameType, code);
+                routeToManualJoin(gameType, targetRoomCode);
               }
             })
-            .catch(() => routeToManualJoin(gameType, code));
+            .catch(() => routeToManualJoin(gameType, targetRoomCode));
           } else {
             if (gameType === 'theridactle') {
-              joinTheridactleRoom(code);
+              joinTheridactleRoom(targetRoomCode);
             } else if (gameType === 'pokedactle') {
-              joinPokedactleRoom(code);
+              joinPokedactleRoom(targetRoomCode);
             } else if (gameType === 'merrydactle') {
-              joinMerrydactleRoom(code);
+              joinMerrydactleRoom(targetRoomCode);
             } else {
-              routeToManualJoin(gameType, code);
+              routeToManualJoin(gameType, targetRoomCode);
             }
           }
         } else {
-          showToast("Ce salon n'existe plus ou a expiré.", "error");
+          // Room expired
+          clearPartyUrl();
+          localStorage.removeItem('theridactle-roomId');
+          localStorage.removeItem('pokedactle-roomId');
+          localStorage.removeItem('merrydactle-roomId');
           localStorage.removeItem('imposteur-roomId');
           localStorage.removeItem('loup-garou-roomId');
+          localStorage.removeItem('songless-roomId');
+          localStorage.removeItem('pokecries-roomId');
+          showToast("Ce salon n'est plus actif ou a expiré.", "error");
         }
       })
       .catch(err => {
-        console.error('Check invitation failed', err);
-        showToast("Erreur lors de la vérification du salon.", "error");
+        console.error('Check room failed', err);
       });
+  } else {
+    // Standalone Game or Page restoration on page reload
+    if (gameParam === 'creasupdle') {
+      showView('creasupdleGame');
+      if (typeof window.startCreasupdle === 'function') window.startCreasupdle();
+    } else if (gameParam === 'imposteur-local') {
+      showView('impLocalGame');
+    } else if (gameParam === 'songless') {
+      showView('songlessMenu');
+    } else if (gameParam === 'pokecries') {
+      showView('pokecriesMenu');
+    } else if (gameParam === 'imposteur') {
+      showView('impMenu');
+    } else if (gameParam === 'geographie') {
+      showView('geoMenu');
+    } else if (gameParam === 'loup-garou') {
+      showView('lgMenu');
+    } else if (gameParam === 'theridactle') {
+      showView('theriMenu');
+    } else if (gameParam === 'pokedactle') {
+      showView('pokedactleMenu');
+    } else if (gameParam === 'merrydactle') {
+      showView('merrydactleMenu');
+    } else if (pageParam === 'stats') {
+      showView('statsMenu');
+    }
   }
 
   // --- Loup-Garou Menu Actions ---
