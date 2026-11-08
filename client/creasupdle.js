@@ -355,7 +355,7 @@
     };
   }
 
-  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v5';
+  const SESSION_STORAGE_KEY = 'creasupdle_active_session_v6';
 
   function saveSessionState() {
     try {
@@ -594,44 +594,64 @@
   }
 
   // --- Submit Guess ---
+  let isSubmittingGuess = false;
+
   function submitGuess(person) {
-    if (state.isWon || !person) return;
-    
-    // Close dropdown
-    if (dom.dropdown) dom.dropdown.classList.add('hidden');
-    if (dom.searchInput) {
-      dom.searchInput.value = '';
-      dom.searchInput.focus();
+    if (state.isWon || !person || isSubmittingGuess) return;
+
+    // Prevent duplicate guess in the same round
+    if (state.guesses && state.guesses.some(g => g.person && g.person.id === person.id)) {
+      showToast(`${person.nomComplet || person.nom} a déjà été proposé ! ⚠️`);
+      if (dom.searchInput) {
+        dom.searchInput.value = '';
+        dom.searchInput.focus();
+      }
+      if (dom.dropdown) dom.dropdown.classList.add('hidden');
+      return;
     }
 
-    const { result, isMatch } = compareGuess(person, state.target);
-    state.guesses.unshift(result); // prepend so newest is on top
+    isSubmittingGuess = true;
+    try {
+      // Close dropdown
+      if (dom.dropdown) dom.dropdown.classList.add('hidden');
+      if (dom.searchInput) {
+        dom.searchInput.value = '';
+        dom.searchInput.focus();
+      }
 
-    // Render Row with Animated Tile Reveal
-    appendGuessRow(result, isMatch, true);
-    updateGuessesCounter();
-    updateCluesUI();
-    saveSessionState();
+      const { result, isMatch } = compareGuess(person, state.target);
+      state.guesses.unshift(result); // prepend so newest is on top
 
-    if (isMatch) {
-      state.isWon = true;
-      if (dom.searchInput) dom.searchInput.disabled = true;
-      if (dom.btnSubmit) dom.btnSubmit.disabled = true;
+      // Render Row with Animated Tile Reveal
+      appendGuessRow(result, isMatch, true);
+      updateGuessesCounter();
+      updateCluesUI();
       saveSessionState();
-      
-      // Record Stats
-      window.CREASUPDLE.recordWin(state.guesses.length);
 
-      // Trigger Confetti & Victory Audio
+      if (isMatch) {
+        state.isWon = true;
+        if (dom.searchInput) dom.searchInput.disabled = true;
+        if (dom.btnSubmit) dom.btnSubmit.disabled = true;
+        saveSessionState();
+        
+        // Record Stats
+        window.CREASUPDLE.recordWin(state.guesses.length);
+
+        // Trigger Confetti & Victory Audio
+        setTimeout(() => {
+          CreasupdleAudio.playWin();
+          if (typeof window.triggerConfetti === 'function') {
+            window.triggerConfetti();
+          } else if (typeof window.createConfetti === 'function') {
+            window.createConfetti();
+          }
+          showVictoryModal();
+        }, 1200);
+      }
+    } finally {
       setTimeout(() => {
-        CreasupdleAudio.playWin();
-        if (typeof window.triggerConfetti === 'function') {
-          window.triggerConfetti();
-        } else if (typeof window.createConfetti === 'function') {
-          window.createConfetti();
-        }
-        showVictoryModal();
-      }, 1200);
+        isSubmittingGuess = false;
+      }, 350);
     }
   }
 
@@ -946,7 +966,12 @@
   }
 
   // --- Attach Event Listeners ---
+  let eventsAttached = false;
+
   function attachEvents() {
+    if (eventsAttached) return;
+    eventsAttached = true;
+
     CreasupdleAudio.init();
 
     // Portal Navigation
@@ -1046,6 +1071,7 @@
           items[state.selectedDropdownIndex]?.scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'Enter') {
           e.preventDefault();
+          e.stopPropagation();
           if (state.selectedDropdownIndex >= 0 && items[state.selectedDropdownIndex]) {
             const id = items[state.selectedDropdownIndex].getAttribute('data-id');
             const roster = window.CREASUPDLE.getRoster();
@@ -1057,9 +1083,40 @@
             const roster = window.CREASUPDLE.getRoster();
             const person = roster.find(m => m.id === id);
             if (person) submitGuess(person);
+          } else {
+            const query = dom.searchInput ? dom.searchInput.value.trim() : '';
+            if (query) {
+              const matches = filterRoster(query);
+              if (matches.length > 0) submitGuess(matches[0]);
+            }
           }
         } else if (e.key === 'Escape') {
           if (dom.dropdown) dom.dropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    // Submit button click
+    if (dom.btnSubmit) {
+      dom.btnSubmit.addEventListener('click', (e) => {
+        e.preventDefault();
+        const items = dom.dropdown ? dom.dropdown.querySelectorAll('.creasupdle-dropdown-item') : [];
+        if (state.selectedDropdownIndex >= 0 && items[state.selectedDropdownIndex]) {
+          const id = items[state.selectedDropdownIndex].getAttribute('data-id');
+          const roster = window.CREASUPDLE.getRoster();
+          const person = roster.find(m => m.id === id);
+          if (person) submitGuess(person);
+        } else if (items.length > 0) {
+          const id = items[0].getAttribute('data-id');
+          const roster = window.CREASUPDLE.getRoster();
+          const person = roster.find(m => m.id === id);
+          if (person) submitGuess(person);
+        } else {
+          const query = dom.searchInput ? dom.searchInput.value.trim() : '';
+          if (query) {
+            const matches = filterRoster(query);
+            if (matches.length > 0) submitGuess(matches[0]);
+          }
         }
       });
     }
