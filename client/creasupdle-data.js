@@ -9,24 +9,24 @@
     "id": "tibo",
     "nom": "Tibo",
     "nomComplet": "Tibo",
-    "surnom": "Graph & Ancien",
+    "surnom": "Bibosaure",
     "genre": "Homme",
     "situation": "Célibataire",
-    "orientation": "Hétéro",
+    "orientation": "Suspicieux",
     "cheveux": "Noir",
     "taille": "1m73",
     "role": "Graph, Ancien",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "TB",
-    "avatarColor": "#6366f1",
-    "punchline": "« Toujours dans la place, le graphisme dans le sang ! »"
+    "initiales": "T",
+    "avatarColor": "#06b6d4",
+    "punchline": "« Non gros Yuki »"
   },
   {
     "id": "clement",
     "nom": "Clément",
     "nomComplet": "Clément",
-    "surnom": "Le Graph Suspicieux",
+    "surnom": "Le Suspicieux Originel",
     "genre": "Homme",
     "situation": "Célibataire",
     "orientation": "Suspicieux",
@@ -35,15 +35,15 @@
     "role": "Graph",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "CL",
-    "avatarColor": "#8b5cf6",
-    "punchline": "« T'as l'air bien suspicieux toi... »"
+    "initiales": "C",
+    "avatarColor": "#f59e0b",
+    "punchline": "« Des fois je rigole un peu je suis en mode ahah j’aime les femmes »"
   },
   {
     "id": "charlelie",
     "nom": "Charlélie",
     "nomComplet": "Charlélie",
-    "surnom": "Dev Polyvalent",
+    "surnom": "Garlic",
     "genre": "Homme",
     "situation": "Couple",
     "orientation": "Polyvalent",
@@ -52,9 +52,9 @@
     "role": "Dev",
     "promo": "Alfred Grévin",
     "age": 22,
-    "initiales": "CH",
-    "avatarColor": "#06b6d4",
-    "punchline": "« Tout est codé, tout est polyvalent ! »"
+    "initiales": "C",
+    "avatarColor": "#ec4899",
+    "punchline": "« J'ai changé depuis la dernière pluie »"
   },
   {
     "id": "theo",
@@ -77,7 +77,7 @@
     "id": "ethan",
     "nom": "Ethan",
     "nomComplet": "Ethan",
-    "surnom": "Le Grand Ancien",
+    "surnom": "Voiture En Panne",
     "genre": "Homme",
     "situation": "Couple",
     "orientation": "Hétéro",
@@ -86,9 +86,9 @@
     "role": "Graph, Ancien",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "ET",
-    "avatarColor": "#f59e0b",
-    "punchline": "« 1m82 au compteur, du haut de mon expérience ! »"
+    "initiales": "E",
+    "avatarColor": "#f43f5e",
+    "punchline": "« 1m82 au compteur, un peu plus dans le slip ! »"
   },
   {
     "id": "lucas",
@@ -103,15 +103,15 @@
     "role": "Graph, Ancien",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "LC",
-    "avatarColor": "#ea580c",
-    "punchline": "« 1m98 : je domine la promo et tous les graphismes d'en haut ! »"
+    "initiales": "L",
+    "avatarColor": "#10b981",
+    "punchline": "« N-word »"
   },
   {
     "id": "louis",
     "nom": "Louis",
     "nomComplet": "Louis",
-    "surnom": "Le Graph Vétéran",
+    "surnom": "Le Graph Gourmand",
     "genre": "Homme",
     "situation": "Célibataire",
     "orientation": "Polyvalent",
@@ -120,9 +120,9 @@
     "role": "Graph, Ancien",
     "promo": "Alfred Grévin",
     "age": 24,
-    "initiales": "LS",
+    "initiales": "L",
     "avatarColor": "#3b82f6",
-    "punchline": "« Polyvalent et efficace, l'expérience de 24 ans parle ! »"
+    "punchline": "« Mon gros c** a besoin de quelque chose »"
   },
   {
     "id": "hugo-millage",
@@ -145,7 +145,7 @@
     "id": "tk",
     "nom": "TK",
     "nomComplet": "TK",
-    "surnom": "Le Graph Mystère",
+    "surnom": "TK Corp CEO",
     "genre": "Homme",
     "situation": "Célibataire",
     "orientation": "Suspicieux",
@@ -154,9 +154,9 @@
     "role": "Graph",
     "promo": "Alfred Grévin",
     "age": 23,
-    "initiales": "TK",
-    "avatarColor": "#a855f7",
-    "punchline": "« Deux lettres suffisent pour poser le décor graphique. »"
+    "initiales": "T",
+    "avatarColor": "#3b82f6",
+    "punchline": "« Kung Fu Panda »"
   },
   {
     "id": "paco",
@@ -196,18 +196,18 @@
     "id": "shemsie",
     "nom": "Shèmsie",
     "nomComplet": "Shèmsie",
-    "surnom": "L'Ancienne Graphiste",
+    "surnom": "La Graphiste Orientale",
     "genre": "Femme",
     "situation": "Couple",
     "orientation": "Hétéro",
     "cheveux": "Brun",
     "taille": "1m63",
-    "role": "Ancien, Graph",
+    "role": "Graph, Ancien",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "SH",
-    "avatarColor": "#14b8a6",
-    "punchline": "« Petite par la taille, grande par l'ancienneté créative ! »"
+    "initiales": "S",
+    "avatarColor": "#06b6d4",
+    "punchline": "« ça va peter »"
   },
   {
     "id": "mikael",
@@ -701,6 +701,23 @@
     "initiales": "JM",
     "avatarColor": "#e11d48",
     "punchline": "« Marguerite de Bourgogne fièrement représentée en code ! »"
+  },
+  {
+    "id": "member-1794250358017",
+    "nom": "Yann",
+    "nomComplet": "Yann",
+    "surnom": "Crea CEO",
+    "genre": "Homme",
+    "situation": "Couple",
+    "orientation": "Hétéro",
+    "cheveux": "Chauve",
+    "taille": "1m70",
+    "role": "Graph, Dev",
+    "promo": "Alfred Grévin, Louise de Clermont, Marguerite de Bourgogne, Chevalier d'Éon, Ernest Coeurderoy, Jean-Baptiste Chaussard, Jean Chaput",
+    "age": 50,
+    "punchline": "« Tiens pendant que t'es debout »",
+    "initiales": "Y",
+    "avatarColor": "#3b82f6"
   }
 ];
 
