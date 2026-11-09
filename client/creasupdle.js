@@ -927,6 +927,17 @@
     });
   }
 
+  let pendingMemberSubmission = null;
+
+  function setModalStep(step) {
+    const stepConfig = document.getElementById('creasupdle-step-config');
+    const stepAuthor = document.getElementById('creasupdle-step-author');
+    const stepSuccess = document.getElementById('creasupdle-step-success');
+    if (stepConfig) stepConfig.classList.toggle('hidden', step !== 'config');
+    if (stepAuthor) stepAuthor.classList.toggle('hidden', step !== 'author');
+    if (stepSuccess) stepSuccess.classList.toggle('hidden', step !== 'success');
+  }
+
   function getSelectedPills(group) {
     if (!dom.memberForm) return [];
     const pills = dom.memberForm.querySelectorAll(`.form-pill-check[data-group="${group}"].active`);
@@ -959,6 +970,9 @@
     if (!member) return;
 
     dom.memberForm.reset();
+    setModalStep('config');
+    pendingMemberSubmission = null;
+
     const editIdInput = dom.memberForm.querySelector('#member-edit-id');
     if (editIdInput) editIdInput.value = member.id;
 
@@ -966,7 +980,7 @@
     if (titleEl) titleEl.textContent = `Modifier : ${member.nomComplet || member.nom}`;
 
     const submitBtn = dom.memberForm.querySelector('#btn-creasupdle-form-submit');
-    if (submitBtn) submitBtn.textContent = 'Envoyer la modification à Tibo 📩';
+    if (submitBtn) submitBtn.textContent = 'Envoyer la demande';
 
     // Pre-fill inputs
     const nomInput = dom.memberForm.querySelector('#member-nom');
@@ -1004,6 +1018,9 @@
   function openAddMemberModal() {
     if (!dom.memberFormModal || !dom.memberForm) return;
     dom.memberForm.reset();
+    setModalStep('config');
+    pendingMemberSubmission = null;
+
     const editIdInput = dom.memberForm.querySelector('#member-edit-id');
     if (editIdInput) editIdInput.value = '';
 
@@ -1011,7 +1028,7 @@
     if (titleEl) titleEl.textContent = 'Proposer un membre de Créasup';
 
     const submitBtn = dom.memberForm.querySelector('#btn-creasupdle-form-submit');
-    if (submitBtn) submitBtn.textContent = 'Envoyer pour validation à Tibo 📩';
+    if (submitBtn) submitBtn.textContent = 'Envoyer la demande';
 
     setSelectedPills('cheveux', 'Noir');
     setSelectedPills('role', 'Graph');
@@ -1023,7 +1040,7 @@
     dom.memberFormModal.classList.remove('hidden');
   }
 
-  async function handleSaveMember(e) {
+  function handleSaveMember(e) {
     e.preventDefault();
     const form = dom.memberForm;
     if (!form) return;
@@ -1036,9 +1053,6 @@
 
     const editId = form.querySelector('#member-edit-id') ? form.querySelector('#member-edit-id').value.trim() : '';
     const isUpdate = Boolean(editId);
-
-    const submitBtn = form.querySelector('#btn-creasupdle-form-submit');
-    const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
 
     const selectedCheveux = getSelectedPills('cheveux');
     if (selectedCheveux.length === 0) {
@@ -1056,11 +1070,6 @@
     if (selectedPromos.length === 0) {
       alert('Veuillez sélectionner au moins une promo Créasup.');
       return;
-    }
-
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Envoi du mail en cours... ⏳';
     }
 
     const initials = nom.split(' ').map(w => w.charAt(0).toUpperCase()).join('').slice(0, 2) || nom.charAt(0).toUpperCase();
@@ -1089,25 +1098,61 @@
       avatarColor: randomColor
     };
 
-    let authorNickname = 'Un membre de Créasup';
+    // Store for Step 2
+    pendingMemberSubmission = { isUpdate, memberData };
+
+    // Move to Step 2: "Qui envoie la demande ?"
+    setModalStep('author');
+    const authorInput = document.getElementById('member-author-nickname');
+    if (authorInput) {
+      let savedNick = '';
+      try {
+        savedNick = localStorage.getItem('supercaraquiz_nickname') || localStorage.getItem('playerNickname') || '';
+      } catch (err) {}
+      authorInput.value = savedNick;
+      setTimeout(() => authorInput.focus(), 60);
+    }
+  }
+
+  async function handleAuthorSubmit(e) {
+    e.preventDefault();
+    if (!pendingMemberSubmission) {
+      setModalStep('config');
+      return;
+    }
+
+    const authorInput = document.getElementById('member-author-nickname');
+    const authorNickname = authorInput ? authorInput.value.trim() : '';
+    if (!authorNickname) {
+      alert('Veuillez renseigner votre prénom ou pseudo.');
+      if (authorInput) authorInput.focus();
+      return;
+    }
+
     try {
-      const storedNick = localStorage.getItem('supercaraquiz_nickname') || localStorage.getItem('playerNickname');
-      if (storedNick) authorNickname = storedNick;
-    } catch (e) {}
+      localStorage.setItem('supercaraquiz_nickname', authorNickname);
+    } catch (err) {}
+
+    const submitBtn = document.getElementById('btn-creasupdle-author-submit');
+    const origText = submitBtn ? submitBtn.textContent : 'Confirmer et envoyer 📩';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Envoi du mail en cours... ⏳';
+    }
 
     try {
       const response = await window.CREASUPDLE.requestMemberModeration({
-        type: isUpdate ? 'update' : 'create',
-        member: memberData,
+        type: pendingMemberSubmission.isUpdate ? 'update' : 'create',
+        member: pendingMemberSubmission.memberData,
         authorNickname
       });
 
       if (response && response.success) {
-        dom.memberFormModal.classList.add('hidden');
-        showToast(isUpdate 
-          ? `Modification envoyée à Tibo par email ! 📩` 
-          : `Proposition pour ${memberData.nomComplet} envoyée à Tibo par email ! 📩`
-        );
+        const targetNameEl = document.getElementById('success-member-target-name');
+        if (targetNameEl) {
+          targetNameEl.textContent = pendingMemberSubmission.memberData.nomComplet || pendingMemberSubmission.memberData.nom;
+        }
+        setModalStep('success');
       } else {
         alert(response && response.error ? response.error : 'Erreur lors de l\'envoi de la demande.');
       }
@@ -1117,7 +1162,7 @@
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        submitBtn.textContent = origText;
       }
     }
   }
@@ -1318,6 +1363,24 @@
         }
       });
       dom.memberForm.addEventListener('submit', handleSaveMember);
+    }
+
+    // Step 2 & 3: Author Form & Success Screen
+    const authorForm = document.getElementById('creasupdle-author-form');
+    if (authorForm) {
+      authorForm.addEventListener('submit', handleAuthorSubmit);
+    }
+    const btnAuthorBack = document.getElementById('btn-creasupdle-author-back');
+    if (btnAuthorBack) {
+      btnAuthorBack.addEventListener('click', () => setModalStep('config'));
+    }
+    const btnSuccessClose = document.getElementById('btn-creasupdle-success-close');
+    if (btnSuccessClose && dom.memberFormModal) {
+      btnSuccessClose.addEventListener('click', () => {
+        dom.memberFormModal.classList.add('hidden');
+        setModalStep('config');
+        pendingMemberSubmission = null;
+      });
     }
 
     // Victory Modal Actions
