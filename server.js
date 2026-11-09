@@ -2084,7 +2084,7 @@ const server = http.createServer((req, res) => {
   // ==========================================
 
   // Create Theridactle Room
-  if (parsedUrl.pathname === '/api/room/create' && req.method === 'POST') {
+  if ((parsedUrl.pathname === '/api/room/create' || parsedUrl.pathname === '/api/theridactle/room/create') && req.method === 'POST') {
     createRoomState().then(state => {
       let roomId = generateRoomId();
       while(rooms[roomId]) roomId = generateRoomId();
@@ -2269,7 +2269,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Join Room verification
-  if ((parsedUrl.pathname === '/api/room/join' || parsedUrl.pathname === '/api/pokedactle/room/join' || parsedUrl.pathname === '/api/merrydactle/room/join') && req.method === 'POST') {
+  if ((parsedUrl.pathname === '/api/room/join' || parsedUrl.pathname === '/api/theridactle/room/join' || parsedUrl.pathname === '/api/pokedactle/room/join' || parsedUrl.pathname === '/api/merrydactle/room/join') && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {

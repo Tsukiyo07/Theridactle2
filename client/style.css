@@ -2516,7 +2516,8 @@ select option:focus,
   gap: 0.75rem;
 }
 
-.player-item {
+.player-item,
+.imposteur-player-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2527,15 +2528,22 @@ select option:focus,
   transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.player-item:hover {
+.player-item:hover,
+.imposteur-player-item:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-.player-item.current-player {
+.player-item.current-player,
+.imposteur-player-item.is-me {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.16);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.player-item.is-disconnected,
+.imposteur-player-item.is-disconnected {
+  opacity: 0.45;
 }
 
 .badge-mini-you {
@@ -2565,29 +2573,37 @@ select option:focus,
   min-width: 0;
 }
 
-.player-avatar {
+.player-avatar,
+.player-avatar-small {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   font-size: 14px;
   font-weight: 800;
-  overflow: hidden;
-  flex-shrink: 0;
-  padding: 0;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .player-avatar svg,
-.player-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  display: block;
+.player-avatar img,
+.player-avatar-small svg,
+.player-avatar-small img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  display: block !important;
 }
 
 .player-name {
@@ -3371,7 +3387,8 @@ select option:focus,
     display: none;
   }
 
-  .player-item {
+  .player-item,
+  .imposteur-player-item {
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -3402,9 +3419,12 @@ select option:focus,
     max-width: 68px;
   }
 
-  .player-avatar {
-    width: 28px;
-    height: 28px;
+  .player-avatar,
+  .player-avatar-small {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
     font-size: 10px;
   }
 

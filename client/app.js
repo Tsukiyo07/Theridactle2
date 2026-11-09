@@ -1141,9 +1141,9 @@ function init() {
       body: JSON.stringify({
         word,
         roomId: currentRoomId,
-        nickname: currentProfile && currentProfile.nickname ? currentProfile.nickname : '',
+        nickname: (currentProfile && currentProfile.nickname) ? currentProfile.nickname : (dactleRoomStates.theridactle?.myNickname || getDactleNickname('theridactle')),
         accountNickname: (currentProfile && currentProfile.password) ? currentProfile.nickname : null,
-        avatar: currentProfile && currentProfile.avatar ? currentProfile.avatar : ''
+        avatar: (currentProfile && currentProfile.avatar) ? currentProfile.avatar : getDactleAvatar('theridactle')
       })
     }).then(r => r.json()).then(data => {
       if (data.success) {
@@ -2763,6 +2763,9 @@ function escapeHtml(str) {
 // --- Theridactle APIs ---
 function createTheridactleRoom(isSolo) {
   showTheriMenuError('');
+  const nick = getDactleNickname('theridactle');
+  dactleRoomStates.theridactle.myNickname = nick;
+  dactleRoomStates.theridactle.isCreator = !isSolo;
   fetch('/api/room/create', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
@@ -2773,6 +2776,9 @@ function createTheridactleRoom(isSolo) {
 
 function joinTheridactleRoom(roomId) {
   showTheriMenuError('');
+  const nick = getDactleNickname('theridactle');
+  dactleRoomStates.theridactle.myNickname = nick;
+  dactleRoomStates.theridactle.isCreator = false;
   fetch('/api/room/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2791,18 +2797,60 @@ function showTheriMenuError(msg) {
 // --- MULTIPLAYER DACTLE (DINOTISTE, POKEMOTISTE, OTISTE PIECE) ENGINE ---
 
 const dactleRoomStates = {
-  theridactle: { isHost: false, lastState: null, lastPlayersHtml: '' },
-  pokedactle: { isHost: false, lastState: null, lastPlayersHtml: '' },
-  merrydactle: { isHost: false, lastState: null, lastPlayersHtml: '' }
+  theridactle: { isHost: false, isCreator: false, myNickname: '', lastState: null, lastPlayersHtml: '' },
+  pokedactle: { isHost: false, isCreator: false, myNickname: '', lastState: null, lastPlayersHtml: '' },
+  merrydactle: { isHost: false, isCreator: false, myNickname: '', lastState: null, lastPlayersHtml: '' }
 };
+
+function getDactleNickname(gameKey) {
+  const prefix = gameKey === 'theridactle' ? 'theridactle' : (gameKey === 'pokedactle' ? 'pokedactle' : 'merrydactle');
+  const inputEl = document.getElementById(`${prefix}-player-nickname`);
+  const val = inputEl ? inputEl.value.trim() : '';
+  if (val) {
+    if (currentProfile) currentProfile.nickname = val;
+    localStorage.setItem('last_user_nickname', val);
+    syncAllNicknameInputs(val);
+    return val;
+  }
+  if (dactleRoomStates[gameKey]?.myNickname) return dactleRoomStates[gameKey].myNickname;
+  if (currentProfile?.nickname && currentProfile.nickname.trim()) return currentProfile.nickname.trim();
+  const savedNick = localStorage.getItem('last_user_nickname');
+  if (savedNick && savedNick.trim()) return savedNick.trim();
+  
+  if (gameKey === 'merrydactle') return 'Pirate';
+  if (gameKey === 'pokedactle') return 'Dresseur';
+  return 'Paléontologue';
+}
+
+function getDactleAvatar(gameKey) {
+  if (currentProfile?.avatar) return currentProfile.avatar;
+  if (gameKey === 'merrydactle') return '🏴‍☠️';
+  if (gameKey === 'pokedactle') return '⚡';
+  return '🦖';
+}
 
 function handleDactleState(gameKey, state) {
   if (!state) return;
   const roomInfo = dactleRoomStates[gameKey];
   roomInfo.lastState = state;
 
-  const myNick = currentProfile?.nickname || '';
-  const isHost = (!state.host || state.host.toLowerCase() === myNick.toLowerCase());
+  const myNick = roomInfo.myNickname || getDactleNickname(gameKey);
+  roomInfo.myNickname = myNick;
+
+  const playersArr = state.players ? Object.values(state.players) : [];
+  
+  // Host Detection
+  let isHost = Boolean(roomInfo.isCreator);
+  if (!isHost) {
+    if (!state.host) {
+      isHost = true;
+    } else if (myNick && state.host.toLowerCase() === myNick.toLowerCase()) {
+      isHost = true;
+    } else if (playersArr.length === 1 && state.host.toLowerCase() === playersArr[0].nickname.toLowerCase()) {
+      isHost = true;
+      roomInfo.myNickname = playersArr[0].nickname;
+    }
+  }
   roomInfo.isHost = isHost;
 
   const prefix = gameKey === 'theridactle' ? 'theridactle' : (gameKey === 'pokedactle' ? 'pokedactle' : 'merrydactle');
@@ -2837,24 +2885,32 @@ function handleDactleState(gameKey, state) {
   
   if (multiPlayersBox) multiPlayersBox.style.display = 'block';
 
-  const playersArr = state.players ? Object.values(state.players) : [];
   if (countEl) countEl.textContent = playersArr.length;
 
   if (playersList) {
+    const themeColor = gameKey === 'theridactle' ? '#10b981' : (gameKey === 'pokedactle' ? '#f59e0b' : '#ef4444');
+    const themeBg = gameKey === 'theridactle' ? 'rgba(16, 185, 129, 0.15)' : (gameKey === 'pokedactle' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)');
+
     const newHtml = playersArr.map(p => {
       const isPlayerHost = state.host && p.nickname.toLowerCase() === state.host.toLowerCase();
-      const isMe = p.nickname.toLowerCase() === myNick.toLowerCase();
+      const isMe = myNick && p.nickname.toLowerCase() === myNick.toLowerCase();
       const avatarHtml = renderAvatarHTML(p.avatar, p.avatarIsPhoto);
       return `
-        <li class="imposteur-player-item ${isMe ? 'is-me' : ''} ${!p.isConnected ? 'is-disconnected' : ''}">
-          <div class="player-avatar-small">${avatarHtml}</div>
-          <div class="player-info" style="flex: 1; display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span class="player-name">${escapeHtml(p.nickname)}</span>
-              ${isPlayerHost ? '<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-size: 10px; padding: 2px 6px; border-radius: 4px;">👑 Hôte</span>' : ''}
-              ${isMe ? '<span class="badge" style="background: rgba(37, 99, 235, 0.2); color: #60a5fa; font-size: 10px; padding: 2px 6px; border-radius: 4px;">Moi</span>' : ''}
+        <li class="player-item ${isMe ? 'current-player' : ''} ${!p.isConnected ? 'is-disconnected' : ''}">
+          <div class="player-info-left" style="opacity: ${p.isConnected === false ? '0.5' : '1'};">
+            <div class="player-avatar" style="background: ${themeBg};">
+              ${avatarHtml}
             </div>
-            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">${p.score || 0} pts</span>
+            <div style="min-width: 0; display: flex; flex-direction: column;">
+              <div class="player-name">
+                ${escapeHtml(p.nickname)}
+                ${isMe ? `<span class="badge-mini-you" style="background: ${themeBg}; color: ${themeColor};">VOUS</span>` : ''}
+                ${isPlayerHost ? `<span class="badge-mini-rank" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 1px 5px; border-radius: 4px; font-size: 10px; margin-left: 4px;">👑 HÔTE</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="player-stats" style="color: ${themeColor}; font-weight: 800; font-family: var(--font-mono);">
+            ${p.score || 0} pts
           </div>
         </li>
       `;
@@ -3043,6 +3099,7 @@ function sendDactleSettings(gameKey) {
   const totalRounds = document.getElementById(`${prefix}-lobby-rounds-select`)?.value || 3;
   const category = document.getElementById(`${prefix}-lobby-category-select`)?.value || 'all';
   const hintsAllowed = document.getElementById(`${prefix}-lobby-hints-select`)?.value || 3;
+  const nick = dactleRoomStates[gameKey]?.myNickname || getDactleNickname(gameKey);
 
   fetch(`/api/${gameKey}/room/settings`, {
     method: 'POST',
@@ -3052,43 +3109,46 @@ function sendDactleSettings(gameKey) {
       totalRounds: parseInt(totalRounds),
       category,
       hintsAllowed: parseInt(hintsAllowed),
-      nickname: currentProfile?.nickname
+      nickname: nick
     })
   });
 }
 
 function startDactleGame(gameKey) {
   if (!currentRoomId || !dactleRoomStates[gameKey].isHost) return;
+  const nick = dactleRoomStates[gameKey]?.myNickname || getDactleNickname(gameKey);
   fetch(`/api/${gameKey}/room/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       roomId: currentRoomId,
-      nickname: currentProfile?.nickname
+      nickname: nick
     })
   });
 }
 
 function nextDactleRound(gameKey) {
   if (!currentRoomId || !dactleRoomStates[gameKey].isHost) return;
+  const nick = dactleRoomStates[gameKey]?.myNickname || getDactleNickname(gameKey);
   fetch(`/api/${gameKey}/room/next_round`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       roomId: currentRoomId,
-      nickname: currentProfile?.nickname
+      nickname: nick
     })
   });
 }
 
 function restartDactleLobby(gameKey) {
   if (!currentRoomId || !dactleRoomStates[gameKey].isHost) return;
+  const nick = dactleRoomStates[gameKey]?.myNickname || getDactleNickname(gameKey);
   fetch(`/api/${gameKey}/room/restart_lobby`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       roomId: currentRoomId,
-      nickname: currentProfile?.nickname
+      nickname: nick
     })
   });
 }
@@ -3134,6 +3194,8 @@ function startPlayingTheridactle(roomId, isSolo) {
 function leaveTheridactleRoom() {
   if (evtSource) evtSource.close();
   currentRoomId = null;
+  dactleRoomStates.theridactle.isCreator = false;
+  dactleRoomStates.theridactle.lastPlayersHtml = '';
   gameState = { guesses: [], guessHistory: [], isWon: false, title: '', rawHtml: '' };
   
   showView('portal');
@@ -3144,8 +3206,10 @@ function leaveTheridactleRoom() {
 
 function connectTheridactleSSE(roomId) {
   if (evtSource) evtSource.close();
-  const nick = encodeURIComponent(currentProfile?.nickname || 'Paléontologue');
-  const av = encodeURIComponent(currentProfile?.avatar || '🦖');
+  const myNick = dactleRoomStates.theridactle.myNickname || getDactleNickname('theridactle');
+  dactleRoomStates.theridactle.myNickname = myNick;
+  const nick = encodeURIComponent(myNick);
+  const av = encodeURIComponent(getDactleAvatar('theridactle'));
   evtSource = new EventSource(`/api/events?roomId=${roomId}&nickname=${nick}&avatar=${av}`);
   
   evtSource.onmessage = function(event) {
@@ -3240,6 +3304,9 @@ let isPokedactleHintMode = false;
 
 function createPokedactleRoom(isSolo) {
   showPokedactleMenuError('');
+  const nick = getDactleNickname('pokedactle');
+  dactleRoomStates.pokedactle.myNickname = nick;
+  dactleRoomStates.pokedactle.isCreator = !isSolo;
   fetch('/api/pokedactle/room/create', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
@@ -3250,6 +3317,9 @@ function createPokedactleRoom(isSolo) {
 
 function joinPokedactleRoom(roomId) {
   showPokedactleMenuError('');
+  const nick = getDactleNickname('pokedactle');
+  dactleRoomStates.pokedactle.myNickname = nick;
+  dactleRoomStates.pokedactle.isCreator = false;
   fetch('/api/pokedactle/room/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3309,6 +3379,8 @@ function startPlayingPokedactle(roomId, isSolo) {
 function leavePokedactleRoom() {
   if (evtSource) evtSource.close();
   currentRoomId = null;
+  dactleRoomStates.pokedactle.isCreator = false;
+  dactleRoomStates.pokedactle.lastPlayersHtml = '';
   localStorage.removeItem('pokedactle-roomId');
   pokedactleGameState = { guesses: [], guessHistory: [], isWon: false, title: '', rawHtml: '', imageUrl: null };
   
@@ -3320,8 +3392,10 @@ function leavePokedactleRoom() {
 
 function connectPokedactleSSE(roomId) {
   if (evtSource) evtSource.close();
-  const nick = encodeURIComponent(currentProfile?.nickname || 'Dresseur');
-  const av = encodeURIComponent(currentProfile?.avatar || '⚡');
+  const myNick = dactleRoomStates.pokedactle.myNickname || getDactleNickname('pokedactle');
+  dactleRoomStates.pokedactle.myNickname = myNick;
+  const nick = encodeURIComponent(myNick);
+  const av = encodeURIComponent(getDactleAvatar('pokedactle'));
   evtSource = new EventSource(`/api/events?roomId=${roomId}&nickname=${nick}&avatar=${av}`);
   
   evtSource.onmessage = function(event) {
@@ -3477,8 +3551,8 @@ function submitPokedactleGuess(word) {
     body: JSON.stringify({
       word,
       roomId: currentRoomId,
-      nickname: currentProfile?.nickname || '',
-      avatar: currentProfile?.avatar || '⚡'
+      nickname: dactleRoomStates.pokedactle?.myNickname || getDactleNickname('pokedactle'),
+      avatar: getDactleAvatar('pokedactle')
     })
   }).then(r => r.json()).then(data => {
     if (data.success) {
@@ -3805,6 +3879,9 @@ let isMerrydactleHintMode = false;
 
 function createMerrydactleRoom(isSolo) {
   showMerrydactleMenuError('');
+  const nick = getDactleNickname('merrydactle');
+  dactleRoomStates.merrydactle.myNickname = nick;
+  dactleRoomStates.merrydactle.isCreator = !isSolo;
   fetch('/api/merrydactle/room/create', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
@@ -3815,6 +3892,9 @@ function createMerrydactleRoom(isSolo) {
 
 function joinMerrydactleRoom(roomId) {
   showMerrydactleMenuError('');
+  const nick = getDactleNickname('merrydactle');
+  dactleRoomStates.merrydactle.myNickname = nick;
+  dactleRoomStates.merrydactle.isCreator = false;
   fetch('/api/merrydactle/room/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3874,6 +3954,8 @@ function startPlayingMerrydactle(roomId, isSolo) {
 function leaveMerrydactleRoom() {
   if (evtSource) evtSource.close();
   currentRoomId = null;
+  dactleRoomStates.merrydactle.isCreator = false;
+  dactleRoomStates.merrydactle.lastPlayersHtml = '';
   localStorage.removeItem('merrydactle-roomId');
   merrydactleGameState = { guesses: [], guessHistory: [], isWon: false, title: '', rawHtml: '', imageUrl: null };
   
@@ -3885,8 +3967,10 @@ function leaveMerrydactleRoom() {
 
 function connectMerrydactleSSE(roomId) {
   if (evtSource) evtSource.close();
-  const nick = encodeURIComponent(currentProfile?.nickname || 'Pirate');
-  const av = encodeURIComponent(currentProfile?.avatar || '🏴‍☠️');
+  const myNick = dactleRoomStates.merrydactle.myNickname || getDactleNickname('merrydactle');
+  dactleRoomStates.merrydactle.myNickname = myNick;
+  const nick = encodeURIComponent(myNick);
+  const av = encodeURIComponent(getDactleAvatar('merrydactle'));
   evtSource = new EventSource(`/api/events?roomId=${roomId}&nickname=${nick}&avatar=${av}`);
   
   evtSource.onmessage = function(event) {
@@ -4041,8 +4125,8 @@ function submitMerrydactleGuess(word) {
     body: JSON.stringify({
       word,
       roomId: currentRoomId,
-      nickname: currentProfile?.nickname || '',
-      avatar: currentProfile?.avatar || '🏴‍☠️'
+      nickname: dactleRoomStates.merrydactle?.myNickname || getDactleNickname('merrydactle'),
+      avatar: getDactleAvatar('merrydactle')
     })
   }).then(r => r.json()).then(data => {
     if (data.success) {
@@ -8129,7 +8213,7 @@ function initSonglessUI() {
         console.error('Failed to restart songless room:', err);
       } finally {
         btnRestartLobby.disabled = false;
-        btnRestartLobby.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres & Rejouer";
+        btnRestartLobby.innerHTML = `<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres & Rejouer`;
       }
     });
   }
@@ -8783,7 +8867,7 @@ function updateSonglessNextRoundButton(players) {
       btnNextRound.disabled = false;
       btnNextRound.classList.remove('is-disabled');
       if (isFinalRound) {
-        btnNextRound.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Voir le Podium Final";
+        btnNextRound.innerHTML = `<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Voir le Podium Final`;
         btnNextRound.style.background = "linear-gradient(135deg, #fbbf24 0%, #d97706 100%)";
         btnNextRound.style.color = "#0b0f19";
         btnNextRound.style.fontWeight = "800";
@@ -10285,7 +10369,7 @@ function handlePokecriesSSEState(state) {
         btnNext.disabled = false;
         btnNext.classList.remove('is-disabled');
         if (isFinalRound) {
-          btnNext.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Voir le Podium Final";
+          btnNext.innerHTML = `<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Voir le Podium Final`;
           btnNext.style.background = "linear-gradient(135deg, #fbbf24 0%, #d97706 100%)";
           btnNext.style.color = "#0b0f19";
           btnNext.style.fontWeight = "800";
@@ -10579,7 +10663,7 @@ function initPokecriesUI() {
           console.error(e);
         } finally {
           btnRestartLobby.disabled = false;
-          btnRestartLobby.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres & Rejouer";
+          btnRestartLobby.innerHTML = `<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres & Rejouer`;
         }
       }
     });
