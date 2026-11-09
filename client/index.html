@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261108_no_beaumoche_v6">
+ <link rel="stylesheet" href="style.css?v=20261109_form_pills_v12">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -3396,35 +3396,8 @@
 
      <div class="form-row">
       <div class="form-group flex-1">
-       <label for="member-cheveux">Cheveux</label>
-       <select id="member-cheveux">
-        <option value="Marron" selected>Marron</option>
-        <option value="Châtain">Châtain</option>
-        <option value="Châtain, Blond">Châtain, Blond</option>
-        <option value="Brun">Brun</option>
-        <option value="Brun, Blond">Brun, Blond</option>
-        <option value="Blond">Blond</option>
-        <option value="Noir">Noir</option>
-        <option value="Roux">Roux</option>
-        <option value="Bonnet">Bonnet 🧢</option>
-        <option value="Coloré">Coloré</option>
-        <option value="Chauve">Chauve</option>
-       </select>
-      </div>
-      <div class="form-group flex-1">
        <label for="member-taille">Taille</label>
        <input type="text" id="member-taille" placeholder="Ex: 1m73" value="1m73" required>
-      </div>
-      <div class="form-group flex-1">
-       <label for="member-role">Rôle Créasup</label>
-       <input type="text" id="member-role" placeholder="Ex: Graph, Ancien, Dev..." value="Graph" required>
-      </div>
-     </div>
-
-     <div class="form-row">
-      <div class="form-group flex-2">
-       <label for="member-promo">Promo</label>
-       <input type="text" id="member-promo" placeholder="Ex: Alfred Grévin" value="Alfred Grévin" required>
       </div>
       <div class="form-group flex-1">
        <label for="member-age">Âge</label>
@@ -3432,9 +3405,55 @@
       </div>
      </div>
 
+     <!-- Cheveux : sélection multiple -->
+     <div class="form-group">
+      <label class="form-label-with-hint">Couleur des cheveux <span class="label-hint">(choix unique ou multiple)</span></label>
+      <div class="form-pills-container" id="pills-cheveux">
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Noir">Noir</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Brun">Brun</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Châtain">Châtain</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Blond">Blond</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Roux">Roux</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Marron">Marron</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Bonnet">Bonnet 🧢</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Coloré">Coloré</button>
+       <button type="button" class="form-pill-check" data-group="cheveux" data-value="Chauve">Chauve</button>
+      </div>
+     </div>
+
+     <!-- Rôle : sélection multiple -->
+     <div class="form-group">
+      <label class="form-label-with-hint">Rôle Créasup <span class="label-hint">(choix unique ou multiple)</span></label>
+      <div class="form-pills-container" id="pills-role">
+       <button type="button" class="form-pill-check active" data-group="role" data-value="Graph">Graph</button>
+       <button type="button" class="form-pill-check" data-group="role" data-value="Dev">Dev</button>
+       <button type="button" class="form-pill-check" data-group="role" data-value="Ancien">Ancien</button>
+       <button type="button" class="form-pill-check" data-group="role" data-value="Concepteur">Concepteur</button>
+      </div>
+     </div>
+
+     <!-- Promo : choix parmi la liste officielle -->
+     <div class="form-group">
+      <label class="form-label-with-hint">Promo Créasup <span class="label-hint">(sélectionnez la promo)</span></label>
+      <div class="form-pills-container" id="pills-promo">
+       <button type="button" class="form-pill-check active" data-group="promo" data-value="Alfred Grévin">Alfred Grévin</button>
+       <button type="button" class="form-pill-check" data-group="promo" data-value="Louise de Clermont">Louise de Clermont</button>
+       <button type="button" class="form-pill-check" data-group="promo" data-value="Marguerite de Bourgogne">Marguerite de Bourgogne</button>
+       <button type="button" class="form-pill-check" data-group="promo" data-value="Chevalier d'Éon">Chevalier d'Éon</button>
+       <button type="button" class="form-pill-check" data-group="promo" data-value="Ernest Coeurderoy">Ernest Coeurderoy</button>
+       <button type="button" class="form-pill-check" data-group="promo" data-value="Jean-Baptiste Chaussard">Jean-Baptiste Chaussard</button>
+       <button type="button" class="form-pill-check" data-group="promo" data-value="Jean Chaput">Jean Chaput</button>
+      </div>
+     </div>
+
+     <!-- Citation avec guillemets intégrés -->
      <div class="form-group">
       <label for="member-punchline">Citation culte / Habitude</label>
-      <input type="text" id="member-punchline" placeholder="Ex: « Toujours dans la place ! »">
+      <div class="quote-input-wrapper">
+       <span class="quote-mark quote-mark-left" aria-hidden="true">«</span>
+       <input type="text" id="member-punchline" placeholder="Toujours dans la place !">
+       <span class="quote-mark quote-mark-right" aria-hidden="true">»</span>
+      </div>
      </div>
 
      <div class="form-actions-row">
@@ -3678,8 +3697,8 @@
 
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
  <script src="imposteur-words.js?v=20261008"></script>
- <script src="creasupdle-data.js?v=20261109_ethan_brun_v10"></script>
- <script src="creasupdle.js?v=20261109_ethan_brun_v10"></script>
+ <script src="creasupdle-data.js?v=20261109_form_pills_v12"></script>
+ <script src="creasupdle.js?v=20261109_form_pills_v12"></script>
  <script src="/socket.io/socket.io.js"></script>
  <script src="app.js?v=20261109_ethan_brun_v10"></script>
 </body>

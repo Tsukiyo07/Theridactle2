@@ -8453,6 +8453,121 @@ select option:focus,
   border-color: #8b5cf6;
 }
 
+.form-label-with-hint {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.label-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: #94a3b8;
+  opacity: 0.85;
+}
+
+/* Multi-select Pills for Hair, Role, Promo */
+.form-pills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.form-pill-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.12s cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 0.18s cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 0.18s cubic-bezier(0.23, 1, 0.32, 1),
+              color 0.18s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.form-pill-check:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #f1f5f9;
+}
+
+.form-pill-check:active {
+  transform: scale(0.95);
+}
+
+.form-pill-check.active {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: #a855f7;
+  color: #faf5ff;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.form-pill-check.active::before {
+  content: '✓';
+  font-size: 11px;
+  font-weight: 800;
+  color: #c084fc;
+}
+
+/* Citation Input Wrapper with permanent guillemets « » */
+.quote-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0 12px;
+  transition: border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.quote-input-wrapper:focus-within {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+.quote-mark {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #a855f7;
+  user-select: none;
+  line-height: 1;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.quote-mark-left {
+  margin-right: 8px;
+}
+
+.quote-mark-right {
+  margin-left: 8px;
+}
+
+.quote-input-wrapper input {
+  flex: 1;
+  min-width: 0;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 8px 0 !important;
+  color: #fff;
+  font-size: 13.5px;
+  outline: none !important;
+}
+
 .form-actions-row {
   display: flex;
   justify-content: flex-end;

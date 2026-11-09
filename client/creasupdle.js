@@ -927,6 +927,31 @@
     });
   }
 
+  function getSelectedPills(group) {
+    if (!dom.memberForm) return [];
+    const pills = dom.memberForm.querySelectorAll(`.form-pill-check[data-group="${group}"].active`);
+    return Array.from(pills).map(p => p.getAttribute('data-value')).filter(Boolean);
+  }
+
+  function setSelectedPills(group, valuesString) {
+    if (!dom.memberForm) return;
+    const rawTokens = (valuesString || '')
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+
+    const pills = dom.memberForm.querySelectorAll(`.form-pill-check[data-group="${group}"]`);
+    pills.forEach(p => {
+      const val = (p.getAttribute('data-value') || '').toLowerCase();
+      const isMatched = rawTokens.some(t => t === val || t.includes(val) || val.includes(t));
+      if (isMatched) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+  }
+
   function openEditMemberModal(id) {
     if (!dom.memberFormModal || !dom.memberForm) return;
     const roster = window.CREASUPDLE.getRoster();
@@ -959,23 +984,19 @@
     const oriSelect = dom.memberForm.querySelector('#member-orientation');
     if (oriSelect) oriSelect.value = member.orientation || 'Hétéro';
 
-    const chSelect = dom.memberForm.querySelector('#member-cheveux');
-    if (chSelect) chSelect.value = member.cheveux || 'Noir';
+    setSelectedPills('cheveux', member.cheveux || 'Noir');
 
     const tailleInput = dom.memberForm.querySelector('#member-taille');
     if (tailleInput) tailleInput.value = member.taille || '1m73';
 
-    const roleInput = dom.memberForm.querySelector('#member-role');
-    if (roleInput) roleInput.value = member.role || 'Graph';
-
-    const promoInput = dom.memberForm.querySelector('#member-promo');
-    if (promoInput) promoInput.value = member.promo || 'Alfred Grévin';
+    setSelectedPills('role', member.role || 'Graph');
+    setSelectedPills('promo', member.promo || 'Alfred Grévin');
 
     const ageInput = dom.memberForm.querySelector('#member-age');
     if (ageInput) ageInput.value = member.age || 21;
 
     const quoteInput = dom.memberForm.querySelector('#member-punchline');
-    if (quoteInput) quoteInput.value = member.punchline ? member.punchline.replace(/^[«"]+|[»"]+$/g, '').trim() : '';
+    if (quoteInput) quoteInput.value = member.punchline ? member.punchline.replace(/^[«"'\s]+|[»"'\s]+$/g, '').trim() : '';
 
     dom.memberFormModal.classList.remove('hidden');
   }
@@ -991,6 +1012,13 @@
 
     const submitBtn = dom.memberForm.querySelector('#btn-creasupdle-form-submit');
     if (submitBtn) submitBtn.textContent = 'Envoyer pour validation à Tibo 📩';
+
+    setSelectedPills('cheveux', 'Noir');
+    setSelectedPills('role', 'Graph');
+    setSelectedPills('promo', 'Alfred Grévin');
+
+    const quoteInput = dom.memberForm.querySelector('#member-punchline');
+    if (quoteInput) quoteInput.value = '';
 
     dom.memberFormModal.classList.remove('hidden');
   }
@@ -1011,6 +1039,25 @@
 
     const submitBtn = form.querySelector('#btn-creasupdle-form-submit');
     const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
+
+    const selectedCheveux = getSelectedPills('cheveux');
+    if (selectedCheveux.length === 0) {
+      alert('Veuillez sélectionner au moins une couleur de cheveux.');
+      return;
+    }
+
+    const selectedRoles = getSelectedPills('role');
+    if (selectedRoles.length === 0) {
+      alert('Veuillez sélectionner au moins un rôle Créasup (Graph, Dev, Ancien...).');
+      return;
+    }
+
+    const selectedPromos = getSelectedPills('promo');
+    if (selectedPromos.length === 0) {
+      alert('Veuillez sélectionner au moins une promo Créasup.');
+      return;
+    }
+
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi du mail en cours... ⏳';
@@ -1020,6 +1067,10 @@
     const colors = ['#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#3b82f6'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
+    const rawQuote = form.querySelector('#member-punchline') ? form.querySelector('#member-punchline').value.trim() : '';
+    const cleanQuote = rawQuote.replace(/^[«"'\s]+|[»"'\s]+$/g, '').trim();
+    const punchline = cleanQuote ? `« ${cleanQuote} »` : '';
+
     const memberData = {
       id: editId || ('member-' + Date.now()),
       nom: nom.split(' ')[0],
@@ -1028,12 +1079,12 @@
       genre: form.querySelector('#member-genre') ? form.querySelector('#member-genre').value : 'Homme',
       situation: form.querySelector('#member-situation') ? form.querySelector('#member-situation').value : 'Célibataire',
       orientation: form.querySelector('#member-orientation') ? form.querySelector('#member-orientation').value : 'Hétéro',
-      cheveux: form.querySelector('#member-cheveux') ? form.querySelector('#member-cheveux').value : 'Noir',
+      cheveux: selectedCheveux.join(', '),
       taille: form.querySelector('#member-taille') ? form.querySelector('#member-taille').value.trim() : '1m73',
-      role: form.querySelector('#member-role') ? form.querySelector('#member-role').value.trim() : 'Graph',
-      promo: form.querySelector('#member-promo') ? form.querySelector('#member-promo').value.trim() : 'Alfred Grévin',
+      role: selectedRoles.join(', '),
+      promo: selectedPromos.join(', '),
       age: parseInt(form.querySelector('#member-age') ? form.querySelector('#member-age').value : '21', 10) || 21,
-      punchline: form.querySelector('#member-punchline') ? form.querySelector('#member-punchline').value.trim() : '',
+      punchline: punchline,
       initiales: initials,
       avatarColor: randomColor
     };
@@ -1259,6 +1310,13 @@
       dom.btnCancelMemberForm.addEventListener('click', () => dom.memberFormModal.classList.add('hidden'));
     }
     if (dom.memberForm) {
+      dom.memberForm.addEventListener('click', (e) => {
+        const pill = e.target.closest('.form-pill-check');
+        if (pill) {
+          e.preventDefault();
+          pill.classList.toggle('active');
+        }
+      });
       dom.memberForm.addEventListener('submit', handleSaveMember);
     }
 

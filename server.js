@@ -136,6 +136,9 @@ function loadCreasupdleRoster() {
     if (fs.existsSync(CREASUPDLE_ROSTER_FILE)) {
       cachedCreasupdleRoster = JSON.parse(fs.readFileSync(CREASUPDLE_ROSTER_FILE, 'utf8'));
       if (Array.isArray(cachedCreasupdleRoster) && cachedCreasupdleRoster.length > 0) {
+        cachedCreasupdleRoster.forEach(m => {
+          if (m && m.promo && m.promo.includes('Clairemont')) m.promo = m.promo.replace('Clairemont', 'Clermont');
+        });
         return cachedCreasupdleRoster;
       }
     }

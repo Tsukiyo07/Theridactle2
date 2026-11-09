@@ -169,11 +169,11 @@
       cheveux: 'Brun, Blond',
       taille: '1m72',
       role: 'Graph',
-      promo: 'Louise de Clairemont',
+      promo: 'Louise de Clermont',
       age: 26,
       initiales: 'PC',
       avatarColor: '#ec4899',
-      punchline: '« Louise de Clairemont en force dans l\'arène Créasup ! »'
+      punchline: '« Louise de Clermont en force dans l\'arène Créasup ! »'
     },
     {
       id: 'chloe',
