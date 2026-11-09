@@ -750,6 +750,41 @@ async function confirmLeave() {
 
 // --- Initialization ---
 function init() {
+  // Global Real-time Nickname Synchronization & Error Auto-Clearing
+  const allNicknameInputs = [
+    { id: 'theridactle-player-nickname', clearErr: () => showTheriMenuError('') },
+    { id: 'pokedactle-player-nickname', clearErr: () => showPokedactleMenuError('') },
+    { id: 'pokecries-player-nickname', clearErr: () => showPokecriesMenuError('') },
+    { id: 'merrydactle-player-nickname', clearErr: () => showMerrydactleMenuError('') },
+    { id: 'imposteur-player-nickname', clearErr: () => showImpMenuError('') },
+    { id: 'imposteur-nickname', clearErr: () => showImpMenuError('') },
+    { id: 'geographie-player-nickname', clearErr: () => showGeoMenuError('') },
+    { id: 'geographie-nickname', clearErr: () => showGeoMenuError('') },
+    { id: 'loup-garou-player-nickname', clearErr: () => showLgMenuError('') },
+    { id: 'loup-garou-nickname', clearErr: () => showLgMenuError('') },
+    { id: 'songless-player-nickname', clearErr: () => showSonglessMenuError('') }
+  ];
+
+  allNicknameInputs.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (el) {
+      el.addEventListener('input', () => {
+        const val = el.value.trim();
+        item.clearErr();
+        el.style.borderColor = '';
+        el.style.boxShadow = '';
+        if (currentProfile) currentProfile.nickname = val;
+        if (val) localStorage.setItem('last_user_nickname', val);
+        allNicknameInputs.forEach(other => {
+          if (other.id !== item.id) {
+            const otherEl = document.getElementById(other.id);
+            if (otherEl && otherEl.value !== el.value) otherEl.value = el.value;
+          }
+        });
+      });
+    }
+  });
+
   // Mobile Sidebar Toggle (Theridactle & Pokedactle)
   if (dom.mobileHandle) {
     dom.mobileHandle.addEventListener('click', () => {
@@ -2763,7 +2798,8 @@ function escapeHtml(str) {
 // --- Theridactle APIs ---
 function createTheridactleRoom(isSolo) {
   showTheriMenuError('');
-  const nick = getDactleNickname('theridactle');
+  const nick = requireDactleNickname('theridactle', isSolo ? 'lancer' : 'créer');
+  if (!nick) return;
   dactleRoomStates.theridactle.myNickname = nick;
   dactleRoomStates.theridactle.isCreator = !isSolo;
   fetch('/api/room/create', { method: 'POST' })
@@ -2776,7 +2812,8 @@ function createTheridactleRoom(isSolo) {
 
 function joinTheridactleRoom(roomId) {
   showTheriMenuError('');
-  const nick = getDactleNickname('theridactle');
+  const nick = requireDactleNickname('theridactle', 'rejoindre');
+  if (!nick) return;
   dactleRoomStates.theridactle.myNickname = nick;
   dactleRoomStates.theridactle.isCreator = false;
   fetch('/api/room/join', {
@@ -2802,7 +2839,7 @@ const dactleRoomStates = {
   merrydactle: { isHost: false, isCreator: false, myNickname: '', lastState: null, lastPlayersHtml: '' }
 };
 
-function getDactleNickname(gameKey) {
+function getDactleNickname(gameKey, allowFallback = false) {
   const prefix = gameKey === 'theridactle' ? 'theridactle' : (gameKey === 'pokedactle' ? 'pokedactle' : 'merrydactle');
   const inputEl = document.getElementById(`${prefix}-player-nickname`);
   const val = inputEl ? inputEl.value.trim() : '';
@@ -2812,14 +2849,47 @@ function getDactleNickname(gameKey) {
     syncAllNicknameInputs(val);
     return val;
   }
-  if (dactleRoomStates[gameKey]?.myNickname) return dactleRoomStates[gameKey].myNickname;
-  if (currentProfile?.nickname && currentProfile.nickname.trim()) return currentProfile.nickname.trim();
-  const savedNick = localStorage.getItem('last_user_nickname');
-  if (savedNick && savedNick.trim()) return savedNick.trim();
+  if (dactleRoomStates[gameKey]?.myNickname && dactleRoomStates[gameKey].myNickname.trim()) {
+    return dactleRoomStates[gameKey].myNickname.trim();
+  }
+  if (currentProfile?.nickname && currentProfile.nickname.trim()) {
+    const profNick = currentProfile.nickname.trim();
+    if (inputEl) inputEl.value = profNick;
+    return profNick;
+  }
   
-  if (gameKey === 'merrydactle') return 'Pirate';
-  if (gameKey === 'pokedactle') return 'Dresseur';
-  return 'Paléontologue';
+  if (allowFallback) {
+    if (gameKey === 'merrydactle') return 'Pirate';
+    if (gameKey === 'pokedactle') return 'Dresseur';
+    return 'Paléontologue';
+  }
+  return '';
+}
+
+function requireDactleNickname(gameKey, actionName = 'lancer ou créer') {
+  const prefix = gameKey;
+  const inputEl = document.getElementById(`${prefix}-player-nickname`);
+  const nick = getDactleNickname(gameKey, false);
+  if (!nick) {
+    const errorMsg = `Veuillez saisir un pseudo avant de ${actionName} une partie !`;
+    if (gameKey === 'theridactle') showTheriMenuError(errorMsg);
+    else if (gameKey === 'pokedactle') showPokedactleMenuError(errorMsg);
+    else if (gameKey === 'merrydactle') showMerrydactleMenuError(errorMsg);
+    
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.classList.add('input-error-shake');
+      inputEl.style.borderColor = '#ef4444';
+      inputEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.4)';
+      setTimeout(() => {
+        inputEl.classList.remove('input-error-shake');
+        inputEl.style.borderColor = '';
+        inputEl.style.boxShadow = '';
+      }, 1200);
+    }
+    return null;
+  }
+  return nick;
 }
 
 function getDactleAvatar(gameKey) {
@@ -3116,7 +3186,15 @@ function sendDactleSettings(gameKey) {
 
 function startDactleGame(gameKey) {
   if (!currentRoomId || !dactleRoomStates[gameKey].isHost) return;
-  const nick = dactleRoomStates[gameKey]?.myNickname || getDactleNickname(gameKey);
+  const nick = dactleRoomStates[gameKey]?.myNickname || getDactleNickname(gameKey, false);
+  if (!nick) {
+    if (typeof showToast === 'function') {
+      showToast("Veuillez renseigner un pseudo avant de lancer la partie !", "warning");
+    } else {
+      alert("Veuillez renseigner un pseudo avant de lancer la partie !");
+    }
+    return;
+  }
   fetch(`/api/${gameKey}/room/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3304,7 +3382,8 @@ let isPokedactleHintMode = false;
 
 function createPokedactleRoom(isSolo) {
   showPokedactleMenuError('');
-  const nick = getDactleNickname('pokedactle');
+  const nick = requireDactleNickname('pokedactle', isSolo ? 'lancer' : 'créer');
+  if (!nick) return;
   dactleRoomStates.pokedactle.myNickname = nick;
   dactleRoomStates.pokedactle.isCreator = !isSolo;
   fetch('/api/pokedactle/room/create', { method: 'POST' })
@@ -3317,7 +3396,8 @@ function createPokedactleRoom(isSolo) {
 
 function joinPokedactleRoom(roomId) {
   showPokedactleMenuError('');
-  const nick = getDactleNickname('pokedactle');
+  const nick = requireDactleNickname('pokedactle', 'rejoindre');
+  if (!nick) return;
   dactleRoomStates.pokedactle.myNickname = nick;
   dactleRoomStates.pokedactle.isCreator = false;
   fetch('/api/pokedactle/room/join', {
@@ -3879,7 +3959,8 @@ let isMerrydactleHintMode = false;
 
 function createMerrydactleRoom(isSolo) {
   showMerrydactleMenuError('');
-  const nick = getDactleNickname('merrydactle');
+  const nick = requireDactleNickname('merrydactle', isSolo ? 'lancer' : 'créer');
+  if (!nick) return;
   dactleRoomStates.merrydactle.myNickname = nick;
   dactleRoomStates.merrydactle.isCreator = !isSolo;
   fetch('/api/merrydactle/room/create', { method: 'POST' })
@@ -3892,7 +3973,8 @@ function createMerrydactleRoom(isSolo) {
 
 function joinMerrydactleRoom(roomId) {
   showMerrydactleMenuError('');
-  const nick = getDactleNickname('merrydactle');
+  const nick = requireDactleNickname('merrydactle', 'rejoindre');
+  if (!nick) return;
   dactleRoomStates.merrydactle.myNickname = nick;
   dactleRoomStates.merrydactle.isCreator = false;
   fetch('/api/merrydactle/room/join', {
@@ -8043,8 +8125,19 @@ function initSonglessUI() {
 
   if (btnSolo) {
     btnSolo.addEventListener('click', () => {
-      const nick = getSonglessNickname();
-      if (!nick) return;
+      const nick = getSonglessNickname(false);
+      if (!nick) {
+        showSonglessMenuError("Veuillez saisir un pseudo avant de lancer une partie !");
+        const input = document.getElementById('songless-player-nickname');
+        if (input) {
+          input.focus();
+          input.classList.add('input-error-shake');
+          input.style.borderColor = '#ef4444';
+          setTimeout(() => { input.classList.remove('input-error-shake'); input.style.borderColor = ''; }, 1200);
+        }
+        return;
+      }
+      showSonglessMenuError('');
       startSonglessGame('infinite', 'all');
     });
   }
@@ -8057,21 +8150,43 @@ function initSonglessUI() {
 
   if (btnCreate) {
     btnCreate.addEventListener('click', () => {
-      const nick = getSonglessNickname();
-      if (!nick) return;
+      const nick = getSonglessNickname(false);
+      if (!nick) {
+        showSonglessMenuError("Veuillez saisir un pseudo avant de créer un salon !");
+        const input = document.getElementById('songless-player-nickname');
+        if (input) {
+          input.focus();
+          input.classList.add('input-error-shake');
+          input.style.borderColor = '#ef4444';
+          setTimeout(() => { input.classList.remove('input-error-shake'); input.style.borderColor = ''; }, 1200);
+        }
+        return;
+      }
+      showSonglessMenuError('');
       createSonglessRoom(nick, 'all');
     });
   }
 
   if (btnJoin) {
     btnJoin.addEventListener('click', () => {
-      const nick = getSonglessNickname();
-      if (!nick) return;
+      const nick = getSonglessNickname(false);
+      if (!nick) {
+        showSonglessMenuError("Veuillez saisir un pseudo avant de rejoindre un salon !");
+        const input = document.getElementById('songless-player-nickname');
+        if (input) {
+          input.focus();
+          input.classList.add('input-error-shake');
+          input.style.borderColor = '#ef4444';
+          setTimeout(() => { input.classList.remove('input-error-shake'); input.style.borderColor = ''; }, 1200);
+        }
+        return;
+      }
       const code = (joinInput ? joinInput.value : '').trim().toUpperCase();
       if (code.length >= 4) {
+        showSonglessMenuError('');
         joinSonglessRoom(code, nick);
       } else {
-        alert("Veuillez entrer un code de salon valide à 4 lettres.");
+        showSonglessMenuError("Veuillez entrer un code de salon valide à 4 lettres.");
       }
     });
   }
@@ -8355,16 +8470,38 @@ function toggleSonglessActiveUI(showActiveControls) {
   }
 }
 
-function getSonglessNickname() {
-  if (songlessState.nickname) return songlessState.nickname;
+function showSonglessMenuError(msg) {
+  const errDiv = document.getElementById('songless-menu-error');
+  if (errDiv) {
+    errDiv.textContent = msg;
+    errDiv.style.display = msg ? 'block' : 'none';
+  }
+}
+
+function getSonglessNickname(allowFallback = false) {
   const input = document.getElementById('songless-player-nickname');
-  let nick = (input ? input.value : '').trim() || (currentProfile && currentProfile.nickname ? currentProfile.nickname : '');
-  if (!nick) {
+  let nick = (input ? input.value : '').trim();
+  if (nick) {
+    if (currentProfile) currentProfile.nickname = nick;
+    localStorage.setItem('last_user_nickname', nick);
+    syncAllNicknameInputs(nick);
+    songlessState.nickname = nick;
+    return nick;
+  }
+  if (songlessState.nickname && songlessState.nickname.trim()) return songlessState.nickname.trim();
+  if (currentProfile?.nickname && currentProfile.nickname.trim()) {
+    const profNick = currentProfile.nickname.trim();
+    if (input) input.value = profNick;
+    songlessState.nickname = profNick;
+    return profNick;
+  }
+  if (allowFallback) {
     nick = 'Mélomane' + Math.floor(Math.random() * 900 + 100);
     if (input) input.value = nick;
+    songlessState.nickname = nick;
+    return nick;
   }
-  songlessState.nickname = nick;
-  return nick;
+  return '';
 }
 
 function updateSonglessHeaderBadges() {
@@ -9549,18 +9686,34 @@ let pokecriesState = {
   sseSource: null
 };
 
-function getPokecriesNickname() {
+function showPokecriesMenuError(msg) {
+  const errDiv = document.getElementById('pokecries-menu-error');
+  if (errDiv) {
+    errDiv.textContent = msg;
+    errDiv.style.display = msg ? 'block' : 'none';
+  }
+}
+
+function getPokecriesNickname(allowFallback = false) {
   const input = document.getElementById('pokecries-player-nickname');
   let nick = input ? input.value.trim() : '';
-  if (!nick && currentProfile && currentProfile.nickname) {
-    nick = currentProfile.nickname;
+  if (nick) {
+    if (currentProfile) currentProfile.nickname = nick;
+    localStorage.setItem('last_user_nickname', nick);
+    syncAllNicknameInputs(nick);
+    return nick;
   }
-  if (!nick) {
+  if (currentProfile?.nickname && currentProfile.nickname.trim()) {
+    const profNick = currentProfile.nickname.trim();
+    if (input) input.value = profNick;
+    return profNick;
+  }
+  if (allowFallback) {
     nick = 'Dresseur-' + Math.floor(1000 + Math.random() * 9000);
+    if (input) input.value = nick;
+    return nick;
   }
-  if (input) input.value = nick;
-  localStorage.setItem('pokecries-nickname', nick);
-  return nick;
+  return '';
 }
 
 function getPokecriesRegionName(gen) {
@@ -10522,6 +10675,19 @@ function initPokecriesUI() {
   const btnSolo = document.getElementById('btn-pokecries-solo');
   if (btnSolo) {
     btnSolo.addEventListener('click', () => {
+      const nick = getPokecriesNickname(false);
+      if (!nick) {
+        showPokecriesMenuError("Veuillez saisir un pseudo avant de lancer une partie !");
+        const input = document.getElementById('pokecries-player-nickname');
+        if (input) {
+          input.focus();
+          input.classList.add('input-error-shake');
+          input.style.borderColor = '#ef4444';
+          setTimeout(() => { input.classList.remove('input-error-shake'); input.style.borderColor = ''; }, 1200);
+        }
+        return;
+      }
+      showPokecriesMenuError('');
       startPokecriesSolo('all', 'latest', 'mcq');
     });
   }
@@ -10533,19 +10699,43 @@ function initPokecriesUI() {
 
   if (btnCreateRoom) {
     btnCreateRoom.addEventListener('click', () => {
-      const nick = getPokecriesNickname();
+      const nick = getPokecriesNickname(false);
+      if (!nick) {
+        showPokecriesMenuError("Veuillez saisir un pseudo avant de créer un salon !");
+        const input = document.getElementById('pokecries-player-nickname');
+        if (input) {
+          input.focus();
+          input.classList.add('input-error-shake');
+          input.style.borderColor = '#ef4444';
+          setTimeout(() => { input.classList.remove('input-error-shake'); input.style.borderColor = ''; }, 1200);
+        }
+        return;
+      }
+      showPokecriesMenuError('');
       createPokecriesRoom(nick, 'all', 'latest', 'mcq', 10);
     });
   }
 
   if (btnJoinRoom) {
     btnJoinRoom.addEventListener('click', () => {
-      const nick = getPokecriesNickname();
+      const nick = getPokecriesNickname(false);
+      if (!nick) {
+        showPokecriesMenuError("Veuillez saisir un pseudo avant de rejoindre un salon !");
+        const input = document.getElementById('pokecries-player-nickname');
+        if (input) {
+          input.focus();
+          input.classList.add('input-error-shake');
+          input.style.borderColor = '#ef4444';
+          setTimeout(() => { input.classList.remove('input-error-shake'); input.style.borderColor = ''; }, 1200);
+        }
+        return;
+      }
       const code = (joinInput ? joinInput.value : '').trim().toUpperCase();
       if (code.length >= 4) {
+        showPokecriesMenuError('');
         joinPokecriesRoom(code, nick);
       } else {
-        alert("Veuillez entrer un code de salon valide à 4 lettres.");
+        showPokecriesMenuError("Veuillez entrer un code de salon valide à 4 lettres.");
       }
     });
   }
