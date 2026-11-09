@@ -6297,7 +6297,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         return res.end(JSON.stringify({ 
           success: true, 
-          message: 'Demande pour ' + memberName + ' envoyee par email a Tibo pour validation !' 
+          message: 'Demande pour ' + memberName + ' transmise pour validation par l\'équipe Carabistouille !' 
         }));
       } catch (err) {
         console.error('Erreur /api/creasupdle/request:', err);
