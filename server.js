@@ -181,6 +181,11 @@ function saveCreasupdleRoster(roster) {
   } catch (e) {
     console.error('Erreur ecriture creasupdle-roster.json:', e);
   }
+  try {
+    fs.writeFileSync(CREASUPDLE_DEFAULT_FILE, JSON.stringify(roster, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Erreur ecriture creasupdle-default-roster.json:', e);
+  }
 }
 
 function loadCreasupdlePending() {
@@ -199,6 +204,65 @@ function saveCreasupdlePending(data) {
     fs.writeFileSync(CREASUPDLE_PENDING_FILE, JSON.stringify(data, null, 2), 'utf8');
   } catch (e) {
     console.error('Erreur ecriture creasupdle-pending.json:', e);
+  }
+}
+
+const CREASUPDLE_RESOLVED_FILE = path.join(__dirname, 'creasupdle-resolved.json');
+const MODERATION_SECRET = process.env.RESEND_API_KEY || process.env.SESSION_SECRET || 'supercaraquiz-creasupdle-mod-secret-2026';
+
+function generateModerationToken(data) {
+  const jsonStr = JSON.stringify(data);
+  const b64 = Buffer.from(jsonStr, 'utf8').toString('base64url');
+  const hmac = crypto.createHmac('sha256', MODERATION_SECRET).update(b64).digest('base64url');
+  return `${b64}.${hmac}`;
+}
+
+function verifyModerationToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  if (token.includes('.')) {
+    const parts = token.split('.');
+    if (parts.length !== 2) return null;
+    const [b64, sig] = parts;
+    const expectedHmac = crypto.createHmac('sha256', MODERATION_SECRET).update(b64).digest('base64url');
+    if (sig.length !== expectedHmac.length) return null;
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedHmac))) {
+      return null;
+    }
+    try {
+      const data = JSON.parse(Buffer.from(b64, 'base64url').toString('utf8'));
+      data._sig = sig;
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Fallback for legacy random hex tokens stored in pending file
+  const pending = loadCreasupdlePending();
+  if (pending && pending[token]) {
+    const item = pending[token];
+    item._sig = token;
+    return item;
+  }
+  return null;
+}
+
+function loadCreasupdleResolved() {
+  try {
+    if (fs.existsSync(CREASUPDLE_RESOLVED_FILE)) {
+      return JSON.parse(fs.readFileSync(CREASUPDLE_RESOLVED_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Erreur lecture creasupdle-resolved.json:', e);
+  }
+  return {};
+}
+
+function saveCreasupdleResolved(data) {
+  try {
+    fs.writeFileSync(CREASUPDLE_RESOLVED_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Erreur ecriture creasupdle-resolved.json:', e);
   }
 }
 
@@ -6092,28 +6156,30 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
 
         const roster = loadCreasupdleRoster();
-        const pending = loadCreasupdlePending();
-        const token = crypto.randomBytes(24).toString('hex');
-        
         let oldMember = null;
         if (type === 'update' && member.id) {
           oldMember = roster.find(m => m.id === member.id) || null;
         }
 
-        pending[token] = {
-          token,
+        const proposalPayload = {
+          v: 1,
           type: type === 'update' ? 'update' : 'create',
           member,
-          oldMember,
+          oldMember: oldMember ? { id: oldMember.id, nom: oldMember.nom, role: oldMember.role } : null,
           authorNickname: authorNickname || 'Un membre de Creasup',
-          createdAt: Date.now(),
-          status: 'pending'
+          createdAt: Date.now()
         };
+
+        const token = generateModerationToken(proposalPayload);
+
+        // Also save to pending cache for immediate in-memory reference
+        const pending = loadCreasupdlePending();
+        pending[token] = proposalPayload;
         saveCreasupdlePending(pending);
 
         // Build Email Template
-        const approveUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + token + '&action=approve';
-        const rejectUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + token + '&action=reject';
+        const approveUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + encodeURIComponent(token) + '&action=approve';
+        const rejectUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + encodeURIComponent(token) + '&action=reject';
 
         const isUpdate = type === 'update';
         const actionTitle = isUpdate ? 'Demande de modification de profil' : 'Proposition d\'un nouveau membre';
@@ -6185,40 +6251,54 @@ function advanceTurnAndCheckRoundEnd(room) {
   if (parsedUrl.pathname === '/api/creasupdle/moderate' && req.method === 'GET') {
     const token = parsedUrl.query.token;
     const action = parsedUrl.query.action;
-    const pending = loadCreasupdlePending();
-    const reqData = token ? pending[token] : null;
+    const reqData = verifyModerationToken(token);
 
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
 
     if (!reqData) {
       return res.end(
-        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande introuvable</title>' +
-        '<style>body{font-family:sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}' +
-        '.card{background:#111827;border:1px solid #374151;border-radius:16px;padding:32px;text-align:center;max-width:400px;}</style>' +
-        '</head><body><div class="card"><h2>Demande introuvable</h2><p>Ce lien est invalide ou a expire.</p><a href="/?game=creasupdle" style="color:#6366f1;">Retour au jeu</a></div></body></html>'
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Lien antérieur expiré</title>' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+        '<style>body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}' +
+        '.card{background:#111827;border:1px solid rgba(239,68,68,0.3);border-radius:18px;padding:32px;text-align:center;max-width:440px;box-shadow:0 20px 40px rgba(0,0,0,0.6);}' +
+        'h2{color:#f87171;margin:0 0 12px 0;font-size:20px;}p{color:#94a3b8;line-height:1.6;font-size:14px;}' +
+        '.btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#6366f1;color:#fff;text-decoration:none;font-weight:700;font-size:14px;}' +
+        '</style></head><body><div class="card">' +
+        '<div style="font-size:42px;margin-bottom:12px;">⚠️</div>' +
+        '<h2>Lien antérieur expiré</h2>' +
+        '<p>Ce lien a été généré avec l\'ancien système de jeton temporaire qui a expiré lors du redémarrage du serveur.</p>' +
+        '<p style="color:#cbd5e1;font-size:13px;">Nous venons de déployer des <strong>liens cryptographiques permanents</strong>. Veuillez simplement renvoyer la proposition depuis le jeu : vos prochains mails de validation ne pourront plus jamais expirer ni être perdus !</p>' +
+        '<a href="/?game=creasupdle" class="btn">Retour au jeu</a></div></body></html>'
       );
     }
 
-    if (reqData.status !== 'pending') {
-      const isAlreadyApproved = reqData.status === 'approved';
+    const m = reqData.member;
+    const memberName = m ? (m.nomComplet || m.nom) : 'Membre inconnu';
+    const resolved = loadCreasupdleResolved();
+    const tokenKey = reqData._sig || token;
+
+    if (resolved[tokenKey]) {
+      const isAlreadyApproved = resolved[tokenKey].action === 'approve';
       return res.end(
-        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande deja traitee</title>' +
-        '<style>body{font-family:sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}' +
-        '.card{background:#111827;border:1px solid #374151;border-radius:16px;padding:32px;text-align:center;max-width:440px;}' +
-        '.btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#6366f1;color:#fff;text-decoration:none;font-weight:700;}' +
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande déjà traitée</title>' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+        '<style>body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}' +
+        '.card{background:#111827;border:1px solid #374151;border-radius:18px;padding:32px;text-align:center;max-width:440px;box-shadow:0 20px 40px rgba(0,0,0,0.6);}' +
+        'h2{color:#f3f4f6;margin:0 0 12px 0;font-size:20px;}p{color:#94a3b8;line-height:1.6;font-size:14px;}' +
+        '.btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#6366f1;color:#fff;text-decoration:none;font-weight:700;font-size:14px;}' +
         '</style></head><body><div class="card">' +
-        '<h2>' + (isAlreadyApproved ? 'Deja validee' : 'Deja refusee') + '</h2>' +
-        '<p>Cette demande pour <strong>' + (reqData.member.nomComplet || reqData.member.nom) + '</strong> a deja ete traitee.</p>' +
-        '<a href="/?game=creasupdle" class="btn">Ouvrir Creasupdle</a></div></body></html>'
+        '<div style="font-size:42px;margin-bottom:12px;">' + (isAlreadyApproved ? '✅' : '🚫') + '</div>' +
+        '<h2>' + (isAlreadyApproved ? 'Déjà validée' : 'Déjà refusée') + '</h2>' +
+        '<p>Cette demande pour <strong>' + memberName + '</strong> a déjà été traitée.</p>' +
+        '<a href="/?game=creasupdle" class="btn">Ouvrir Créasupdle</a></div></body></html>'
       );
     }
 
     const roster = loadCreasupdleRoster();
-    const m = reqData.member;
 
     if (action === 'approve') {
-      reqData.status = 'approved';
-      reqData.resolvedAt = Date.now();
+      resolved[tokenKey] = { action: 'approve', resolvedAt: Date.now() };
+      saveCreasupdleResolved(resolved);
 
       if (reqData.type === 'update' && m.id) {
         const idx = roster.findIndex(item => item.id === m.id);
@@ -6231,14 +6311,18 @@ function advanceTurnAndCheckRoundEnd(room) {
         if (!m.id) {
           m.id = 'member-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
         }
-        roster.push(m);
+        const existingIdx = roster.findIndex(item => item.id === m.id || (item.nom && m.nom && item.nom.toLowerCase().trim() === m.nom.toLowerCase().trim()));
+        if (existingIdx >= 0) {
+          roster[existingIdx] = { ...roster[existingIdx], ...m };
+        } else {
+          roster.push(m);
+        }
       }
 
       saveCreasupdleRoster(roster);
-      saveCreasupdlePending(pending);
 
       return res.end(
-        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Validation Reussie !</title>' +
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Validation Réussie !</title>' +
         '<meta name="viewport" content="width=device-width, initial-scale=1">' +
         '<style>' +
         'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}' +
@@ -6250,25 +6334,25 @@ function advanceTurnAndCheckRoundEnd(room) {
         '</style>' +
         '</head><body><div class="card">' +
         '<div class="icon">🎉</div>' +
-        '<h2>Profil Valide & En Ligne !</h2>' +
-        '<p>Le profil de <strong>' + (m.nomComplet || m.nom) + '</strong> a ete valide avec succes. Il est desormais immediatement accessible dans le jeu pour tous les joueurs !</p>' +
+        '<h2>Profil Validé & En Ligne !</h2>' +
+        '<p>Le profil de <strong>' + memberName + '</strong> a été validé avec succès. Il est désormais immédiatement accessible dans le jeu pour tous les joueurs !</p>' +
         '<div class="profile-summary">' +
-        '<div><strong>Nom :</strong> ' + (m.nomComplet || m.nom) + '</div>' +
-        '<div><strong>Role :</strong> ' + m.role + '</div>' +
+        '<div><strong>Nom :</strong> ' + memberName + '</div>' +
+        '<div><strong>Rôle :</strong> ' + m.role + '</div>' +
         '<div><strong>Promo :</strong> ' + (m.promo || 'Alfred Grévin') + '</div>' +
         '<div><strong>Cheveux :</strong> ' + m.cheveux + '</div>' +
         '<div><strong>Taille :</strong> ' + m.taille + '</div>' +
+        '<div><strong>Âge :</strong> ' + m.age + ' ans</div>' +
         '</div>' +
-        '<a href="/?game=creasupdle" class="btn">🚀 Ouvrir Creasupdle</a>' +
+        '<a href="/?game=creasupdle" class="btn">🚀 Ouvrir Créasupdle</a>' +
         '</div></body></html>'
       );
     } else {
-      reqData.status = 'rejected';
-      reqData.resolvedAt = Date.now();
-      saveCreasupdlePending(pending);
+      resolved[tokenKey] = { action: 'reject', resolvedAt: Date.now() };
+      saveCreasupdleResolved(resolved);
 
       return res.end(
-        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande Refusee</title>' +
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande Refusée</title>' +
         '<meta name="viewport" content="width=device-width, initial-scale=1">' +
         '<style>' +
         'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}' +
@@ -6278,9 +6362,9 @@ function advanceTurnAndCheckRoundEnd(room) {
         '.btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#374151;color:#fff;text-decoration:none;font-weight:600;}' +
         '</style>' +
         '</head><body><div class="card">' +
-        '<div class="icon">❌</div>' +
-        '<h2>Demande Refusee</h2>' +
-        '<p>La proposition pour <strong>' + (m.nomComplet || m.nom) + '</strong> a ete rejetee. Aucune modification n\'a ete apportee au roster officiel.</p>' +
+        '<div class="icon">🚫</div>' +
+        '<h2>Demande Refusée</h2>' +
+        '<p>La demande pour <strong>' + memberName + '</strong> a bien été refusée.</p>' +
         '<a href="/?game=creasupdle" class="btn">Retour au jeu</a>' +
         '</div></body></html>'
       );
