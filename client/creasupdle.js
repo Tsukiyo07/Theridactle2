@@ -493,6 +493,10 @@
     if (dom.rosterCountBadge) {
       dom.rosterCountBadge.textContent = `${roster.length} membres`;
     }
+    const scrollHint = document.getElementById('creasupdle-scroll-hint');
+    if (scrollHint) {
+      scrollHint.style.display = state.guesses.length > 0 ? '' : 'none';
+    }
   }
 
   function updateCluesUI() {
@@ -773,6 +777,11 @@
 
     // Prepend to list
     dom.guessesContainer.prepend(row);
+
+    const tableContainer = document.querySelector('.creasupdle-table-container');
+    if (tableContainer && animate) {
+      tableContainer.scrollTo({ left: 0, behavior: 'smooth' });
+    }
 
     // Audio flips only on live guess
     if (animate) {
