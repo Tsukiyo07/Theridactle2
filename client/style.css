@@ -8017,27 +8017,26 @@ select option:focus,
   font-size: 13px;
   position: relative;
   transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-  contain: layout style;
+  background: rgba(30, 41, 59, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  opacity: 1;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .flip-tile {
-  animation: flipTile 0.44s cubic-bezier(0.23, 1, 0.32, 1) both;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: transform, opacity;
+  animation: tileReveal 0.26s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+  opacity: 1;
 }
 
-@keyframes flipTile {
+@keyframes tileReveal {
   0% {
-    transform: scaleY(0) scale(0.96);
+    transform: scale(0.93);
     opacity: 0;
   }
-  60% {
-    transform: scaleY(1.04) scale(1.01);
-    opacity: 1;
-  }
   100% {
-    transform: none;
+    transform: scale(1);
     opacity: 1;
   }
 }
@@ -8118,10 +8117,19 @@ select option:focus,
   align-items: center;
   justify-content: center;
   gap: 2px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .creasupdle-tile-val {
-  line-height: 1.2;
+  line-height: 1.15;
+  font-size: 11.5px;
+  max-width: 100%;
+  word-break: break-word;
+  hyphens: auto;
+  text-align: center;
+  display: block;
 }
 
 /* Direction Arrow Indicator */
@@ -8921,13 +8929,13 @@ select option:focus,
 
 .spotlight-glow {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 55%;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.12) 40%, transparent 70%);
+  background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.22) 0%, rgba(99, 102, 241, 0.08) 40%, transparent 70%);
   pointer-events: none;
   z-index: 0;
+  border-radius: inherit;
 }
 
 .spotlight-content {
@@ -9402,61 +9410,89 @@ select option:focus,
 
   /* Responsive Guesses Table with Sticky First Column */
   .creasupdle-table-container {
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.6rem;
     margin-top: 2px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .creasupdle-table-header,
   .creasupdle-guesses-list {
-    min-width: 660px;
+    min-width: 730px;
+    width: max-content;
   }
 
   .creasupdle-table-header {
-    grid-template-columns: 120px repeat(8, minmax(66px, 1fr));
-    gap: 4px;
+    display: grid;
+    grid-template-columns: 120px repeat(8, 72px);
+    gap: 5px;
     margin-bottom: 4px;
+    min-width: 730px;
+    width: max-content;
   }
 
   .th-cell {
-    font-size: 9.5px;
-    padding: 4px 2px;
+    font-size: 10px;
+    padding: 5px 2px;
     letter-spacing: 0.02em;
+    min-width: 0;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .creasupdle-guess-row {
-    grid-template-columns: 120px repeat(8, minmax(66px, 1fr));
-    gap: 4px;
+    display: grid;
+    grid-template-columns: 120px repeat(8, 72px);
+    gap: 5px;
+    min-width: 730px;
+    width: max-content;
   }
 
   .creasupdle-tile {
     min-height: 52px;
     padding: 4px 3px;
     border-radius: 10px;
-    font-size: 11px;
+    font-size: 10.5px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .flip-tile {
+    animation-delay: 0s !important;
+    animation-duration: 0.16s !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .creasupdle-tile-val {
-    font-size: 11px;
-    line-height: 1.15;
+    font-size: 10.5px;
+    line-height: 1.12;
+    word-break: break-word;
   }
 
   /* Sticky First Column on Mobile (Person name & avatar) */
   .th-person {
     position: sticky;
     left: 0;
-    z-index: 10;
-    background: #0a0f1d;
-    box-shadow: 4px 0 10px -2px rgba(0, 0, 0, 0.6);
+    z-index: 15;
+    background: #0a0f1d !important;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.7);
     padding-left: 8px;
   }
 
   .creasupdle-tile-person {
     position: sticky;
     left: 0;
-    z-index: 8;
-    background: #182338 !important;
-    box-shadow: 4px 0 10px -2px rgba(0, 0, 0, 0.6);
+    z-index: 12;
+    background: #111a2e !important;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.7);
     padding: 5px 6px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
   }
 
   .creasupdle-tile-inner {

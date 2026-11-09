@@ -746,7 +746,7 @@
       }
 
       if (tile.type === 'person') {
-        const animStyle = animate ? `style="animation-delay: ${i * 110}ms;"` : 'style="opacity:1;"';
+        const animStyle = animate ? `style="animation-delay: ${i * 60}ms;"` : 'style="opacity:1;"';
         const animClass = animate ? 'flip-tile' : '';
         return `
           <div class="creasupdle-tile creasupdle-tile-person ${animClass}" ${animStyle}>
@@ -763,7 +763,7 @@
         `;
       }
 
-      const animStyle = animate ? `style="animation-delay: ${i * 110}ms;"` : 'style="opacity:1;"';
+      const animStyle = animate ? `style="animation-delay: ${i * 60}ms;"` : 'style="opacity:1;"';
       const animClass = animate ? 'flip-tile' : '';
       return `
         <div class="creasupdle-tile tile-${tile.status} ${animClass}" ${animStyle}>
@@ -788,7 +788,7 @@
       tilesData.forEach((_, i) => {
         setTimeout(() => {
           CreasupdleAudio.playFlip(i);
-        }, i * 110);
+        }, i * 60);
       });
 
       // Clean up animation classes once finished to prevent GPU compositor rasterization drops
@@ -809,7 +809,7 @@
           tile.style.transform = '';
           tile.style.animationDelay = '';
         });
-      }, tilesData.length * 110 + 650);
+      }, (tilesData.length * 60) + 300);
     }
   }
 
@@ -890,7 +890,7 @@
         showToast('Score copié !');
       });
     } else {
-      showToast('Score généré ! ✨');
+      showToast('Score généré !');
     }
   }
 
@@ -926,13 +926,13 @@
             </div>
             <div class="creasupdle-roster-tags">
               <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${m.genre}</span>
-              <span class="rtag">💍 ${m.situation || 'Célibataire'}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> ${m.situation || 'Célibataire'}</span>
               <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg> ${m.orientation || 'Hétéro'}</span>
-              <span class="rtag">💇 ${m.cheveux}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg> ${m.cheveux}</span>
               <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M2 12h20M7 8v8M12 10v4M17 8v8"></path></svg> ${m.taille}</span>
-              <span class="rtag">💼 ${m.role}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> ${m.role}</span>
               <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> ${m.promo || 'Alfred Grévin'}</span>
-              <span class="rtag">🎂 ${m.age} ans</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${m.age} ans</span>
             </div>
             ${m.punchline ? `<div class="creasupdle-roster-punchline">${m.punchline}</div>` : ''}
           </div>
