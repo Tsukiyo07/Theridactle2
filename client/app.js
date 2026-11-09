@@ -11175,15 +11175,23 @@ async function submitFeedback() {
   const authorInput = document.getElementById('feedback-author-input');
   const gameSelect = document.getElementById('feedback-game-select');
   const messageInput = document.getElementById('feedback-message-input');
-  const contactInput = document.getElementById('feedback-contact-input');
-  const statusMsg = document.getElementById('feedback-status-msg');
+    const statusMsg = document.getElementById('feedback-status-msg');
   const submitBtn = document.getElementById('feedback-submit-btn');
 
   const type = typeInput ? typeInput.value : 'bug';
   const author = authorInput ? authorInput.value.trim() : '';
   const game = gameSelect ? gameSelect.value : 'Général';
   const message = messageInput ? messageInput.value.trim() : '';
-  const contact = contactInput ? contactInput.value.trim() : '';
+
+  if (!author || author.length < 2) {
+    if (statusMsg) {
+      statusMsg.className = 'feedback-status-msg error';
+      statusMsg.textContent = 'Merci d\'indiquer ton prénom.';
+      statusMsg.style.display = 'flex';
+    }
+    if (authorInput) authorInput.focus();
+    return;
+  }
 
   if (!message || message.length < 3) {
     if (statusMsg) {
@@ -11209,8 +11217,7 @@ async function submitFeedback() {
         author: author || 'Anonyme',
         game,
         message,
-        contact
-      })
+        })
     });
 
     const data = await res.json();
@@ -11220,8 +11227,7 @@ async function submitFeedback() {
 
     // Success!
     if (messageInput) messageInput.value = '';
-    if (contactInput) contactInput.value = '';
-    closeFeedbackModal();
+        closeFeedbackModal();
     if (typeof showToast === 'function') {
       showToast('Merci pour ton retour ! Il a bien été envoyé 🚀');
     }

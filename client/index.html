@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261109_feedback_v25">
+ <link rel="stylesheet" href="style.css?v=20261109_prenom_v26">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -3831,8 +3831,8 @@
       <!-- 2-col Grid on desktop: Pseudo & Game -->
       <div class="feedback-row-grid">
        <div class="feedback-field">
-        <label for="feedback-author-input">Ton Pseudo</label>
-        <input type="text" id="feedback-author-input" placeholder="Ex: Lucas" maxlength="30" autocomplete="username">
+        <label for="feedback-author-input">Ton Prénom <span class="feedback-req">*</span></label>
+        <input type="text" id="feedback-author-input" placeholder="Ex: Lucas, Hugo, Sarah..." maxlength="30" autocomplete="given-name" required>
        </div>
        <div class="feedback-field">
         <label for="feedback-game-select">Jeu / Rubrique concernée</label>
@@ -3856,12 +3856,6 @@
       <div class="feedback-field">
        <label for="feedback-message-input">Ton message <span class="feedback-req">*</span></label>
        <textarea id="feedback-message-input" rows="4" placeholder="Décris le problème rencontré (ex: ce qui s'est affiché, sur quel appareil...)" required maxlength="2500"></textarea>
-      </div>
-
-      <!-- Contact optional -->
-      <div class="feedback-field">
-       <label for="feedback-contact-input">Discord ou Email <span class="feedback-optional">(optionnel, pour te tenir au courant)</span></label>
-       <input type="text" id="feedback-contact-input" placeholder="Ex: pseudo#1234 ou ton@email.com" maxlength="80">
       </div>
 
       <!-- Status msg -->
@@ -3900,6 +3894,6 @@
  <script src="creasupdle-data.js?v=20261109_roster_updates_v24"></script>
  <script src="creasupdle.js?v=20261109_mobile_fixes_v23"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20261109_feedback_v25"></script>
+ <script src="app.js?v=20261109_prenom_v26"></script>
 </body>
 </html>

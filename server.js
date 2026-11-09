@@ -6403,6 +6403,11 @@ function advanceTurnAndCheckRoundEnd(room) {
         const contact = String(data.contact || '').trim().slice(0, 100);
         const userAgent = String(req.headers['user-agent'] || '').slice(0, 200);
 
+        if (!author || author.length < 2) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          return res.end(JSON.stringify({ error: 'Merci d\'indiquer ton prénom.' }));
+        }
+
         if (!message || message.length < 3) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           return res.end(JSON.stringify({ error: 'Le message est trop court (minimum 3 caractères).' }));
@@ -6460,9 +6465,9 @@ function advanceTurnAndCheckRoundEnd(room) {
           '<div class="card">' +
           '<div class="badge">' + typeLabel + '</div>' +
           '<h2>Nouveau retour sur SuperCaraQuiz !</h2>' +
-          '<div class="field"><div class="label">Auteur</div><div class="val">' + (author || 'Anonyme') + '</div></div>' +
+          '<div class="field"><div class="label">Prénom</div><div class="val">' + (author || 'Anonyme') + '</div></div>' +
           '<div class="field"><div class="label">Jeu / Rubrique</div><div class="val">' + (game || 'Général') + '</div></div>' +
-          (contact ? '<div class="field"><div class="label">Contact</div><div class="val">' + contact + '</div></div>' : '') +
+          
           '<div class="field"><div class="label">Message</div><div class="message-box">' + message.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div></div>' +
           '<div class="meta">Date : ' + new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) + '<br>User Agent : ' + userAgent + '</div>' +
           '</div></body></html>';
