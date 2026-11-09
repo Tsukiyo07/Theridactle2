@@ -3017,12 +3017,14 @@ function handleDactleState(gameKey, state) {
     if (roundBanner) roundBanner.classList.add('view-hidden');
     if (roundIndicator) roundIndicator.style.display = 'none';
     if (gameplayBox) gameplayBox.style.display = 'none';
+    if (multiPlayersBox) multiPlayersBox.classList.remove('in-game');
   } else if (state.status === 'playing') {
     if (lobbyPanel) lobbyPanel.classList.add('view-hidden');
     if (activeArea) activeArea.classList.remove('view-hidden');
     if (podiumPanel) podiumPanel.classList.add('view-hidden');
     if (roundBanner) roundBanner.classList.add('view-hidden');
-    if (gameplayBox) gameplayBox.style.display = 'block';
+    if (gameplayBox) gameplayBox.style.display = 'flex';
+    if (multiPlayersBox) multiPlayersBox.classList.add('in-game');
     if (roundIndicator) {
       roundIndicator.style.display = 'flex';
       if (roundDisplay) roundDisplay.textContent = state.roundNumber || 1;
@@ -3087,6 +3089,7 @@ function handleDactleState(gameKey, state) {
     if (roundBanner) roundBanner.classList.add('view-hidden');
     if (roundIndicator) roundIndicator.style.display = 'none';
     if (gameplayBox) gameplayBox.style.display = 'none';
+    if (multiPlayersBox) multiPlayersBox.classList.remove('in-game');
     if (podiumPanel) podiumPanel.classList.remove('view-hidden');
 
     renderDactlePodium(gameKey, state);
@@ -3260,8 +3263,11 @@ function startPlayingTheridactle(roomId, isSolo) {
     if (lobbyPanel) lobbyPanel.classList.add('view-hidden');
     if (activeArea) activeArea.classList.remove('view-hidden');
     if (podiumPanel) podiumPanel.classList.add('view-hidden');
-    if (playersBox) playersBox.style.display = 'none';
-    if (gameplayBox) gameplayBox.style.display = 'block';
+    if (playersBox) {
+      playersBox.style.display = 'none';
+      playersBox.classList.remove('in-game');
+    }
+    if (gameplayBox) gameplayBox.style.display = 'flex';
     fetchTheridactleGame(roomId);
   }
 
@@ -3448,8 +3454,11 @@ function startPlayingPokedactle(roomId, isSolo) {
     if (lobbyPanel) lobbyPanel.classList.add('view-hidden');
     if (activeArea) activeArea.classList.remove('view-hidden');
     if (podiumPanel) podiumPanel.classList.add('view-hidden');
-    if (playersBox) playersBox.style.display = 'none';
-    if (gameplayBox) gameplayBox.style.display = 'block';
+    if (playersBox) {
+      playersBox.style.display = 'none';
+      playersBox.classList.remove('in-game');
+    }
+    if (gameplayBox) gameplayBox.style.display = 'flex';
     fetchPokedactleGame(roomId);
   }
 
@@ -4025,8 +4034,11 @@ function startPlayingMerrydactle(roomId, isSolo) {
     if (lobbyPanel) lobbyPanel.classList.add('view-hidden');
     if (activeArea) activeArea.classList.remove('view-hidden');
     if (podiumPanel) podiumPanel.classList.add('view-hidden');
-    if (playersBox) playersBox.style.display = 'none';
-    if (gameplayBox) gameplayBox.style.display = 'block';
+    if (playersBox) {
+      playersBox.style.display = 'none';
+      playersBox.classList.remove('in-game');
+    }
+    if (gameplayBox) gameplayBox.style.display = 'flex';
     fetchMerrydactleGame(roomId);
   }
 
