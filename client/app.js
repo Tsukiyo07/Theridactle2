@@ -2219,7 +2219,7 @@ function loadStatsView() {
                 const isFirst = rank === 1;
                 const isSecond = rank === 2;
                 const rankClass = isFirst ? 'rank-1' : (isSecond ? 'rank-2' : 'rank-3');
-                const crownSvg = isFirst ? `<div class="podium-crown">👑</div>` : '';
+                const crownSvg = isFirst ? `<div class="podium-crown"><svg class="crown-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg></div>` : '';
 
                 let metricLabel = '';
                 if (currentSort === 'winRate') metricLabel = `${p.winRate}%`;
@@ -2992,7 +2992,7 @@ function renderDactlePodium(gameKey, state) {
       const avatarHtml = renderAvatarHTML(p.avatar, p.avatarIsPhoto);
       return `
         <div class="podium-col rank-${rank}">
-          ${isWinner ? `<div class="podium-crown">👑</div>` : ''}
+          ${isWinner ? `<div class="podium-crown"><svg class="crown-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg></div>` : ''}
           <div class="podium-avatar-ring rank-${rank}">
             <div class="podium-avatar">
               ${avatarHtml}
@@ -3692,7 +3692,7 @@ function showPokedactleWin() {
   const guessesCount = pokedactleGameState.guessHistory.length;
   const pokemonTitle = pokedactleGameState.title || 'Inconnu';
   dom.pokedactleWinMessage.innerHTML = `
-    <h2>🎉 Félicitations, Pokémon capturé !</h2>
+    <h2><svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Félicitations, Pokémon capturé !</h2>
     <p>Vous avez découvert <strong>${escapeHtml(pokemonTitle)}</strong> en <strong>${guessesCount}</strong> essai(s) !</p>
   `;
   if (pokedactleGameState.imageUrl) {
@@ -3701,7 +3701,7 @@ function showPokedactleWin() {
   dom.pokedactleWinMessage.innerHTML += `
     <div style="margin-top: 1.5rem;">
       <button id="btn-poke-replay-win" class="btn-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: bold; border: none; padding: 0.85rem 2.2rem; font-size: 1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4); transition: transform 0.2s;">
-        🔄 Relancer une partie
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Relancer une partie
       </button>
     </div>
   `;
@@ -3750,7 +3750,7 @@ function showPokedactleGiveUp() {
   dom.pokedactleWinMessage.innerHTML += `
     <div style="margin-top: 1.5rem;">
       <button id="btn-poke-replay-giveup" class="btn-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: bold; border: none; padding: 0.85rem 2.2rem; font-size: 1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4); transition: transform 0.2s;">
-        🔄 Relancer une partie
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Relancer une partie
       </button>
     </div>
   `;
@@ -4256,7 +4256,7 @@ function showMerrydactleWin() {
   const guessesCount = merrydactleGameState.guessHistory.length;
   const itemTitle = merrydactleGameState.title || 'Inconnu';
   dom.merrydactleWinMessage.innerHTML = `
-    <h2>🎉 Trésor Découvert ! Félicitations !</h2>
+    <h2><svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Trésor Découvert ! Félicitations !</h2>
     <p>Vous avez découvert <strong>${escapeHtml(itemTitle)}</strong> en <strong>${guessesCount}</strong> coup(s) !</p>
   `;
   if (merrydactleGameState.imageUrl) {
@@ -4265,7 +4265,7 @@ function showMerrydactleWin() {
   dom.merrydactleWinMessage.innerHTML += `
     <div style="margin-top: 1.5rem;">
       <button id="btn-merry-replay-win" class="btn-primary" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-weight: bold; border: none; padding: 0.85rem 2.2rem; font-size: 1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.45); transition: transform 0.2s;">
-        🔄 Repartir à l'aventure
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Repartir à l'aventure
       </button>
     </div>
   `;
@@ -4314,7 +4314,7 @@ function showMerrydactleGiveUp() {
   dom.merrydactleWinMessage.innerHTML += `
     <div style="margin-top: 1.5rem;">
       <button id="btn-merry-replay-giveup" class="btn-primary" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-weight: bold; border: none; padding: 0.85rem 2.2rem; font-size: 1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.45); transition: transform 0.2s;">
-        🔄 Relancer une partie
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Relancer une partie
       </button>
     </div>
   `;
@@ -5079,7 +5079,7 @@ function copyInvitationLink() {
     try {
       const successful = document.execCommand('copy');
       if (successful) {
-        showToast('🔗 Lien d\'invitation copié !');
+        showToast('Lien d\'invitation copié !');
       } else {
         window.prompt('Copiez le lien d\'invitation :', text);
       }
@@ -5092,7 +5092,7 @@ function copyInvitationLink() {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(inviteUrl)
       .then(() => {
-        showToast('🔗 Lien d\'invitation copié !');
+        showToast('Lien d\'invitation copié !');
       })
       .catch(() => {
         fallbackCopy(inviteUrl);
@@ -7749,7 +7749,7 @@ function showWin() {
   const dinoTitle = gameState.title || 'Inconnu';
   const guessesCount = gameState.guessHistory.length;
   dom.winMessage.innerHTML = `
-    <h2>🎉 Félicitations !</h2>
+    <h2><svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Félicitations !</h2>
     <p>Vous avez découvert <strong>${escapeHtml(dinoTitle)}</strong> en <strong>${guessesCount}</strong> essai(s) !</p>
   `;
   if (gameState.imageUrl) {
@@ -7758,7 +7758,7 @@ function showWin() {
   dom.winMessage.innerHTML += `
     <div style="margin-top: 1.5rem;">
       <button id="btn-theri-replay-win" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: bold; border: none; padding: 0.85rem 2.2rem; font-size: 1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: transform 0.2s;">
-        🔄 Relancer une partie
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Relancer une partie
       </button>
     </div>
   `;
@@ -7805,7 +7805,7 @@ function showGiveUp() {
   dom.winMessage.innerHTML += `
     <div style="margin-top: 1.5rem;">
       <button id="btn-theri-replay-giveup" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: bold; border: none; padding: 0.85rem 2.2rem; font-size: 1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: transform 0.2s;">
-        🔄 Relancer une partie
+        <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Relancer une partie
       </button>
     </div>
   `;
@@ -8129,7 +8129,7 @@ function initSonglessUI() {
         console.error('Failed to restart songless room:', err);
       } finally {
         btnRestartLobby.disabled = false;
-        btnRestartLobby.textContent = "⚙️ Modifier les paramètres & Rejouer";
+        btnRestartLobby.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres & Rejouer";
       }
     });
   }
@@ -8783,7 +8783,7 @@ function updateSonglessNextRoundButton(players) {
       btnNextRound.disabled = false;
       btnNextRound.classList.remove('is-disabled');
       if (isFinalRound) {
-        btnNextRound.textContent = "🏆 Voir le Podium Final";
+        btnNextRound.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Voir le Podium Final";
         btnNextRound.style.background = "linear-gradient(135deg, #fbbf24 0%, #d97706 100%)";
         btnNextRound.style.color = "#0b0f19";
         btnNextRound.style.fontWeight = "800";
@@ -8944,7 +8944,7 @@ function shareSonglessScore() {
 
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast("🔗 Résultat copié dans le presse-papier !");
+      showToast("Résultat copié dans le presse-papier !");
     });
   }
 }
@@ -9344,7 +9344,7 @@ function renderSonglessPodium(state) {
       const avatarHtml = renderAvatarHTML(p.avatar, p.avatarIsPhoto);
       return `
         <div class="podium-col rank-${rank}">
-          ${isWinner ? `<div class="podium-crown">👑</div>` : ''}
+          ${isWinner ? `<div class="podium-crown"><svg class="crown-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg></div>` : ''}
           <div class="podium-avatar-ring rank-${rank}">
             <div class="podium-avatar">
               ${avatarHtml}
@@ -10014,7 +10014,7 @@ function renderPokecriesPodium(state) {
         const avatarHtml = renderAvatarHTML(p.avatar, p.avatarIsPhoto);
         return `
           <div class="podium-col rank-${rank}">
-            ${isWinner ? `<div class="podium-crown">👑</div>` : ''}
+            ${isWinner ? `<div class="podium-crown"><svg class="crown-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg></div>` : ''}
             <div class="podium-avatar-ring rank-${rank}">
               <div class="podium-avatar">
                 ${avatarHtml}
@@ -10285,7 +10285,7 @@ function handlePokecriesSSEState(state) {
         btnNext.disabled = false;
         btnNext.classList.remove('is-disabled');
         if (isFinalRound) {
-          btnNext.textContent = "🏆 Voir le Podium Final";
+          btnNext.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Voir le Podium Final";
           btnNext.style.background = "linear-gradient(135deg, #fbbf24 0%, #d97706 100%)";
           btnNext.style.color = "#0b0f19";
           btnNext.style.fontWeight = "800";
@@ -10579,7 +10579,7 @@ function initPokecriesUI() {
           console.error(e);
         } finally {
           btnRestartLobby.disabled = false;
-          btnRestartLobby.textContent = "⚙️ Modifier les paramètres & Rejouer";
+          btnRestartLobby.textContent = "<svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres & Rejouer";
         }
       }
     });

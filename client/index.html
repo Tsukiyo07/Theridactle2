@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261109_stats_modal_v18">
+ <link rel="stylesheet" href="style.css?v=20261109_vector_icons_v19">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -281,9 +281,9 @@
       </p>
       
       <div class="spotlight-features-list">
-       <span class="sfeat">🎯 8 Attributs Comparés</span>
+       <span class="sfeat"><svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> 8 Attributs Comparés</span>
        <span class="sfeat">👥 21 Membres Créasup</span>
-       <span class="sfeat">📅 Quotidien &amp; ♾️ Infini</span>
+       <span class="sfeat"><svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Quotidien &amp; <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.083-8-12.355-8-5.096 0-5.096 8 0 8 5.272 0 7.26-8 12.355-8z"></path></svg> Infini</span>
        <span class="sfeat">🧩 Indices Progressifs</span>
       </div>
      </div>
@@ -724,12 +724,12 @@
       <label for="imp-local-theme-select">Thème</label>
       <div class="theme-select-wrapper">
        <select id="imp-local-theme-select" class="theme-select">
-        <option value="aleatoire">🎲 Aléatoire (Tous thèmes)</option>
+        <option value="aleatoire">Aléatoire (Tous thèmes)</option>
         <option value="general">Général (Objets, Animaux...)</option>
         <option value="anime">Mangas &amp; Animes (Naruto, DBZ...)</option>
         <option value="jeux_video">Jeux Vidéo (Mario, Zelda...)</option>
         <option value="films_series">Films &amp; Séries (HP, Marvel...)</option>
-        <option value="minecraft">🧱 Minecraft (Blocs, Mobs, Items...)</option>
+        <option value="minecraft">Minecraft (Blocs, Mobs, Items...)</option>
        </select>
       </div>
      </div>
@@ -892,10 +892,10 @@
 
      <!-- Round Ended Notification / Next Round Button -->
      <div id="theridactle-round-banner" class="glass-panel view-hidden" style="padding: 1.25rem; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08); border-radius: 14px;">
-      <h3 style="margin: 0 0 6px 0; color: #10b981; font-size: 1.3rem;">🎉 Manche Terminée !</h3>
+      <h3 style="margin: 0 0 6px 0; color: #10b981; font-size: 1.3rem;"><svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Manche Terminée !</h3>
       <p id="theridactle-round-winner-text" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 14px;">Le dinosaure a été découvert !</p>
       <button id="btn-theridactle-next-round" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); margin: 0 auto; display: none;">
-       Manche Suivante ➔
+       Manche Suivante <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </button>
       <div id="theridactle-round-helper" class="helper-text" style="color: var(--text-muted); margin-top: 8px; display: none;">
        En attente que l'hôte lance la manche suivante...
@@ -948,7 +948,7 @@
      <!-- Action Buttons -->
      <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
       <button id="btn-theridactle-restart-lobby" class="btn btn-primary btn-large btn-block" style="background: linear-gradient(135deg, #10b981, #059669); display: none;">
-       ⚙️ Modifier les paramètres &amp; Rejouer
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres &amp; Rejouer
       </button>
       <div id="theridactle-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
        En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
@@ -1146,10 +1146,10 @@
 
      <!-- Round Ended Notification / Next Round Button -->
      <div id="pokedactle-round-banner" class="glass-panel view-hidden" style="padding: 1.25rem; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); border-radius: 14px;">
-      <h3 style="margin: 0 0 6px 0; color: #f59e0b; font-size: 1.3rem;">🎉 Pokémon Découvert !</h3>
+      <h3 style="margin: 0 0 6px 0; color: #f59e0b; font-size: 1.3rem;"><svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Pokémon Découvert !</h3>
       <p id="pokedactle-round-winner-text" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 14px;">Le Pokémon a été trouvé !</p>
       <button id="btn-pokedactle-next-round" class="btn btn-poke" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; margin: 0 auto; display: none;">
-       Manche Suivante ➔
+       Manche Suivante <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </button>
       <div id="pokedactle-round-helper" class="helper-text" style="color: var(--text-muted); margin-top: 8px; display: none;">
        En attente que l'hôte lance la manche suivante...
@@ -1202,7 +1202,7 @@
      <!-- Action Buttons -->
      <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
       <button id="btn-pokedactle-restart-lobby" class="btn btn-poke btn-large btn-block" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; display: none;">
-       ⚙️ Modifier les paramètres &amp; Rejouer
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres &amp; Rejouer
       </button>
       <div id="pokedactle-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
        En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
@@ -1393,10 +1393,10 @@
 
      <!-- Round Ended Notification / Next Round Button -->
      <div id="merrydactle-round-banner" class="glass-panel view-hidden" style="padding: 1.25rem; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); border-radius: 14px;">
-      <h3 style="margin: 0 0 6px 0; color: #ef4444; font-size: 1.3rem;">🎉 Article Trouvé !</h3>
+      <h3 style="margin: 0 0 6px 0; color: #ef4444; font-size: 1.3rem;"><svg class="inline-svg" viewBox="0 0 24 24" width="22" height="22" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg> Article Trouvé !</h3>
       <p id="merrydactle-round-winner-text" style="margin: 0 0 12px 0; color: var(--text-main); font-size: 14px;">L'article One Piece a été découvert !</p>
       <button id="btn-merrydactle-next-round" class="btn btn-merry" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; margin: 0 auto; display: none;">
-       Manche Suivante ➔
+       Manche Suivante <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </button>
       <div id="merrydactle-round-helper" class="helper-text" style="color: var(--text-muted); margin-top: 8px; display: none;">
        En attente que l'hôte lance la manche suivante...
@@ -1449,7 +1449,7 @@
      <!-- Action Buttons -->
      <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
       <button id="btn-merrydactle-restart-lobby" class="btn btn-merry btn-large btn-block" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; display: none;">
-       ⚙️ Modifier les paramètres &amp; Rejouer
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres &amp; Rejouer
       </button>
       <div id="merrydactle-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
        En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
@@ -1587,7 +1587,7 @@
            <option value="anime">Mangas & Animes (Naruto/Sasuke...)</option>
            <option value="jeux_video">Jeux Vidéo (Mario/Luigi...)</option>
            <option value="films_series">Films & Séries (Harry Potter...)</option>
-           <option value="minecraft">🧱 Minecraft (Blocs, Mobs, Items...)</option>
+           <option value="minecraft">Minecraft (Blocs, Mobs, Items...)</option>
           </select>
          </div>
         </div>
@@ -1781,7 +1781,7 @@
     <section id="imp-local-phase-card" class="glass-panel imposteur-panel text-center" style="padding: 1.75rem 1.25rem; width: 100%;">
      
      <div class="local-pass-banner" style="margin-bottom: 1.25rem;">
-      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px;">📱 Passe le téléphone à</div>
+      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px;"><svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Passe le téléphone à</div>
       <h2 id="imp-local-current-player-name" class="text-gradient" style="font-size: 28px; font-weight: 900; margin: 0;">Joueur 1</h2>
       <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px;">Assurez-vous que les autres joueurs ne regardent pas l'écran !</p>
      </div>
@@ -1805,7 +1805,7 @@
 
        <!-- BACK FACE (REVEALED SECRET WORD ONLY - NO ROLE SPOIL) -->
        <div class="imp-card-face imp-card-back glass-panel" style="position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.15); background: radial-gradient(circle at center, rgba(30, 41, 59, 0.9) 0%, rgba(10, 15, 30, 0.98) 100%);">
-        <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px;">🤫 Votre mot secret</div>
+        <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px;"><svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Votre mot secret</div>
         <div id="imp-local-secret-word" style="font-size: 32px; font-weight: 900; color: #fff; margin: 8px 0 12px 0; font-family: var(--font-display); letter-spacing: -0.02em; text-shadow: 0 0 24px rgba(255,255,255,0.4);">------</div>
         <p style="font-size: 12px; color: rgba(255,255,255,0.7); max-width: 290px; margin-bottom: 1.25rem;">Mémorisez bien ce mot. Donnez un indice subtil lors du tour de table sans trop en dévoiler !</p>
         
@@ -1822,14 +1822,14 @@
     <!-- PHASE 2: PLACE AU DÉBAT ET AU VOTE -->
     <section id="imp-local-phase-debate" class="glass-panel imposteur-panel view-hidden" style="padding: 1.75rem 1.25rem; width: 100%;">
      <div class="text-center" style="margin-bottom: 1.25rem;">
-      <div style="font-size: 36px; margin-bottom: 6px;">🗣️</div>
+      <div style="margin-bottom: 6px; color: #a855f7;"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
       <h2 class="text-gradient" style="font-size: 24px; font-weight: 900; margin-bottom: 4px;">Place au Débat !</h2>
       <p style="font-size: 13px; color: rgba(255,255,255,0.7);">Tous les joueurs ont pris connaissance de leur rôle.</p>
      </div>
 
      <!-- Starter Spotlight Box -->
      <div class="glass-panel" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 12px;">
-      <div style="font-size: 24px;">🎲</div>
+      <div style="color: #6366f1;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle></svg></div>
       <div>
        <div style="font-size: 11px; text-transform: uppercase; color: #fb7185; font-weight: 700; letter-spacing: 0.05em;">Premier tour de table</div>
        <div style="font-size: 15px; font-weight: 800; color: #fff;"><span id="imp-local-starter-name">Joueur 1</span> commence à donner son indice !</div>
@@ -1864,7 +1864,7 @@
 
     <!-- PHASE 3: FINAL REVEAL & REPLAY PANEL -->
     <section id="imp-local-phase-results" class="glass-panel imposteur-panel view-hidden text-center" style="padding: 1.75rem 1.25rem; width: 100%;">
-     <div style="font-size: 42px; margin-bottom: 8px;">🎭</div>
+     <div style="margin-bottom: 8px; color: #f43f5e;"><svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c0 5.523 4.477 10 10 10s10-4.477 10-10S17.523 2 12 2 2 6.477 2 12z"></path><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></div>
      <h2 class="text-gradient" style="font-size: 26px; font-weight: 900; margin-bottom: 4px;">Dénouement de la partie</h2>
      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem;">Voici les rôles et mots secrets de cette manche :</p>
 
@@ -2793,7 +2793,7 @@
      <!-- Action Buttons -->
      <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
       <button id="btn-songless-restart-lobby" class="btn btn-songless btn-large btn-block" style="display: none;">
-       ⚙️ Modifier les paramètres &amp; Rejouer
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres &amp; Rejouer
       </button>
       <div id="songless-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
        En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
@@ -3104,7 +3104,7 @@
      <!-- Action Buttons -->
      <div class="lobby-start-box" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
       <button id="btn-pokecries-restart-lobby" class="btn btn-poke btn-large btn-block" style="display: none;">
-       ⚙️ Modifier les paramètres &amp; Rejouer
+       <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Modifier les paramètres &amp; Rejouer
       </button>
       <div id="pokecries-podium-helper" class="helper-text" style="text-align: center; color: var(--text-muted); display: none;">
        En attente que l'hôte relance la partie ou ajuste les paramètres du salon...
@@ -3256,7 +3256,7 @@
   <div id="creasupdle-win-modal" class="creasupdle-modal-overlay hidden">
    <div class="creasupdle-modal-card glass-panel win-card">
     <div class="win-sparkle-header">
-     <div class="win-crown">👑</div>
+     <div class="win-crown"><svg class="crown-svg" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg></div>
      <h2 class="win-title">Victoire Éclatante !</h2>
      <p class="win-subtitle">Vous avez démasqué le membre mystère de Créasup !</p>
     </div>
@@ -3297,22 +3297,22 @@
    <div class="creasupdle-modal-card glass-panel rules-card">
     <div class="modal-header-row">
      <h3>Comment jouer à Creasupdle ?</h3>
-     <button type="button" class="modal-close-btn" id="btn-creasupdle-rules-close">✕</button>
+     <button type="button" class="modal-close-btn" id="btn-creasupdle-rules-close" aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div class="modal-body-content">
      <p>Devinez le membre mystère de Créasup en proposant des étudiants de l'école. À chaque essai, des indices colorés se dévoilent :</p>
      
      <div class="rules-legend-grid">
       <div class="legend-item">
-       <span class="legend-badge badge-green">Vert 🟩</span>
+       <span class="legend-badge badge-green"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><rect width="22" height="22" rx="4"></rect></svg> Vert</span>
        <span class="legend-desc"><strong>Match parfait !</strong> La valeur correspond exactement au membre mystère.</span>
       </div>
       <div class="legend-item">
-       <span class="legend-badge badge-orange">Orange 🟧</span>
+       <span class="legend-badge badge-orange"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><rect width="22" height="22" rx="4"></rect></svg> Orange</span>
        <span class="legend-desc"><strong>Correspondance partielle :</strong> L'un des attributs multiples est partagé (ex: <em>Blond</em> dans <em>Brun, Blond</em>, <em>Graph</em> dans <em>Graph, Ancien</em>, ou promo partagée).</span>
       </div>
       <div class="legend-item">
-       <span class="legend-badge badge-red">Rouge 🟥</span>
+       <span class="legend-badge badge-red"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><rect width="22" height="22" rx="4"></rect></svg> Rouge</span>
        <span class="legend-desc"><strong>Incorrect.</strong> La caractéristique ne correspond pas.</span>
       </div>
       <div class="legend-item">
@@ -3336,7 +3336,7 @@
       <button type="button" class="btn btn-creasup-sm" id="btn-creasupdle-add-member">
        + Ajouter un pote
       </button>
-      <button type="button" class="modal-close-btn" id="btn-creasupdle-roster-close">✕</button>
+      <button type="button" class="modal-close-btn" id="btn-creasupdle-roster-close" aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
      </div>
     </div>
 
@@ -3356,7 +3356,7 @@
       <h3 id="creasupdle-form-modal-title">Proposer un membre à Créasupdle</h3>
      </div>
      <div class="creasupdle-mod-notice">
-      🛡️ <strong>Modération active :</strong> Les propositions d'ajout ou de modification sont envoyées par email à Tibo pour validation avant d'apparaître pour tous les joueurs.
+      <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> <strong>Modération active :</strong> Les propositions d'ajout ou de modification sont envoyées par email à Tibo pour validation avant d'apparaître pour tous les joueurs.
      </div>
      <form id="creasupdle-member-form" class="creasupdle-form">
       <input type="hidden" id="member-edit-id" value="">
@@ -3418,7 +3418,7 @@
         <button type="button" class="form-pill-check" data-group="cheveux" data-value="Blond">Blond</button>
         <button type="button" class="form-pill-check" data-group="cheveux" data-value="Roux">Roux</button>
         <button type="button" class="form-pill-check" data-group="cheveux" data-value="Marron">Marron</button>
-        <button type="button" class="form-pill-check" data-group="cheveux" data-value="Bonnet">Bonnet 🧢</button>
+        <button type="button" class="form-pill-check" data-group="cheveux" data-value="Bonnet">Bonnet</button>
         <button type="button" class="form-pill-check" data-group="cheveux" data-value="Coloré">Coloré</button>
         <button type="button" class="form-pill-check" data-group="cheveux" data-value="Chauve">Chauve</button>
        </div>
@@ -3471,7 +3471,7 @@
       <h3>Qui envoie la demande ?</h3>
      </div>
      <div class="creasupdle-mod-notice">
-      ✍️ <strong>Prénom ou pseudo de l'auteur :</strong> Indiquez qui vous êtes pour que Tibo sache à qui appartient cette proposition.
+      <svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <strong>Prénom ou pseudo de l'auteur :</strong> Indiquez qui vous êtes pour que Tibo sache à qui appartient cette proposition.
      </div>
      <form id="creasupdle-author-form" class="creasupdle-form" onsubmit="event.preventDefault();">
       <div class="form-group">
@@ -3483,7 +3483,7 @@
       </div>
       <div class="form-actions-row">
        <button type="button" class="btn btn-secondary" id="btn-creasupdle-author-back">← Retour</button>
-       <button type="button" id="btn-creasupdle-author-submit" class="btn btn-creasup-win">Envoyer la demande 📩</button>
+       <button type="button" id="btn-creasupdle-author-submit" class="btn btn-creasup-win"><svg class="inline-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Envoyer la demande</button>
       </div>
      </form>
     </div>
@@ -3517,7 +3517,7 @@
       <h3>Statistiques Creasupdle</h3>
       <p class="modal-desc">Votre historique de déduction sur le membre mystère.</p>
      </div>
-     <button type="button" class="modal-close-btn" id="btn-creasupdle-stats-close" aria-label="Fermer">✕</button>
+     <button type="button" class="modal-close-btn" id="btn-creasupdle-stats-close" aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <!-- 4 Stats Counters -->
@@ -3651,7 +3651,7 @@
  <!-- PROFILE MODAL -->
  <div id="profile-modal" class="profile-modal-overlay" style="display:none;">
   <div class="profile-modal-content glass-panel">
-   <button class="profile-modal-close" id="btn-close-profile">✕</button>
+   <button class="profile-modal-close" id="btn-close-profile" aria-label="Fermer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
 
    <div class="profile-modal-inner">
     <!-- Modal Tabs -->
@@ -3788,8 +3788,8 @@
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
  <script src="imposteur-words.js?v=20261008"></script>
  <script src="creasupdle-data.js?v=20261109_author_submit_v16"></script>
- <script src="creasupdle.js?v=20261109_stats_modal_v18"></script>
+ <script src="creasupdle.js?v=20261109_vector_icons_v19"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20261109_ethan_brun_v10"></script>
+ <script src="app.js?v=20261109_vector_icons_v19"></script>
 </body>
 </html>

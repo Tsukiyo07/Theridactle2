@@ -607,7 +607,7 @@
 
     // Prevent duplicate guess in the same round
     if (state.guesses && state.guesses.some(g => g.person && g.person.id === person.id)) {
-      showToast(`${person.nomComplet || person.nom} a déjà été proposé ! ⚠️`);
+      showToast(`${person.nomComplet || person.nom} a déjà été proposé !`);
       if (dom.searchInput) {
         dom.searchInput.value = '';
         dom.searchInput.focus();
@@ -864,7 +864,7 @@
     const text = generateShareText();
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
-        showToast('Score copié dans le presse-papier ! 📋');
+        showToast('Score copié dans le presse-papier !');
       }).catch(() => {
         showShareFallback(text);
       });
@@ -876,9 +876,9 @@
   function showShareFallback(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
-        showToast('Score copié dans le presse-papier ! ✨');
+        showToast('Score copié dans le presse-papier !');
       }).catch(() => {
-        showToast('Score généré ! ✨');
+        showToast('Score copié !');
       });
     } else {
       showToast('Score généré ! ✨');
@@ -916,19 +916,19 @@
               ${m.surnom ? `<span class="creasupdle-roster-surnom">« ${m.surnom} »</span>` : ''}
             </div>
             <div class="creasupdle-roster-tags">
-              <span class="rtag">👤 ${m.genre}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${m.genre}</span>
               <span class="rtag">💍 ${m.situation || 'Célibataire'}</span>
-              <span class="rtag">🧭 ${m.orientation || 'Hétéro'}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg> ${m.orientation || 'Hétéro'}</span>
               <span class="rtag">💇 ${m.cheveux}</span>
-              <span class="rtag">📏 ${m.taille}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M2 12h20M7 8v8M12 10v4M17 8v8"></path></svg> ${m.taille}</span>
               <span class="rtag">💼 ${m.role}</span>
-              <span class="rtag">🎓 ${m.promo || 'Alfred Grévin'}</span>
+              <span class="rtag"><svg class="inline-svg" viewBox="0 0 24 24" width="12" height="12" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> ${m.promo || 'Alfred Grévin'}</span>
               <span class="rtag">🎂 ${m.age} ans</span>
             </div>
             ${m.punchline ? `<div class="creasupdle-roster-punchline">${m.punchline}</div>` : ''}
           </div>
           <div class="creasupdle-roster-actions">
-            <button type="button" class="btn btn-sm btn-edit-member" data-id="${m.id}" title="Proposer une modification">✏️ Modifier</button>
+            <button type="button" class="btn btn-sm btn-edit-member" data-id="${m.id}" title="Proposer une modification"><svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Modifier</button>
             ${isCustom ? `
               <button class="btn btn-sm btn-danger btn-delete-member" data-id="${m.id}" title="Supprimer">
                 <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -1081,7 +1081,7 @@
 
     const nom = form.querySelector('#member-nom').value.trim();
     if (!nom) {
-      showToast('⚠️ Veuillez renseigner le prénom ou nom.');
+      showToast('Veuillez renseigner le prénom ou nom.');
       return;
     }
 
@@ -1090,19 +1090,19 @@
 
     const selectedCheveux = getSelectedPills('cheveux');
     if (selectedCheveux.length === 0) {
-      showToast('⚠️ Sélectionnez au moins une couleur de cheveux.');
+      showToast('Sélectionnez au moins une couleur de cheveux.');
       return;
     }
 
     const selectedRoles = getSelectedPills('role');
     if (selectedRoles.length === 0) {
-      showToast('⚠️ Sélectionnez au moins un rôle (Graph, Dev, Ancien...).');
+      showToast('Sélectionnez au moins un rôle (Graph, Dev, Ancien...).');
       return;
     }
 
     const selectedPromos = getSelectedPills('promo');
     if (selectedPromos.length === 0) {
-      showToast('⚠️ Sélectionnez au moins une promo Créasup.');
+      showToast('Sélectionnez au moins une promo Créasup.');
       return;
     }
 
@@ -1171,7 +1171,7 @@
     } catch (err) {}
 
     const submitBtn = document.getElementById('btn-creasupdle-author-submit');
-    const origText = submitBtn ? submitBtn.textContent : 'Envoyer la demande 📩';
+    const origText = submitBtn ? submitBtn.textContent : 'Envoyer la demande';
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi du mail en cours... ⏳';
