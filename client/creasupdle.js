@@ -778,6 +778,26 @@
           CreasupdleAudio.playFlip(i);
         }, i * 110);
       });
+
+      // Clean up animation classes once finished to prevent GPU compositor rasterization drops
+      row.querySelectorAll('.flip-tile').forEach(tile => {
+        tile.addEventListener('animationend', () => {
+          tile.classList.remove('flip-tile');
+          tile.style.opacity = '1';
+          tile.style.transform = '';
+          tile.style.animationDelay = '';
+        }, { once: true });
+      });
+
+      // Safety fallback to guarantee complete visibility even on background tab or throttled frames
+      setTimeout(() => {
+        row.querySelectorAll('.flip-tile').forEach(tile => {
+          tile.classList.remove('flip-tile');
+          tile.style.opacity = '1';
+          tile.style.transform = '';
+          tile.style.animationDelay = '';
+        });
+      }, tilesData.length * 110 + 650);
     }
   }
 

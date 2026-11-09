@@ -7959,26 +7959,28 @@ select option:focus,
   font-weight: 700;
   font-size: 13px;
   position: relative;
-  perspective: 1000px;
   transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  contain: layout style;
 }
 
 .flip-tile {
-  animation: flipTile 0.48s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-  opacity: 0;
+  animation: flipTile 0.44s cubic-bezier(0.23, 1, 0.32, 1) both;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
 @keyframes flipTile {
   0% {
-    transform: rotateX(-90deg) scale(0.95);
+    transform: scaleY(0) scale(0.96);
     opacity: 0;
   }
   60% {
-    transform: rotateX(15deg);
+    transform: scaleY(1.04) scale(1.01);
     opacity: 1;
   }
   100% {
-    transform: rotateX(0deg) scale(1);
+    transform: none;
     opacity: 1;
   }
 }
@@ -7996,6 +7998,7 @@ select option:focus,
   align-items: center;
   gap: 10px;
   width: 100%;
+  min-width: 0;
 }
 
 .creasupdle-tile-name-wrap {
@@ -8003,15 +8006,18 @@ select option:focus,
   flex-direction: column;
   overflow: hidden;
   text-align: left;
+  flex: 1;
+  min-width: 0;
 }
 
 .creasupdle-tile-name {
   font-size: 13.5px;
   font-weight: 700;
-  color: #ffffff;
+  color: #ffffff !important;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  display: block;
 }
 
 .creasupdle-tile-role-sub {
@@ -8020,6 +8026,7 @@ select option:focus,
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  display: block;
 }
 
 /* Status Colors */
