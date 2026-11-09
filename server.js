@@ -186,6 +186,24 @@ function saveCreasupdleRoster(roster) {
   } catch (e) {
     console.error('Erreur ecriture creasupdle-default-roster.json:', e);
   }
+
+  const key = process.env.JSONBIN_KEY;
+  const bin = process.env.JSONBIN_CREASUPDLE_BIN;
+  if (key && bin) {
+    fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': key
+      },
+      body: JSON.stringify(roster)
+    }).then(r => r.json()).then(data => {
+      if (data.record) console.log("Creasupdle roster synced to cloud successfully!");
+      else console.error("Failed to sync Creasupdle roster to cloud:", data);
+    }).catch(e => {
+      console.error("Failed to sync Creasupdle roster to cloud:", e);
+    });
+  }
 }
 
 function loadCreasupdlePending() {
@@ -6889,7 +6907,17 @@ if (process.env.JSONBIN_KEY) {
         cachedStats = data.record;
         console.log("Loaded stats from JSONBin successfully.");
       }
-    }).catch(e => console.error("Failed to preload stats from cloud:", e)) : Promise.resolve()
+    }).catch(e => console.error("Failed to preload stats from cloud:", e)) : Promise.resolve(),
+
+    // Preload Creasupdle roster
+    process.env.JSONBIN_CREASUPDLE_BIN ? fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_CREASUPDLE_BIN}/latest`, {
+      headers: { 'X-Master-Key': process.env.JSONBIN_KEY }
+    }).then(r => r.json()).then(data => {
+      if (data.record && Array.isArray(data.record) && data.record.length > 0) {
+        cachedCreasupdleRoster = data.record;
+        console.log("Loaded Creasupdle roster from JSONBin successfully (" + data.record.length + " members).");
+      }
+    }).catch(e => console.error("Failed to preload Creasupdle roster from cloud:", e)) : Promise.resolve()
   ]).then(() => {
     startServer();
   });
