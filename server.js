@@ -136,9 +136,24 @@ function loadCreasupdleRoster() {
     if (fs.existsSync(CREASUPDLE_ROSTER_FILE)) {
       cachedCreasupdleRoster = JSON.parse(fs.readFileSync(CREASUPDLE_ROSTER_FILE, 'utf8'));
       if (Array.isArray(cachedCreasupdleRoster) && cachedCreasupdleRoster.length > 0) {
+        let changed = false;
         cachedCreasupdleRoster.forEach(m => {
-          if (m && m.promo && m.promo.includes('Clairemont')) m.promo = m.promo.replace('Clairemont', 'Clermont');
+          if (m && m.promo && m.promo.includes('Clairemont')) {
+            m.promo = m.promo.replace('Clairemont', 'Clermont');
+            changed = true;
+          }
+          if (m && m.role && /concepteur/i.test(m.role)) {
+            m.role = m.role.replace(/concepteur/gi, 'Dev');
+            changed = true;
+          }
+          if (m && m.surnom && /concepteur/i.test(m.surnom)) {
+            m.surnom = m.surnom.replace(/concepteur/gi, 'Dev');
+            changed = true;
+          }
         });
+        if (changed) {
+          try { fs.writeFileSync(CREASUPDLE_ROSTER_FILE, JSON.stringify(cachedCreasupdleRoster, null, 2), 'utf8'); } catch(e){}
+        }
         return cachedCreasupdleRoster;
       }
     }

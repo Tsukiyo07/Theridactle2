@@ -155,7 +155,10 @@
     if (!str) return [];
     return norm(str)
       .split(/[,/]+/)
-      .map(s => s.trim())
+      .map(s => {
+        const t = s.trim();
+        return t === 'concepteur' ? 'dev' : t;
+      })
       .filter(Boolean);
   }
 
@@ -252,11 +255,11 @@
     if (targetCm > guessCm) tailleArrow = 'up';
     else if (targetCm < guessCm) tailleArrow = 'down';
 
-    // 6. Rôle (Graph, Ancien / Graph / Dev / Ancien / Concepteur)
+    // 6. Rôle (Dev / Graph / Ancien)
     const roleMatch = isRoleExact(guess.role, target.role);
     const rolePartial = !roleMatch && isCloseRole(guess.role, target.role);
 
-    // 7. Promo (Alfred Grévin / Louise de Clairemont / Marguerite de Bourgogne)
+    // 7. Promo (Alfred Grévin / Louise de Clermont / Marguerite de Bourgogne / etc.)
     const promoMatch = isPromoExact(guess.promo, target.promo);
     const promoPartial = !promoMatch && isClosePromo(guess.promo, target.promo);
 
