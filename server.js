@@ -209,7 +209,8 @@ async function sendResendEmail({ subject, html }) {
     return { error: 'RESEND_API_KEY missing' };
   }
 
-  const primaryRecipient = process.env.CREASUPDLE_ADMIN_EMAIL || '0tsukiyo0@gmail.com';
+  const primaryRecipient = process.env.CREASUPDLE_ADMIN_EMAIL || 'tibokeinerknecht@gmail.com';
+  console.log('[sendResendEmail] Attempting delivery to:', primaryRecipient);
 
   const sendTo = (toAddress) => {
     return new Promise((resolve) => {
@@ -231,13 +232,19 @@ async function sendResendEmail({ subject, html }) {
         res.on('data', chunk => data += chunk);
         res.on('end', () => {
           try {
-            resolve({ statusCode: res.statusCode, body: JSON.parse(data) });
+            const parsed = JSON.parse(data);
+            console.log('[sendResendEmail] Resend response code:', res.statusCode, 'id:', parsed.id || 'none');
+            resolve({ statusCode: res.statusCode, body: parsed });
           } catch (e) {
+            console.log('[sendResendEmail] Resend response code:', res.statusCode, 'raw:', data);
             resolve({ statusCode: res.statusCode, raw: data });
           }
         });
       });
-      req.on('error', (err) => resolve({ statusCode: 500, error: err }));
+      req.on('error', (err) => {
+        console.error('[sendResendEmail] Network error:', err);
+        resolve({ statusCode: 500, error: err });
+      });
       req.write(payload);
       req.end();
     });
@@ -245,7 +252,7 @@ async function sendResendEmail({ subject, html }) {
 
   let res = await sendTo(primaryRecipient);
   if (res.statusCode === 403 && primaryRecipient !== '0tsukiyo0@gmail.com') {
-    console.log('Resend 403 on primary recipient, fallback to 0tsukiyo0@gmail.com');
+    console.log('[sendResendEmail] Resend 403 on primary recipient, fallback to 0tsukiyo0@gmail.com');
     res = await sendTo('0tsukiyo0@gmail.com');
   }
   return res;
@@ -6051,6 +6058,25 @@ function advanceTurnAndCheckRoundEnd(room) {
     return res.end(JSON.stringify({ success: true, roster }));
   }
 
+  // Debug: GET /api/creasupdle/debug-status
+  if (parsedUrl.pathname === '/api/creasupdle/debug-status' && req.method === 'GET') {
+    const pending = loadCreasupdlePending();
+    const count = Object.keys(pending).length;
+    const lastKeys = Object.keys(pending).slice(-5).map(k => ({
+      author: pending[k].authorNickname,
+      target: pending[k].member ? (pending[k].member.nomComplet || pending[k].member.nom) : null,
+      createdAt: new Date(pending[k].createdAt).toISOString(),
+      status: pending[k].status
+    }));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({
+      recipient: process.env.CREASUPDLE_ADMIN_EMAIL || 'tibokeinerknecht@gmail.com',
+      hasApiKey: Boolean(process.env.RESEND_API_KEY),
+      pendingCount: count,
+      lastRequests: lastKeys
+    }));
+  }
+
   // 2. POST /api/creasupdle/request
   if (parsedUrl.pathname === '/api/creasupdle/request' && req.method === 'POST') {
     let body = '';
@@ -6059,6 +6085,7 @@ function advanceTurnAndCheckRoundEnd(room) {
       try {
         const payload = JSON.parse(body);
         const { type, member, authorNickname } = payload;
+        console.log('[/api/creasupdle/request] Received request from:', authorNickname, 'for:', member ? (member.nomComplet || member.nom) : null);
         if (!member || (!member.nom && !member.nomComplet)) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ error: 'Donnees du membre incompletes.' }));

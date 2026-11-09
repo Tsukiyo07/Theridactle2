@@ -1138,18 +1138,21 @@
   }
 
   async function handleAuthorSubmit(e) {
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
     if (!pendingMemberSubmission) {
       setModalStep('config');
       return;
     }
 
     const authorInput = document.getElementById('member-author-nickname');
-    const authorNickname = authorInput ? authorInput.value.trim() : '';
+    let authorNickname = authorInput ? authorInput.value.trim() : '';
     if (!authorNickname) {
-      alert('Veuillez renseigner votre prénom ou pseudo.');
-      if (authorInput) authorInput.focus();
-      return;
+      try {
+        authorNickname = localStorage.getItem('supercaraquiz_nickname') || localStorage.getItem('playerNickname') || '';
+      } catch (err) {}
+    }
+    if (!authorNickname) {
+      authorNickname = 'Un membre de Créasup';
     }
 
     try {
@@ -1157,7 +1160,7 @@
     } catch (err) {}
 
     const submitBtn = document.getElementById('btn-creasupdle-author-submit');
-    const origText = submitBtn ? submitBtn.textContent : 'Confirmer et envoyer 📩';
+    const origText = submitBtn ? submitBtn.textContent : 'Envoyer la demande 📩';
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi du mail en cours... ⏳';
@@ -1177,7 +1180,7 @@
         }
         setModalStep('success');
       } else {
-        alert(response && response.error ? response.error : 'Erreur lors de l\'envoi de la demande.');
+        alert(response && (response.message || response.error) ? (response.message || response.error) : 'Erreur lors de l\'envoi de la demande.');
       }
     } catch (err) {
       console.error('Failed to submit moderation request:', err);
@@ -1391,7 +1394,26 @@
     // Step 2 & 3: Author Form & Success Screen
     const authorForm = document.getElementById('creasupdle-author-form');
     if (authorForm) {
-      authorForm.addEventListener('submit', handleAuthorSubmit);
+      authorForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleAuthorSubmit(e);
+      });
+    }
+    const btnAuthorSubmit = document.getElementById('btn-creasupdle-author-submit');
+    if (btnAuthorSubmit) {
+      btnAuthorSubmit.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleAuthorSubmit(e);
+      });
+    }
+    const authorInput = document.getElementById('member-author-nickname');
+    if (authorInput) {
+      authorInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleAuthorSubmit(e);
+        }
+      });
     }
     const btnAuthorBack = document.getElementById('btn-creasupdle-author-back');
     if (btnAuthorBack) {
