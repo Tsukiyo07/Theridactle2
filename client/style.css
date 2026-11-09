@@ -201,22 +201,25 @@ h1, h2, h3, h4, .logo {
 
 /* TOP NAVIGATION */
 .top-nav {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 600 !important;
   background: var(--bg-nav);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  height: 70px;
-  min-height: 70px;
-  max-height: 70px;
+  height: 60px;
+  min-height: 60px;
+  max-height: 60px;
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 3rem;
+  padding: 0 2rem;
   font-size: 14px;
   border-bottom: 1px solid var(--border-glass);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   transition: var(--transition-smooth);
+  box-sizing: border-box;
 }
 
 .nav-left {
@@ -10089,4 +10092,254 @@ select option:focus,
     justify-content: center !important;
     border-radius: 50% !important;
   }
+}
+
+
+/* ==========================================
+   GLOBAL AUDIO TOGGLE & SIDEBAR BUTTONS
+   ========================================== */
+.nav-icon-circle-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 50%;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-icon-circle-btn:hover {
+  transform: scale(1.06);
+  border-color: rgba(96, 165, 250, 0.6);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+}
+
+.nav-icon-circle-btn:active {
+  transform: scale(0.94);
+}
+
+.nav-sidebar-toggle-btn {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.nav-sidebar-toggle-btn:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(167, 139, 250, 0.5);
+  color: #ffffff;
+}
+
+.nav-sidebar-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   MAIN ARTICLE TITLE BOLD & REDACTED STYLING
+   ========================================== */
+.main-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.3rem;
+  line-height: 1.25;
+  color: #fff;
+  align-items: center;
+}
+
+.main-title .redacted,
+.main-title .title-word.redacted {
+  display: inline-block;
+  min-height: 1.3em;
+  padding: 4px 8px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2), inset 0 1px 0 #fff !important;
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.main-title .redacted:hover,
+.main-title .title-word.redacted:hover {
+  background: #ffffff !important;
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.7) !important;
+  transform: translateY(-2px);
+}
+
+.main-title .revealed,
+.main-title .title-word.revealed {
+  color: #fff !important;
+  font-weight: 900 !important;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.6) !important;
+  font-size: 1em;
+}
+
+/* ==========================================
+   DESKTOP COLLAPSIBLE SIDEBAR SYSTEM
+   ========================================== */
+body.desktop-sidebar-collapsed .sidebar-section,
+body.desktop-sidebar-collapsed .imposteur-sidebar {
+  display: none !important;
+}
+
+body.desktop-sidebar-collapsed .article-section,
+body.desktop-sidebar-collapsed .imposteur-main-section,
+body.desktop-sidebar-collapsed .songless-main-section {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 1 1 100% !important;
+}
+
+/* ==========================================
+   MOBILE SLIDE-OVER DRAWER FOR SIDEBAR
+   ========================================== */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 850;
+}
+
+@media (max-width: 800px) {
+  /* Navbar elements on mobile */
+  .nav-icon-circle-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+  .nav-sidebar-toggle-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+  }
+  .nav-sidebar-label {
+    display: none !important;
+  }
+
+  /* Universal Mobile Sidebar Slide-over Drawer */
+  .sidebar-section,
+  .imposteur-sidebar {
+    position: fixed !important;
+    top: 54px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: 320px !important;
+    max-width: 86vw !important;
+    height: calc(100dvh - 54px) !important;
+    z-index: 900 !important;
+    background: rgba(14, 18, 28, 0.97) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.75) !important;
+    transform: translateX(105%) !important;
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    order: unset !important;
+  }
+
+  body.mobile-sidebar-open .sidebar-section,
+  body.mobile-sidebar-open .imposteur-sidebar {
+    transform: translateX(0) !important;
+  }
+
+  body.mobile-sidebar-open .sidebar-backdrop {
+    display: block !important;
+  }
+
+  /* Full screen width for mobile game containers */
+  .article-section,
+  .imposteur-main-section,
+  .songless-main-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1rem 0.85rem 70px 0.85rem !important;
+  }
+
+  /* Geographie specific mobile polish */
+  #geographie-game-view .imposteur-main-section {
+    padding: 1rem 0.75rem !important;
+  }
+  #geographie-play-panel .glass-panel {
+    padding: 1.2rem 1rem !important;
+  }
+  .geo-choices-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .geo-choice-btn {
+    padding: 12px 14px !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Tiéou (Géo) choice buttons tactile hover */
+.geo-choice-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.geo-choice-btn:hover {
+  background: rgba(6, 182, 212, 0.15);
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
+  transform: translateY(-2px);
+}
+
+.geo-choice-btn:active {
+  transform: scale(0.97);
 }

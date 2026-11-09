@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261109_nav_align_v28">
+ <link rel="stylesheet" href="style.css?v=20261109_mega_v29">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -237,6 +237,30 @@
   </div>
   
   <div class="nav-right">
+    <!-- Sound Toggle -->
+    <button class="nav-icon-circle-btn" id="btn-nav-sound" onclick="toggleGlobalSound()" title="Son activé" aria-label="Couper ou activer le son">
+     <svg class="nav-sound-on nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+     </svg>
+     <svg class="nav-sound-off nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none; color: #f87171;">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+     </svg>
+    </button>
+
+    <!-- Sidebar Players Toggle (shown in multiplayer rooms/games) -->
+    <button class="nav-sidebar-toggle-btn" id="btn-nav-sidebar" onclick="togglePlayersSidebar()" style="display:none;" title="Afficher/Masquer le panneau joueurs" aria-label="Afficher ou masquer les joueurs">
+     <svg class="nav-svg-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+     </svg>
+     <span class="nav-sidebar-label">Joueurs (<span id="nav-sidebar-count">1</span>)</span>
+    </button>
+
     <button class="nav-feedback-btn" id="btn-nav-feedback" onclick="openFeedbackModal()" title="Boîte à idées & Signalement de bug" aria-label="Boîte à idées et signalement de bug">
      <svg class="nav-feedback-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -254,6 +278,7 @@
    </button>
   </div>
  </nav>
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="togglePlayersSidebar(false)"></div>
 
  <!-- 1. MAIN PORTAL VIEW -->
  <section id="portal-view" class="portal-container active-view">
@@ -3894,6 +3919,6 @@
  <script src="creasupdle-data.js?v=20261109_roster_updates_v24"></script>
  <script src="creasupdle.js?v=20261109_mobile_fixes_v23"></script>
  <script src="/socket.io/socket.io.js"></script>
- <script src="app.js?v=20261109_nav_align_v28"></script>
+ <script src="app.js?v=20261109_mega_v29"></script>
 </body>
 </html>

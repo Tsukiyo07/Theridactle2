@@ -2051,7 +2051,7 @@ function getDactleStatePayload(room) {
     totalRounds: room.totalRounds || 3,
     category: room.category || 'all',
     hintsAllowed: room.hintsAllowed !== undefined ? room.hintsAllowed : 3,
-    title: (room.status === 'round_ended' || room.status === 'game_ended' || room.isWon) ? room.title : null,
+    title: room.title,
     articleHTML: (room.status === 'playing' || room.status === 'round_ended' || room.status === 'game_ended') ? room.articleHTML : null,
     imageUrl: (room.status === 'round_ended' || room.status === 'game_ended' || room.isWon) ? room.imageUrl : null,
     guesses: room.guesses || [],

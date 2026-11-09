@@ -1199,7 +1199,7 @@ function init() {
           if (data.title) gameState.title = data.title;
           if (data.imageUrl) gameState.imageUrl = data.imageUrl;
         }
-        revealWord(data.root);
+        if (window.CaraAudio) { if (data.isWon) window.CaraAudio.playWin(); else if (data.hits > 0) window.CaraAudio.playHit(); else window.CaraAudio.playMiss(); } revealWord(data.root);
         updateSidebar();
         if (data.isWon) {
           showWin();
@@ -2960,7 +2960,7 @@ function handleDactleState(gameKey, state) {
   
   if (multiPlayersBox) multiPlayersBox.style.display = 'block';
 
-  if (countEl) countEl.textContent = playersArr.length;
+  if (countEl) countEl.textContent = playersArr.length; updateNavPlayerCount(playersArr.length);
 
   if (playersList) {
     const themeColor = gameKey === 'theridactle' ? '#10b981' : (gameKey === 'pokedactle' ? '#f59e0b' : '#ef4444');
@@ -3031,7 +3031,7 @@ function handleDactleState(gameKey, state) {
 
     // Sync game state and render article if newly started
     if (gameKey === 'theridactle') {
-      if (state.articleHTML && gameState.rawHtml !== state.articleHTML) {
+      if (state.articleHTML && (gameState.rawHtml !== state.articleHTML || (state.title && !gameState.title))) {
         gameState.rawHtml = state.articleHTML;
         gameState.title = state.title || '';
         gameState.imageUrl = state.imageUrl || null;
@@ -3042,7 +3042,7 @@ function handleDactleState(gameKey, state) {
         updateSidebar();
       }
     } else if (gameKey === 'pokedactle') {
-      if (state.articleHTML && pokedactleGameState.rawHtml !== state.articleHTML) {
+      if (state.articleHTML && (pokedactleGameState.rawHtml !== state.articleHTML || (state.title && !pokedactleGameState.title))) {
         pokedactleGameState.rawHtml = state.articleHTML;
         pokedactleGameState.title = state.title || '';
         pokedactleGameState.imageUrl = state.imageUrl || null;
@@ -3053,7 +3053,7 @@ function handleDactleState(gameKey, state) {
         updatePokedactleSidebar();
       }
     } else if (gameKey === 'merrydactle') {
-      if (state.articleHTML && merrydactleGameState.rawHtml !== state.articleHTML) {
+      if (state.articleHTML && (merrydactleGameState.rawHtml !== state.articleHTML || (state.title && !merrydactleGameState.title))) {
         merrydactleGameState.rawHtml = state.articleHTML;
         merrydactleGameState.title = state.title || '';
         merrydactleGameState.imageUrl = state.imageUrl || null;
@@ -3516,7 +3516,7 @@ function connectPokedactleSSE(roomId) {
         if (data.imageUrl) pokedactleGameState.imageUrl = data.imageUrl;
       }
       
-      revealPokedactleWord(data.root);
+      if (window.CaraAudio) { if (data.isWon) window.CaraAudio.playWin(); else if (data.hits > 0) window.CaraAudio.playHit(); else window.CaraAudio.playMiss(); } revealPokedactleWord(data.root);
       updatePokedactleSidebar();
       
       if (data.isWon) {
@@ -4093,7 +4093,7 @@ function connectMerrydactleSSE(roomId) {
         if (data.imageUrl) merrydactleGameState.imageUrl = data.imageUrl;
       }
       
-      revealMerrydactleWord(data.root);
+      if (window.CaraAudio) { if (data.isWon) window.CaraAudio.playWin(); else if (data.hits > 0) window.CaraAudio.playHit(); else window.CaraAudio.playMiss(); } revealMerrydactleWord(data.root);
       updateMerrydactleSidebar();
       
       if (data.isWon) {
@@ -11260,3 +11260,172 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
+
+// ==========================================
+// UNIVERSAL CARA AUDIO ENGINE & SIDEBAR CONTROLLER
+// ==========================================
+const CaraAudio = {
+  ctx: null,
+  muted: false,
+
+  init() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+      const saved = localStorage.getItem('cara_audio_muted');
+      if (saved !== null) {
+        this.muted = saved === 'true';
+      }
+    } catch (e) {
+      console.warn('Web Audio not supported', e);
+    }
+  },
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+
+  playClick() {
+    if (this.muted || !this.ctx) return;
+    this.resume();
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(850, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.04);
+    } catch (e) {}
+  },
+
+  playHit() {
+    if (this.muted || !this.ctx) return;
+    this.resume();
+    try {
+      [523.25, 783.99].forEach((freq) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.07, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.18);
+      });
+    } catch (e) {}
+  },
+
+  playMiss() {
+    if (this.muted || !this.ctx) return;
+    this.resume();
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(170, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.12);
+    } catch (e) {}
+  },
+
+  playWin() {
+    if (this.muted || !this.ctx) return;
+    this.resume();
+    try {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const startTime = this.ctx.currentTime + (i * 0.1);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.12, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.35);
+      });
+    } catch (e) {}
+  },
+
+  toggleMute() {
+    this.muted = !this.muted;
+    localStorage.setItem('cara_audio_muted', String(this.muted));
+    localStorage.setItem('creasupdle_muted', String(this.muted));
+    if (window.CreasupdleAudio) {
+      window.CreasupdleAudio.muted = this.muted;
+    }
+    this.updateUI();
+    return this.muted;
+  },
+
+  updateUI() {
+    const btn = document.getElementById('btn-nav-sound');
+    if (!btn) return;
+    btn.setAttribute('aria-label', this.muted ? 'Activer le son' : 'Désactiver le son');
+    btn.title = this.muted ? 'Son désactivé (cliquer pour activer)' : 'Son activé (cliquer pour couper)';
+    const iconOn = btn.querySelector('.nav-sound-on');
+    const iconOff = btn.querySelector('.nav-sound-off');
+    if (iconOn && iconOff) {
+      iconOn.style.display = this.muted ? 'none' : 'block';
+      iconOff.style.display = this.muted ? 'block' : 'none';
+    }
+  }
+};
+window.CaraAudio = CaraAudio;
+
+function toggleGlobalSound() {
+  if (window.CaraAudio) {
+    const isMuted = window.CaraAudio.toggleMute();
+    if (typeof showToast === 'function') {
+      showToast(isMuted ? 'Son désactivé 🔇' : 'Son activé 🔊');
+    }
+  }
+}
+window.toggleGlobalSound = toggleGlobalSound;
+
+function togglePlayersSidebar(forceState) {
+  const isMobile = window.innerWidth <= 800;
+  if (isMobile) {
+    if (typeof forceState === 'boolean') {
+      document.body.classList.toggle('mobile-sidebar-open', forceState);
+    } else {
+      document.body.classList.toggle('mobile-sidebar-open');
+    }
+  } else {
+    if (typeof forceState === 'boolean') {
+      document.body.classList.toggle('desktop-sidebar-collapsed', !forceState);
+    } else {
+      document.body.classList.toggle('desktop-sidebar-collapsed');
+    }
+  }
+}
+window.togglePlayersSidebar = togglePlayersSidebar;
+
+function updateNavPlayerCount(count) {
+  const el = document.getElementById('nav-sidebar-count');
+  if (el) el.textContent = count || 1;
+}
+window.updateNavPlayerCount = updateNavPlayerCount;
+
+// Initialize CaraAudio on start
+try {
+  CaraAudio.init();
+  CaraAudio.updateUI();
+} catch (e) {}
