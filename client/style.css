@@ -7574,6 +7574,37 @@ select option:focus,
   gap: 1rem;
 }
 
+.creasupdle-header-left .btn-back {
+  margin-bottom: 0 !important;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+  cursor: pointer;
+  height: 38px;
+  box-sizing: border-box;
+  transition: all 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.creasupdle-header-left .btn-back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(-2px);
+}
+
+.creasupdle-header-left .btn-back:active {
+  transform: scale(0.96);
+}
+
 .creasupdle-brand {
   display: flex;
   align-items: center;
