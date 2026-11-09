@@ -53,7 +53,7 @@
  <link rel="manifest" href="manifest.json?v=20260825_liquid">
  
  <!-- Stylesheets & Fonts -->
- <link rel="stylesheet" href="style.css?v=20261109_align_accueil_v17">
+ <link rel="stylesheet" href="style.css?v=20261109_stats_modal_v18">
  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -3508,6 +3508,52 @@
    </div>
   </div>
 
+ 
+  <!-- MODAL: STATISTIQUES CREASUPDLE -->
+  <div id="creasupdle-stats-modal" class="creasupdle-modal-overlay hidden">
+   <div class="creasupdle-modal-card glass-panel stats-card">
+    <div class="modal-header-row">
+     <div class="modal-title-wrap">
+      <h3>Statistiques Creasupdle</h3>
+      <p class="modal-desc">Votre historique de déduction sur le membre mystère.</p>
+     </div>
+     <button type="button" class="modal-close-btn" id="btn-creasupdle-stats-close" aria-label="Fermer">✕</button>
+    </div>
+
+    <!-- 4 Stats Counters -->
+    <div class="creasupdle-stats-grid">
+     <div class="creasupdle-stat-box">
+      <span class="stat-value" id="creasupdle-stat-played">0</span>
+      <span class="stat-label">Parties</span>
+     </div>
+     <div class="creasupdle-stat-box">
+      <span class="stat-value" id="creasupdle-stat-winrate">0%</span>
+      <span class="stat-label">Victoires</span>
+     </div>
+     <div class="creasupdle-stat-box">
+      <span class="stat-value" id="creasupdle-stat-streak">0</span>
+      <span class="stat-label">Série en cours</span>
+     </div>
+     <div class="creasupdle-stat-box">
+      <span class="stat-value" id="creasupdle-stat-maxstreak">0</span>
+      <span class="stat-label">Record série</span>
+     </div>
+    </div>
+
+    <!-- Répartition des essais -->
+    <div class="creasupdle-stats-distribution">
+     <h4 class="distrib-title">Répartition des essais</h4>
+     <div class="distrib-bars" id="creasupdle-distrib-bars">
+      <!-- Rempli dynamiquement en JS -->
+     </div>
+    </div>
+
+    <div class="modal-actions-bottom" style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+     <button type="button" class="btn btn-primary" id="btn-creasupdle-stats-done" style="padding: 0.6rem 1.5rem;">Fermer</button>
+    </div>
+   </div>
+  </div>
+
  </main>
 
  <!-- STATS VIEW -->
@@ -3742,7 +3788,7 @@
  <script src="pokecries-data.js?v=20260824_syntax_ok_pro"></script>
  <script src="imposteur-words.js?v=20261008"></script>
  <script src="creasupdle-data.js?v=20261109_author_submit_v16"></script>
- <script src="creasupdle.js?v=20261109_author_submit_v16"></script>
+ <script src="creasupdle.js?v=20261109_stats_modal_v18"></script>
  <script src="/socket.io/socket.io.js"></script>
  <script src="app.js?v=20261109_ethan_brun_v10"></script>
 </body>

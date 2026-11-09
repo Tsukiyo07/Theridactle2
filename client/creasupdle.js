@@ -354,7 +354,10 @@
       rosterListContainer: document.getElementById('creasupdle-roster-items'),
       memberFormModal: document.getElementById('creasupdle-member-form-modal'),
       memberForm: document.getElementById('creasupdle-member-form'),
-      btnCancelMemberForm: document.getElementById('btn-creasupdle-form-cancel')
+      btnCancelMemberForm: document.getElementById('btn-creasupdle-form-cancel'),
+      statsModal: document.getElementById('creasupdle-stats-modal'),
+      btnStatsClose: document.getElementById('btn-creasupdle-stats-close'),
+      btnStatsDone: document.getElementById('btn-creasupdle-stats-done')
     };
   }
 
@@ -871,7 +874,15 @@
   }
 
   function showShareFallback(text) {
-    prompt('Copiez votre résultat :', text);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Score copié dans le presse-papier ! ✨');
+      }).catch(() => {
+        showToast('Score généré ! ✨');
+      });
+    } else {
+      showToast('Score généré ! ✨');
+    }
   }
 
   function showToast(msg) {
@@ -1070,7 +1081,7 @@
 
     const nom = form.querySelector('#member-nom').value.trim();
     if (!nom) {
-      alert('Veuillez renseigner le prénom ou nom.');
+      showToast('⚠️ Veuillez renseigner le prénom ou nom.');
       return;
     }
 
@@ -1079,19 +1090,19 @@
 
     const selectedCheveux = getSelectedPills('cheveux');
     if (selectedCheveux.length === 0) {
-      alert('Veuillez sélectionner au moins une couleur de cheveux.');
+      showToast('⚠️ Sélectionnez au moins une couleur de cheveux.');
       return;
     }
 
     const selectedRoles = getSelectedPills('role');
     if (selectedRoles.length === 0) {
-      alert('Veuillez sélectionner au moins un rôle Créasup (Graph, Dev, Ancien...).');
+      showToast('⚠️ Sélectionnez au moins un rôle (Graph, Dev, Ancien...).');
       return;
     }
 
     const selectedPromos = getSelectedPills('promo');
     if (selectedPromos.length === 0) {
-      alert('Veuillez sélectionner au moins une promo Créasup.');
+      showToast('⚠️ Sélectionnez au moins une promo Créasup.');
       return;
     }
 
@@ -1180,11 +1191,11 @@
         }
         setModalStep('success');
       } else {
-        alert(response && (response.message || response.error) ? (response.message || response.error) : 'Erreur lors de l\'envoi de la demande.');
+        showToast(response && (response.message || response.error) ? (response.message || response.error) : 'Erreur lors de l\'envoi de la demande.');
       }
     } catch (err) {
       console.error('Failed to submit moderation request:', err);
-      alert('Erreur lors de la communication avec le serveur.');
+      showToast('Erreur lors de la communication avec le serveur.');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -1195,6 +1206,53 @@
 
   // --- Attach Event Listeners ---
   let eventsAttached = false;
+
+  
+  function openStatsModal() {
+    if (!dom.statsModal) return;
+    const stats = window.CREASUPDLE.getStats();
+
+    const playedEl = document.getElementById('creasupdle-stat-played');
+    const winrateEl = document.getElementById('creasupdle-stat-winrate');
+    const streakEl = document.getElementById('creasupdle-stat-streak');
+    const maxStreakEl = document.getElementById('creasupdle-stat-maxstreak');
+    const distribContainer = document.getElementById('creasupdle-distrib-bars');
+
+    if (playedEl) playedEl.textContent = stats.played || 0;
+    if (winrateEl) {
+      const rate = stats.played > 0 ? Math.round(((stats.won || 0) / stats.played) * 100) : 0;
+      winrateEl.textContent = `${rate}%`;
+    }
+    if (streakEl) streakEl.textContent = stats.currentStreak || 0;
+    if (maxStreakEl) maxStreakEl.textContent = stats.maxStreak || 0;
+
+    if (distribContainer) {
+      const distrib = stats.guessDistribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, '6+': 0 };
+      const keys = ['1', '2', '3', '4', '5', '6+'];
+      const maxVal = Math.max(1, ...keys.map(k => distrib[k] || 0));
+
+      distribContainer.innerHTML = keys.map(k => {
+        const val = distrib[k] || 0;
+        const pct = Math.max(8, Math.round((val / maxVal) * 100));
+        const isCurrentWin = state.isWon && (
+          (k === '6+' && state.guesses.length >= 6) ||
+          (String(state.guesses.length) === k)
+        );
+        return `
+          <div class="distrib-row ${isCurrentWin ? 'current-win' : ''}">
+            <span class="distrib-label">${k}</span>
+            <div class="distrib-bar-track">
+              <div class="distrib-bar-fill" style="width: ${val > 0 ? pct : 8}%;">
+                <span class="distrib-count">${val}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    dom.statsModal.classList.remove('hidden');
+  }
 
   function attachEvents() {
     if (eventsAttached) return;
@@ -1443,11 +1501,21 @@
 
     // Stats modal button
     if (dom.btnStats) {
-      dom.btnStats.addEventListener('click', () => {
-        const stats = window.CREASUPDLE.getStats();
-        alert(`📊 Statistiques Creasupdle :\n\n• Parties jouées : ${stats.played}\n• Victoires : ${stats.won}\n• Série actuelle : ${stats.currentStreak}\n• Meilleure série : ${stats.maxStreak}`);
-      });
+      dom.btnStats.addEventListener('click', openStatsModal);
     }
+    if (dom.btnStatsClose && dom.statsModal) {
+      dom.btnStatsClose.addEventListener('click', () => dom.statsModal.classList.add('hidden'));
+    }
+    if (dom.btnStatsDone && dom.statsModal) {
+      dom.btnStatsDone.addEventListener('click', () => dom.statsModal.classList.add('hidden'));
+    }
+
+    // Dismiss modals when clicking on background overlay
+    document.querySelectorAll('.creasupdle-modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.add('hidden');
+      });
+    });
   }
 
   // --- Public Entrypoint ---
