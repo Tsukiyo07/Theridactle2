@@ -3350,9 +3350,13 @@
   <div id="creasupdle-member-form-modal" class="creasupdle-modal-overlay hidden">
    <div class="creasupdle-modal-card glass-panel form-card">
     <div class="modal-header-row">
-     <h3>Ajouter un membre à Créasupdle</h3>
+     <h3 id="creasupdle-form-modal-title">Proposer un membre à Créasupdle</h3>
+    </div>
+    <div class="creasupdle-mod-notice">
+     🛡️ <strong>Modération active :</strong> Les propositions d'ajout ou de modification sont envoyées par email à Tibo pour validation avant d'apparaître pour tous les joueurs.
     </div>
     <form id="creasupdle-member-form" class="creasupdle-form">
+     <input type="hidden" id="member-edit-id" value="">
      <div class="form-row">
       <div class="form-group flex-2">
        <label for="member-nom">Prénom ou Nom *</label>
@@ -3435,7 +3439,7 @@
 
      <div class="form-actions-row">
       <button type="button" class="btn btn-secondary" id="btn-creasupdle-form-cancel">Annuler</button>
-      <button type="submit" class="btn btn-creasup-win">Enregistrer le membre</button>
+      <button type="submit" id="btn-creasupdle-form-submit" class="btn btn-creasup-win">Envoyer pour validation à Tibo 📩</button>
      </div>
     </form>
    </div>

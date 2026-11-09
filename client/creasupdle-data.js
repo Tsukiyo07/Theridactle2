@@ -426,6 +426,39 @@
     return DEFAULT_ROSTER.slice();
   }
 
+  // Sync roster with server database
+  async function syncWithServer() {
+    try {
+      const res = await fetch('/api/creasupdle/roster');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.roster) && data.roster.length > 0) {
+          saveCreasupdleRoster(data.roster);
+          return data.roster;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not sync Creasupdle roster with server', e);
+    }
+    return getCreasupdleRoster();
+  }
+
+  // Request addition or modification via admin email validation
+  async function requestMemberModeration({ type, member, authorNickname }) {
+    try {
+      const res = await fetch('/api/creasupdle/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, member, authorNickname })
+      });
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      console.error('Erreur demande moderation:', e);
+      return { success: false, error: 'Erreur réseau lors de la demande.' };
+    }
+  }
+
   // Stats storage
   function getCreasupdleStats() {
     try {
@@ -464,7 +497,14 @@
     deleteMember,
     resetRoster,
     getStats: getCreasupdleStats,
-    recordWin: recordCreasupdleWin
+    recordWin: recordCreasupdleWin,
+    syncWithServer,
+    requestMemberModeration
   };
+
+  // Auto-sync with server in background
+  if (typeof fetch === 'function') {
+    syncWithServer();
+  }
 
 })(window);

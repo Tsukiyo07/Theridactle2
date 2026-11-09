@@ -122,6 +122,117 @@ function saveStats(stats) {
   }
 }
 
+
+// --- Creasupdle Server Roster & Moderation DB ---
+const CREASUPDLE_ROSTER_FILE = path.join(__dirname, 'creasupdle-roster.json');
+const CREASUPDLE_PENDING_FILE = path.join(__dirname, 'creasupdle-pending.json');
+const CREASUPDLE_DEFAULT_FILE = path.join(__dirname, 'creasupdle-default-roster.json');
+
+let cachedCreasupdleRoster = null;
+
+function loadCreasupdleRoster() {
+  if (cachedCreasupdleRoster) return cachedCreasupdleRoster;
+  try {
+    if (fs.existsSync(CREASUPDLE_ROSTER_FILE)) {
+      cachedCreasupdleRoster = JSON.parse(fs.readFileSync(CREASUPDLE_ROSTER_FILE, 'utf8'));
+      if (Array.isArray(cachedCreasupdleRoster) && cachedCreasupdleRoster.length > 0) {
+        return cachedCreasupdleRoster;
+      }
+    }
+  } catch (e) {
+    console.error('Erreur lecture creasupdle-roster.json:', e);
+  }
+
+  // Fallback to default 21-member roster file
+  try {
+    if (fs.existsSync(CREASUPDLE_DEFAULT_FILE)) {
+      cachedCreasupdleRoster = JSON.parse(fs.readFileSync(CREASUPDLE_DEFAULT_FILE, 'utf8'));
+      return cachedCreasupdleRoster;
+    }
+  } catch (e) {
+    console.error('Erreur lecture creasupdle-default-roster.json:', e);
+  }
+  cachedCreasupdleRoster = [];
+  return cachedCreasupdleRoster;
+}
+
+function saveCreasupdleRoster(roster) {
+  cachedCreasupdleRoster = roster;
+  try {
+    fs.writeFileSync(CREASUPDLE_ROSTER_FILE, JSON.stringify(roster, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Erreur ecriture creasupdle-roster.json:', e);
+  }
+}
+
+function loadCreasupdlePending() {
+  try {
+    if (fs.existsSync(CREASUPDLE_PENDING_FILE)) {
+      return JSON.parse(fs.readFileSync(CREASUPDLE_PENDING_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Erreur lecture creasupdle-pending.json:', e);
+  }
+  return {};
+}
+
+function saveCreasupdlePending(data) {
+  try {
+    fs.writeFileSync(CREASUPDLE_PENDING_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Erreur ecriture creasupdle-pending.json:', e);
+  }
+}
+
+async function sendResendEmail({ subject, html }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn('RESEND_API_KEY non configuree, email non envoye.');
+    return { error: 'RESEND_API_KEY missing' };
+  }
+
+  const primaryRecipient = process.env.CREASUPDLE_ADMIN_EMAIL || '0tsukiyo0@gmail.com';
+
+  const sendTo = (toAddress) => {
+    return new Promise((resolve) => {
+      const payload = JSON.stringify({
+        from: 'CaraQuiz Moderation <onboarding@resend.dev>',
+        to: [toAddress],
+        subject: subject,
+        html: html
+      });
+      const req = https.request('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + apiKey,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try {
+            resolve({ statusCode: res.statusCode, body: JSON.parse(data) });
+          } catch (e) {
+            resolve({ statusCode: res.statusCode, raw: data });
+          }
+        });
+      });
+      req.on('error', (err) => resolve({ statusCode: 500, error: err }));
+      req.write(payload);
+      req.end();
+    });
+  };
+
+  let res = await sendTo(primaryRecipient);
+  if (res.statusCode === 403 && primaryRecipient !== '0tsukiyo0@gmail.com') {
+    console.log('Resend 403 on primary recipient, fallback to 0tsukiyo0@gmail.com');
+    res = await sendTo('0tsukiyo0@gmail.com');
+  }
+  return res;
+}
+
 const STATS_GAMES = ['theridactle', 'pokedactle', 'pokecries', 'merrydactle', 'imposteur', 'geographie', 'loup_garou', 'songless'];
 const STATS_SORTS = new Set(['points', 'wins', 'winRate']);
 
@@ -5907,6 +6018,230 @@ function advanceTurnAndCheckRoundEnd(room) {
   // SSE CONNECTION
   // ==========================================
   
+  
+  // ==========================================
+  // CREASUPDLE MODERATION & ROSTER API
+  // ==========================================
+  
+  // 1. GET /api/creasupdle/roster
+  if (parsedUrl.pathname === '/api/creasupdle/roster' && req.method === 'GET') {
+    const roster = loadCreasupdleRoster();
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store, no-cache, must-revalidate'
+    });
+    return res.end(JSON.stringify({ success: true, roster }));
+  }
+
+  // 2. POST /api/creasupdle/request
+  if (parsedUrl.pathname === '/api/creasupdle/request' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body);
+        const { type, member, authorNickname } = payload;
+        if (!member || (!member.nom && !member.nomComplet)) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Donnees du membre incompletes.' }));
+        }
+
+        const roster = loadCreasupdleRoster();
+        const pending = loadCreasupdlePending();
+        const token = crypto.randomBytes(24).toString('hex');
+        
+        let oldMember = null;
+        if (type === 'update' && member.id) {
+          oldMember = roster.find(m => m.id === member.id) || null;
+        }
+
+        pending[token] = {
+          token,
+          type: type === 'update' ? 'update' : 'create',
+          member,
+          oldMember,
+          authorNickname: authorNickname || 'Un membre de Creasup',
+          createdAt: Date.now(),
+          status: 'pending'
+        };
+        saveCreasupdlePending(pending);
+
+        // Build Email Template
+        const approveUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + token + '&action=approve';
+        const rejectUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + token + '&action=reject';
+
+        const isUpdate = type === 'update';
+        const actionTitle = isUpdate ? 'Demande de modification de profil' : 'Proposition d\'un nouveau membre';
+        const actionBadge = isUpdate ? '#f59e0b' : '#10b981';
+        const memberName = member.nomComplet || member.nom;
+
+        const emailHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+          '<style>' +
+          'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background-color:#0b0f19;color:#f3f4f6;margin:0;padding:24px;}' +
+          '.card{max-width:580px;margin:0 auto;background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px;box-shadow:0 20px 40px rgba(0,0,0,0.5);}' +
+          '.badge{display:inline-block;padding:6px 14px;border-radius:9999px;font-size:13px;font-weight:700;color:#ffffff;background-color:' + actionBadge + ';margin-bottom:16px;}' +
+          'h1{font-size:22px;margin:0 0 8px 0;color:#ffffff;}' +
+          'p.author{color:#9ca3af;font-size:14px;margin-top:0;margin-bottom:24px;}' +
+          '.info-grid{background:#1f2937;border-radius:12px;padding:18px;margin-bottom:24px;border:1px solid rgba(255,255,255,0.06);}' +
+          '.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;}' +
+          '.info-row:last-child{border-bottom:none;}' +
+          '.label{color:#9ca3af;font-weight:500;}' +
+          '.val{color:#f3f4f6;font-weight:600;text-align:right;}' +
+          '.val-diff{color:#34d399;font-weight:700;}' +
+          '.punchline-box{background:rgba(99,102,241,0.12);border-left:4px solid #6366f1;padding:12px 16px;border-radius:6px;font-style:italic;color:#c7d2fe;margin-bottom:24px;font-size:14px;}' +
+          '.actions{display:flex;gap:12px;margin-top:28px;}' +
+          '.btn-approve{display:block;flex:1;text-align:center;background:linear-gradient(135deg,#10b981,#059669);color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:10px;font-weight:700;font-size:15px;box-shadow:0 4px 14px rgba(16,185,129,0.35);}' +
+          '.btn-reject{display:block;flex:1;text-align:center;background:#374151;color:#f87171;text-decoration:none;padding:14px 20px;border-radius:10px;font-weight:700;font-size:15px;}' +
+          '.footer{text-align:center;font-size:12px;color:#6b7280;margin-top:24px;}' +
+          '</style></head><body><div class="card">' +
+          '<span class="badge">' + (isUpdate ? '✏️ MODIFICATION' : '✨ NOUVEL AJOUT') + '</span>' +
+          '<h1>' + actionTitle + ' : ' + memberName + '</h1>' +
+          '<p class="author">Demande soumise par : <strong>' + (authorNickname || 'Un membre de Creasup') + '</strong></p>' +
+          '<div class="info-grid">' +
+          '<div class="info-row"><span class="label">Nom complet</span><span class="val">' + memberName + '</span></div>' +
+          '<div class="info-row"><span class="label">Surnom</span><span class="val">' + (member.surnom || '—') + '</span></div>' +
+          '<div class="info-row"><span class="label">Genre</span><span class="val">' + member.genre + '</span></div>' +
+          '<div class="info-row"><span class="label">Situation</span><span class="val">' + member.situation + '</span></div>' +
+          '<div class="info-row"><span class="label">Orientation</span><span class="val">' + member.orientation + '</span></div>' +
+          '<div class="info-row"><span class="label">Cheveux</span><span class="val">' + member.cheveux + '</span></div>' +
+          '<div class="info-row"><span class="label">Taille</span><span class="val">' + member.taille + '</span></div>' +
+          '<div class="info-row"><span class="label">Rôle</span><span class="val">' + member.role + '</span></div>' +
+          '<div class="info-row"><span class="label">Promo</span><span class="val">' + (member.promo || 'Alfred Grévin') + '</span></div>' +
+          '<div class="info-row"><span class="label">Âge</span><span class="val">' + member.age + ' ans</span></div>' +
+          '</div>' +
+          (member.punchline ? ('<div class="punchline-box">« ' + member.punchline.replace(/^[«"]+|[»"]+$/g, '').trim() + ' »</div>') : '') +
+          '<div class="actions">' +
+          '<a href="' + approveUrl + '" class="btn-approve">Valider & Mettre en ligne</a>' +
+          '<a href="' + rejectUrl + '" class="btn-reject">Refuser</a>' +
+          '</div>' +
+          '<div class="footer">SuperCaraQuiz • Moderation automatique Creasupdle</div>' +
+          '</div></body></html>';
+
+        await sendResendEmail({
+          subject: (isUpdate ? '✏️' : '🎓') + ' Creasupdle : ' + actionTitle + ' (' + memberName + ')',
+          html: emailHtml
+        });
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({ 
+          success: true, 
+          message: 'Demande pour ' + memberName + ' envoyee par email a Tibo pour validation !' 
+        }));
+      } catch (err) {
+        console.error('Erreur /api/creasupdle/request:', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'Erreur lors du traitement de la demande.' }));
+      }
+    });
+    return;
+  }
+
+  // 3. GET /api/creasupdle/moderate?token=...&action=approve|reject
+  if (parsedUrl.pathname === '/api/creasupdle/moderate' && req.method === 'GET') {
+    const token = parsedUrl.query.token;
+    const action = parsedUrl.query.action;
+    const pending = loadCreasupdlePending();
+    const reqData = token ? pending[token] : null;
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+
+    if (!reqData) {
+      return res.end(
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande introuvable</title>' +
+        '<style>body{font-family:sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}' +
+        '.card{background:#111827;border:1px solid #374151;border-radius:16px;padding:32px;text-align:center;max-width:400px;}</style>' +
+        '</head><body><div class="card"><h2>Demande introuvable</h2><p>Ce lien est invalide ou a expire.</p><a href="/?game=creasupdle" style="color:#6366f1;">Retour au jeu</a></div></body></html>'
+      );
+    }
+
+    if (reqData.status !== 'pending') {
+      const isAlreadyApproved = reqData.status === 'approved';
+      return res.end(
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande deja traitee</title>' +
+        '<style>body{font-family:sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}' +
+        '.card{background:#111827;border:1px solid #374151;border-radius:16px;padding:32px;text-align:center;max-width:440px;}' +
+        '.btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#6366f1;color:#fff;text-decoration:none;font-weight:700;}' +
+        '</style></head><body><div class="card">' +
+        '<h2>' + (isAlreadyApproved ? 'Deja validee' : 'Deja refusee') + '</h2>' +
+        '<p>Cette demande pour <strong>' + (reqData.member.nomComplet || reqData.member.nom) + '</strong> a deja ete traitee.</p>' +
+        '<a href="/?game=creasupdle" class="btn">Ouvrir Creasupdle</a></div></body></html>'
+      );
+    }
+
+    const roster = loadCreasupdleRoster();
+    const m = reqData.member;
+
+    if (action === 'approve') {
+      reqData.status = 'approved';
+      reqData.resolvedAt = Date.now();
+
+      if (reqData.type === 'update' && m.id) {
+        const idx = roster.findIndex(item => item.id === m.id);
+        if (idx >= 0) {
+          roster[idx] = { ...roster[idx], ...m };
+        } else {
+          roster.push(m);
+        }
+      } else {
+        if (!m.id) {
+          m.id = 'member-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+        }
+        roster.push(m);
+      }
+
+      saveCreasupdleRoster(roster);
+      saveCreasupdlePending(pending);
+
+      return res.end(
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Validation Reussie !</title>' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+        '<style>' +
+        'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}' +
+        '.card{background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:36px;text-align:center;max-width:460px;box-shadow:0 20px 50px rgba(0,0,0,0.6);}' +
+        '.icon{font-size:48px;margin-bottom:12px;}' +
+        'h2{color:#34d399;margin:0 0 10px 0;font-size:24px;}p{color:#cbd5e1;line-height:1.6;font-size:15px;}' +
+        '.profile-summary{background:rgba(255,255,255,0.05);border-radius:12px;padding:16px;margin:20px 0;text-align:left;font-size:14px;}' +
+        '.btn{display:inline-block;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;text-decoration:none;font-weight:700;font-size:15px;box-shadow:0 4px 15px rgba(99,102,241,0.4);}' +
+        '</style>' +
+        '</head><body><div class="card">' +
+        '<div class="icon">🎉</div>' +
+        '<h2>Profil Valide & En Ligne !</h2>' +
+        '<p>Le profil de <strong>' + (m.nomComplet || m.nom) + '</strong> a ete valide avec succes. Il est desormais immediatement accessible dans le jeu pour tous les joueurs !</p>' +
+        '<div class="profile-summary">' +
+        '<div><strong>Nom :</strong> ' + (m.nomComplet || m.nom) + '</div>' +
+        '<div><strong>Role :</strong> ' + m.role + '</div>' +
+        '<div><strong>Promo :</strong> ' + (m.promo || 'Alfred Grévin') + '</div>' +
+        '<div><strong>Cheveux :</strong> ' + m.cheveux + '</div>' +
+        '<div><strong>Taille :</strong> ' + m.taille + '</div>' +
+        '</div>' +
+        '<a href="/?game=creasupdle" class="btn">🚀 Ouvrir Creasupdle</a>' +
+        '</div></body></html>'
+      );
+    } else {
+      reqData.status = 'rejected';
+      reqData.resolvedAt = Date.now();
+      saveCreasupdlePending(pending);
+
+      return res.end(
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Demande Refusee</title>' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+        '<style>' +
+        'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background:#0b0f19;color:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}' +
+        '.card{background:#111827;border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:36px;text-align:center;max-width:440px;}' +
+        '.icon{font-size:48px;margin-bottom:12px;}' +
+        'h2{color:#f87171;margin:0 0 10px 0;}p{color:#9ca3af;line-height:1.6;}' +
+        '.btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#374151;color:#fff;text-decoration:none;font-weight:600;}' +
+        '</style>' +
+        '</head><body><div class="card">' +
+        '<div class="icon">❌</div>' +
+        '<h2>Demande Refusee</h2>' +
+        '<p>La proposition pour <strong>' + (m.nomComplet || m.nom) + '</strong> a ete rejetee. Aucune modification n\'a ete apportee au roster officiel.</p>' +
+        '<a href="/?game=creasupdle" class="btn">Retour au jeu</a>' +
+        '</div></body></html>'
+      );
+    }
+  }
+
   if (parsedUrl.pathname === '/api/events') {
     const roomId = parsedUrl.query.roomId;
     const nickname = parsedUrl.query.nickname;

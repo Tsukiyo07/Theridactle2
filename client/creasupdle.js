@@ -894,15 +894,24 @@
             ${m.punchline ? `<div class="creasupdle-roster-punchline">${m.punchline}</div>` : ''}
           </div>
           <div class="creasupdle-roster-actions">
+            <button type="button" class="btn btn-sm btn-edit-member" data-id="${m.id}" title="Proposer une modification">✏️ Modifier</button>
             ${isCustom ? `
               <button class="btn btn-sm btn-danger btn-delete-member" data-id="${m.id}" title="Supprimer">
                 <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
-            ` : `<span class="badge badge-default-roster" title="Profil de base Créasup">Fixe</span>`}
+            ` : ''}
           </div>
         </div>
       `;
     }).join('');
+
+    // Attach edit listeners
+    dom.rosterListContainer.querySelectorAll('.btn-edit-member').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        openEditMemberModal(id);
+      });
+    });
 
     // Attach delete listeners
     dom.rosterListContainer.querySelectorAll('.btn-delete-member').forEach(btn => {
@@ -918,13 +927,75 @@
     });
   }
 
-  function openAddMemberModal() {
-    if (!dom.memberFormModal) return;
-    if (dom.memberForm) dom.memberForm.reset();
+  function openEditMemberModal(id) {
+    if (!dom.memberFormModal || !dom.memberForm) return;
+    const roster = window.CREASUPDLE.getRoster();
+    const member = roster.find(m => m.id === id);
+    if (!member) return;
+
+    dom.memberForm.reset();
+    const editIdInput = dom.memberForm.querySelector('#member-edit-id');
+    if (editIdInput) editIdInput.value = member.id;
+
+    const titleEl = document.getElementById('creasupdle-form-modal-title');
+    if (titleEl) titleEl.textContent = `Modifier : ${member.nomComplet || member.nom}`;
+
+    const submitBtn = dom.memberForm.querySelector('#btn-creasupdle-form-submit');
+    if (submitBtn) submitBtn.textContent = 'Envoyer la modification à Tibo 📩';
+
+    // Pre-fill inputs
+    const nomInput = dom.memberForm.querySelector('#member-nom');
+    if (nomInput) nomInput.value = member.nomComplet || member.nom;
+
+    const surnomInput = dom.memberForm.querySelector('#member-surnom');
+    if (surnomInput) surnomInput.value = member.surnom || '';
+
+    const genreSelect = dom.memberForm.querySelector('#member-genre');
+    if (genreSelect) genreSelect.value = member.genre || 'Homme';
+
+    const sitSelect = dom.memberForm.querySelector('#member-situation');
+    if (sitSelect) sitSelect.value = member.situation || 'Célibataire';
+
+    const oriSelect = dom.memberForm.querySelector('#member-orientation');
+    if (oriSelect) oriSelect.value = member.orientation || 'Hétéro';
+
+    const chSelect = dom.memberForm.querySelector('#member-cheveux');
+    if (chSelect) chSelect.value = member.cheveux || 'Noir';
+
+    const tailleInput = dom.memberForm.querySelector('#member-taille');
+    if (tailleInput) tailleInput.value = member.taille || '1m73';
+
+    const roleInput = dom.memberForm.querySelector('#member-role');
+    if (roleInput) roleInput.value = member.role || 'Graph';
+
+    const promoInput = dom.memberForm.querySelector('#member-promo');
+    if (promoInput) promoInput.value = member.promo || 'Alfred Grévin';
+
+    const ageInput = dom.memberForm.querySelector('#member-age');
+    if (ageInput) ageInput.value = member.age || 21;
+
+    const quoteInput = dom.memberForm.querySelector('#member-punchline');
+    if (quoteInput) quoteInput.value = member.punchline ? member.punchline.replace(/^[«"]+|[»"]+$/g, '').trim() : '';
+
     dom.memberFormModal.classList.remove('hidden');
   }
 
-  function handleSaveMember(e) {
+  function openAddMemberModal() {
+    if (!dom.memberFormModal || !dom.memberForm) return;
+    dom.memberForm.reset();
+    const editIdInput = dom.memberForm.querySelector('#member-edit-id');
+    if (editIdInput) editIdInput.value = '';
+
+    const titleEl = document.getElementById('creasupdle-form-modal-title');
+    if (titleEl) titleEl.textContent = 'Proposer un membre de Créasup';
+
+    const submitBtn = dom.memberForm.querySelector('#btn-creasupdle-form-submit');
+    if (submitBtn) submitBtn.textContent = 'Envoyer pour validation à Tibo 📩';
+
+    dom.memberFormModal.classList.remove('hidden');
+  }
+
+  async function handleSaveMember(e) {
     e.preventDefault();
     const form = dom.memberForm;
     if (!form) return;
@@ -935,20 +1006,29 @@
       return;
     }
 
-    const initials = nom.split(' ').map(w => w.charAt(0).toUpperCase()).join('').slice(0, 2) || nom.charAt(0).toUpperCase();
+    const editId = form.querySelector('#member-edit-id') ? form.querySelector('#member-edit-id').value.trim() : '';
+    const isUpdate = Boolean(editId);
 
+    const submitBtn = form.querySelector('#btn-creasupdle-form-submit');
+    const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Envoi du mail en cours... ⏳';
+    }
+
+    const initials = nom.split(' ').map(w => w.charAt(0).toUpperCase()).join('').slice(0, 2) || nom.charAt(0).toUpperCase();
     const colors = ['#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#3b82f6'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const newMember = {
-      id: 'custom-' + Date.now(),
+    const memberData = {
+      id: editId || ('member-' + Date.now()),
       nom: nom.split(' ')[0],
       nomComplet: nom,
       surnom: form.querySelector('#member-surnom') ? form.querySelector('#member-surnom').value.trim() : '',
       genre: form.querySelector('#member-genre') ? form.querySelector('#member-genre').value : 'Homme',
       situation: form.querySelector('#member-situation') ? form.querySelector('#member-situation').value : 'Célibataire',
       orientation: form.querySelector('#member-orientation') ? form.querySelector('#member-orientation').value : 'Hétéro',
-      cheveux: form.querySelector('#member-cheveux') ? form.querySelector('#member-cheveux').value : 'Marron',
+      cheveux: form.querySelector('#member-cheveux') ? form.querySelector('#member-cheveux').value : 'Noir',
       taille: form.querySelector('#member-taille') ? form.querySelector('#member-taille').value.trim() : '1m73',
       role: form.querySelector('#member-role') ? form.querySelector('#member-role').value.trim() : 'Graph',
       promo: form.querySelector('#member-promo') ? form.querySelector('#member-promo').value.trim() : 'Alfred Grévin',
@@ -958,11 +1038,37 @@
       avatarColor: randomColor
     };
 
-    window.CREASUPDLE.saveMember(newMember);
-    dom.memberFormModal.classList.add('hidden');
-    renderRosterList();
-    updateGuessesCounter();
-    showToast(`${newMember.nomComplet} a été ajouté(e) au roster ! 🎉`);
+    let authorNickname = 'Un membre de Créasup';
+    try {
+      const storedNick = localStorage.getItem('supercaraquiz_nickname') || localStorage.getItem('playerNickname');
+      if (storedNick) authorNickname = storedNick;
+    } catch (e) {}
+
+    try {
+      const response = await window.CREASUPDLE.requestMemberModeration({
+        type: isUpdate ? 'update' : 'create',
+        member: memberData,
+        authorNickname
+      });
+
+      if (response && response.success) {
+        dom.memberFormModal.classList.add('hidden');
+        showToast(isUpdate 
+          ? `Modification envoyée à Tibo par email ! 📩` 
+          : `Proposition pour ${memberData.nomComplet} envoyée à Tibo par email ! 📩`
+        );
+      } else {
+        alert(response && response.error ? response.error : 'Erreur lors de l\'envoi de la demande.');
+      }
+    } catch (err) {
+      console.error('Failed to submit moderation request:', err);
+      alert('Erreur lors de la communication avec le serveur.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
   }
 
   // --- Attach Event Listeners ---
