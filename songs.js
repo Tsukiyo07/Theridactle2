@@ -1112,6 +1112,7 @@ async function fetchFromDeezer(query, limit = 10) {
       const data = await res.json();
       if (data.data && Array.isArray(data.data)) {
         return data.data.map(t => ({
+          deezerId: t.id,
           title: t.title,
           artist: t.artist ? t.artist.name : '',
           collectionName: t.album ? t.album.title : '',
@@ -1125,6 +1126,23 @@ async function fetchFromDeezer(query, limit = 10) {
     // Deezer search error silent fallback
   }
   return [];
+}
+
+// Fetch fresh preview URL for a known Deezer track ID in ~50ms
+async function getDeezerPreviewById(deezerId) {
+  if (!deezerId) return null;
+  return new Promise((resolve) => {
+    https.get(`https://api.deezer.com/track/${deezerId}`, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          resolve(json.preview || null);
+        } catch(e) { resolve(null); }
+      });
+    }).on('error', () => resolve(null));
+  });
 }
 
 // Fetch from iTunes Search API with high fidelity Apple headers
@@ -1248,6 +1266,7 @@ async function resolveSong(songDef, index) {
           title: songDef.title,
           artist: songDef.artist,
           curatedArtist: songDef.artist,
+          deezerId: r.deezerId || null,
           mediaTitle: songDef.mediaTitle || '',
           mediaTitleFr: songDef.mediaTitleFr || '',
           aliases: songDef.aliases || [],
@@ -1283,6 +1302,7 @@ async function resolveSong(songDef, index) {
     title: songDef.title,
     artist: songDef.artist,
     curatedArtist: songDef.artist,
+    deezerId: validDeezer ? (validDeezer.deezerId || null) : null,
     mediaTitle: songDef.mediaTitle || '',
     mediaTitleFr: songDef.mediaTitleFr || '',
     aliases: songDef.aliases || [],
@@ -1329,6 +1349,49 @@ async function preloadSongs() {
 }
 preloadSongs();
 
+// Ensure audio preview URL is live and not expired (Deezer Akamai tokens expire after 15min)
+async function ensureFreshPreview(song) {
+  if (!song) return null;
+  const url = song.previewUrl;
+  let needsRefresh = false;
+
+  if (!url) {
+    needsRefresh = true;
+  } else if (url.includes('dzcdn.net') || url.includes('hdnea=')) {
+    const match = url.match(/exp=(\d+)/);
+    if (!match) {
+      needsRefresh = true;
+    } else {
+      const exp = parseInt(match[1], 10);
+      const now = Math.floor(Date.now() / 1000);
+      if (now + 120 >= exp) { // Expired or expiring within 2 minutes
+        needsRefresh = true;
+      }
+    }
+  }
+
+  if (needsRefresh) {
+    try {
+      if (song.deezerId) {
+        const fresh = await getDeezerPreviewById(song.deezerId);
+        if (fresh) {
+          song.previewUrl = fresh;
+          return fresh;
+        }
+      }
+      const q = `${song.curatedArtist || song.artist} ${song.title}`;
+      const searchRes = await fetchFromDeezer(q, 5);
+      const best = searchRes.find(r => r.previewUrl && !isUnwantedRemixOrCover(r.title, r.artist, song.title, song.artist));
+      if (best && best.previewUrl) {
+        song.previewUrl = best.previewUrl;
+        if (best.deezerId) song.deezerId = best.deezerId;
+        return best.previewUrl;
+      }
+    } catch(e) {}
+  }
+  return song.previewUrl;
+}
+
 // Deterministic Daily Song
 async function getDailySong(dateStr) {
   if (resolvedPool.length === 0) await preloadSongs();
@@ -1338,6 +1401,7 @@ async function getDailySong(dateStr) {
   const index = parseInt(hash.substring(0, 8), 16) % resolvedPool.length;
   
   const song = resolvedPool[index];
+  await ensureFreshPreview(song);
   const generatedId = `daily_${today}_${song.id}`;
   activeSongs.set(generatedId, song);
 
@@ -1374,6 +1438,7 @@ async function getRandomSong(category) {
   
   const randomIndex = Math.floor(Math.random() * candidates.length);
   const song = candidates[randomIndex];
+  await ensureFreshPreview(song);
   const generatedId = `random_${Date.now()}_${Math.random().toString(36).slice(2, 7)}__${song.id}`;
   activeSongs.set(generatedId, song);
   
@@ -1407,12 +1472,31 @@ function getBaseSong(songId) {
   return resolvedPool[0] || fallbackSongsMap.get('song_0');
 }
 
-// Refresh song audio preview if needed
+// Refresh song audio preview if needed (live Deezer + fallback iTunes)
 async function refreshSongAudio(songId) {
   const baseSong = getBaseSong(songId);
   if (!baseSong) return null;
 
+  // 1. Try fast Deezer refresh
+  if (baseSong.deezerId) {
+    const fresh = await getDeezerPreviewById(baseSong.deezerId);
+    if (fresh) {
+      baseSong.previewUrl = fresh;
+      return baseSong;
+    }
+  }
+
   const query = `${baseSong.curatedArtist || baseSong.artist} ${baseSong.title}`;
+  const dzResults = await fetchFromDeezer(query, 5);
+  const bestDz = dzResults.find(r => r.previewUrl && !isUnwantedRemixOrCover(r.title, r.artist, baseSong.title, baseSong.artist));
+  if (bestDz && bestDz.previewUrl) {
+    baseSong.previewUrl = bestDz.previewUrl;
+    if (bestDz.deezerId) baseSong.deezerId = bestDz.deezerId;
+    if (bestDz.artworkUrl) baseSong.artworkUrl = bestDz.artworkUrl;
+    return baseSong;
+  }
+
+  // 2. Fallback to iTunes
   const itunesRes = await fetchFromITunes(query, 'FR', 8);
   for (const it of itunesRes) {
     if (it.previewUrl && !isUnwantedRemixOrCover(it.trackName, it.artistName, baseSong.title, baseSong.artist) && await verifyAudioUrl(it.previewUrl)) {
@@ -1654,5 +1738,6 @@ module.exports = {
   evaluateGuess,
   getBaseSong,
   searchSongs,
-  refreshSongAudio
+  refreshSongAudio,
+  ensureFreshPreview
 };

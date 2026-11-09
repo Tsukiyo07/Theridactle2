@@ -3866,8 +3866,11 @@ function advanceTurnAndCheckRoundEnd(room) {
         durations: [0.1, 0.5, 1.0, 2.5, 5.0, 10.0],
         currentSong: (room.status === 'playing' && room.currentSong) ? {
           songId: room.currentSong.songId,
-          previewUrl: room.currentSong.previewUrl
-        } : (room.status === 'round_ended' || room.status === 'game_ended' ? room.currentSolution : null),
+          previewUrl: `/api/songless/audio?songId=${encodeURIComponent(room.currentSong.songId)}`
+        } : (room.status === 'round_ended' || room.status === 'game_ended' ? (room.currentSolution ? {
+          ...room.currentSolution,
+          previewUrl: `/api/songless/audio?songId=${encodeURIComponent(room.currentSong ? room.currentSong.songId : '')}&url=${encodeURIComponent(room.currentSolution.previewUrl || '')}`
+        } : null) : null),
         players: getSanitizedSonglessPlayers(room),
         leaderboard: getSonglessLeaderboard(room)
       }
@@ -3879,7 +3882,10 @@ function advanceTurnAndCheckRoundEnd(room) {
   if (parsedUrl.pathname === '/api/songless/daily') {
     songsModule.getDailySong(parsedUrl.query.date).then(song => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(song));
+      res.end(JSON.stringify({
+        ...song,
+        previewUrl: `/api/songless/audio?songId=${encodeURIComponent(song.songId)}`
+      }));
     }).catch(err => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));
@@ -3892,7 +3898,10 @@ function advanceTurnAndCheckRoundEnd(room) {
     const category = parsedUrl.query.category || 'all';
     songsModule.getRandomSong(category).then(song => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(song));
+      res.end(JSON.stringify({
+        ...song,
+        previewUrl: `/api/songless/audio?songId=${encodeURIComponent(song.songId)}`
+      }));
     }).catch(err => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));
@@ -3913,35 +3922,84 @@ function advanceTurnAndCheckRoundEnd(room) {
     return;
   }
 
-  // GET /api/audio-proxy?url=...
-  if (parsedUrl.pathname === '/api/audio-proxy') {
-    const targetUrl = parsedUrl.query.url;
-    if (!targetUrl || (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://'))) {
-      res.writeHead(400); return res.end("Invalid URL");
-    }
-    try {
-      const parsedTarget = new URL(targetUrl);
-      const httpLib = parsedTarget.protocol === 'https:' ? https : require('http');
-      const proxyReq = httpLib.get(targetUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': '*/*'
+  // GET /api/songless/audio?songId=... OR /api/audio-proxy?url=...
+  if (parsedUrl.pathname === '/api/songless/audio' || parsedUrl.pathname === '/api/audio-proxy') {
+    const songId = parsedUrl.query.songId;
+    let targetUrl = parsedUrl.query.url;
+
+    const serveStream = async () => {
+      if (songId) {
+        const song = songsModule.getBaseSong(songId);
+        if (song) {
+          if (typeof songsModule.ensureFreshPreview === 'function') {
+            await songsModule.ensureFreshPreview(song);
+          }
+          targetUrl = song.previewUrl;
         }
-      }, (proxyRes) => {
-        res.writeHead(proxyRes.statusCode || 200, {
-          'Content-Type': proxyRes.headers['content-type'] || 'audio/mpeg',
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'public, max-age=86400',
-          'Accept-Ranges': 'bytes'
-        });
-        proxyRes.pipe(res);
-      });
-      proxyReq.on('error', (err) => {
-        res.writeHead(500); res.end("Audio proxy error");
-      });
-    } catch (e) {
-      res.writeHead(500); res.end();
-    }
+      }
+
+      if (!targetUrl || (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://'))) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        return res.end("Invalid or missing audio URL");
+      }
+
+      const streamAudio = (urlToStream, isRetry = false) => {
+        try {
+          const parsedTarget = new URL(urlToStream);
+          const httpLib = parsedTarget.protocol === 'https:' ? https : require('http');
+          const proxyHeaders = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': '*/*'
+          };
+          if (req.headers.range) {
+            proxyHeaders['Range'] = req.headers.range;
+          }
+
+          const proxyReq = httpLib.get(urlToStream, { headers: proxyHeaders }, async (proxyRes) => {
+            if ((proxyRes.statusCode === 403 || proxyRes.statusCode === 404) && !isRetry && songId) {
+              console.log(`[Audio Proxy] Upstream ${proxyRes.statusCode} for ${songId}, auto-refreshing preview...`);
+              const refreshed = await songsModule.refreshSongAudio(songId);
+              if (refreshed && refreshed.previewUrl && refreshed.previewUrl !== urlToStream) {
+                return streamAudio(refreshed.previewUrl, true);
+              }
+            }
+
+            const resHeaders = {
+              'Content-Type': proxyRes.headers['content-type'] || 'audio/mpeg',
+              'Access-Control-Allow-Origin': '*',
+              'Accept-Ranges': 'bytes',
+              'Cache-Control': 'public, max-age=3600'
+            };
+            if (proxyRes.headers['content-range']) {
+              resHeaders['Content-Range'] = proxyRes.headers['content-range'];
+            }
+            if (proxyRes.headers['content-length']) {
+              resHeaders['Content-Length'] = proxyRes.headers['content-length'];
+            }
+
+            res.writeHead(proxyRes.statusCode || 200, resHeaders);
+            proxyRes.pipe(res);
+          });
+
+          proxyReq.on('error', (err) => {
+            console.error("Audio proxy upstream error:", err);
+            if (!res.headersSent) {
+              res.writeHead(502, { 'Content-Type': 'text/plain' });
+              res.end("Audio proxy upstream failed");
+            }
+          });
+        } catch (e) {
+          if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end("Audio proxy internal error");
+          }
+        }
+      };
+
+      streamAudio(targetUrl);
+    };
+
+    serveStream();
     return;
   }
 
@@ -4115,8 +4173,11 @@ function advanceTurnAndCheckRoundEnd(room) {
       durations: [0.1, 0.5, 1.0, 2.5, 5.0, 10.0],
       currentSong: (room.status === 'playing' && room.currentSong) ? {
         songId: room.currentSong.songId,
-        previewUrl: room.currentSong.previewUrl
-      } : (room.status === 'round_ended' || room.status === 'game_ended' ? room.currentSolution : null),
+        previewUrl: `/api/songless/audio?songId=${encodeURIComponent(room.currentSong.songId)}`
+      } : (room.status === 'round_ended' || room.status === 'game_ended' ? (room.currentSolution ? {
+        ...room.currentSolution,
+        previewUrl: `/api/songless/audio?songId=${encodeURIComponent(room.currentSong ? room.currentSong.songId : '')}&url=${encodeURIComponent(room.currentSolution.previewUrl || '')}`
+      } : null) : null),
       players: getSanitizedSonglessPlayers(room),
       leaderboard: getSonglessLeaderboard(room)
     };
@@ -6631,8 +6692,11 @@ function advanceTurnAndCheckRoundEnd(room) {
           durations: [0.1, 0.5, 1.0, 2.5, 5.0, 10.0],
           currentSong: (room.status === 'playing' && room.currentSong) ? {
             songId: room.currentSong.songId,
-            previewUrl: room.currentSong.previewUrl
-          } : (room.status === 'round_ended' || room.status === 'game_ended' ? room.currentSolution : null),
+            previewUrl: `/api/songless/audio?songId=${encodeURIComponent(room.currentSong.songId)}`
+          } : (room.status === 'round_ended' || room.status === 'game_ended' ? (room.currentSolution ? {
+            ...room.currentSolution,
+            previewUrl: `/api/songless/audio?songId=${encodeURIComponent(room.currentSong ? room.currentSong.songId : '')}&url=${encodeURIComponent(room.currentSolution.previewUrl || '')}`
+          } : null) : null),
           players: getSanitizedSonglessPlayers(room),
           leaderboard: getSonglessLeaderboard(room)
         }

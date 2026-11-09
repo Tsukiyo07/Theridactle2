@@ -8635,7 +8635,13 @@ function toggleSonglessPlay() {
 }
 
 function playSonglessSnippet() {
-  if (!songlessState.previewUrl) return;
+  if (!songlessState.previewUrl) {
+    if (songlessState.songId) {
+      songlessState.previewUrl = `/api/songless/audio?songId=${encodeURIComponent(songlessState.songId)}`;
+    } else {
+      return;
+    }
+  }
 
   const currentMaxDuration = songlessState.durations[songlessState.attemptIndex] || 0.1;
   const playhead = document.getElementById('songless-playhead');
@@ -8652,10 +8658,19 @@ function playSonglessSnippet() {
     songlessPlayTimer = null;
   }
 
-  if (songlessAudio.src !== songlessState.previewUrl) {
-    songlessAudio.src = songlessState.previewUrl;
+  // Ensure same-origin proxy URL so ad-blockers and Brave Shields never block the audio stream
+  let targetSrc = songlessState.previewUrl;
+  if (targetSrc && targetSrc.startsWith('http')) {
+    targetSrc = `/api/songless/audio?songId=${encodeURIComponent(songlessState.songId || '')}&url=${encodeURIComponent(targetSrc)}`;
+    songlessState.previewUrl = targetSrc;
   }
-  songlessAudio.currentTime = 0;
+
+  if (songlessAudio.src !== targetSrc && !songlessAudio.src.endsWith(targetSrc)) {
+    songlessAudio.src = targetSrc;
+  }
+  try {
+    songlessAudio.currentTime = 0;
+  } catch (e) {}
 
   songlessAudio.play().then(() => {
     if (playIcon) playIcon.classList.add('view-hidden');
@@ -8681,8 +8696,27 @@ function playSonglessSnippet() {
     songlessPlayTimer = setTimeout(() => {
       stopSonglessAudio();
     }, (currentMaxDuration * 1000) + 30);
-  }).catch(e => {
-    console.error("Audio playback error:", e);
+  }).catch(async (e) => {
+    console.error("Audio playback error, attempting server fallback:", e);
+    // Auto-fallback: request server to refresh preview on the fly and retry
+    try {
+      if (songlessState.songId) {
+        const fallbackRes = await fetch(`/api/songless/audio-fallback?songId=${encodeURIComponent(songlessState.songId)}`);
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData && fallbackData.previewUrl) {
+          const freshSrc = `/api/songless/audio?songId=${encodeURIComponent(songlessState.songId)}&t=${Date.now()}`;
+          songlessState.previewUrl = freshSrc;
+          songlessAudio.src = freshSrc;
+          try { songlessAudio.currentTime = 0; } catch (err) {}
+          await songlessAudio.play();
+          if (playIcon) playIcon.classList.add('view-hidden');
+          if (pauseIcon) pauseIcon.classList.remove('view-hidden');
+          return;
+        }
+      }
+    } catch (err2) {
+      console.error("Audio fallback retry failed:", err2);
+    }
     if (playIcon) playIcon.classList.remove('view-hidden');
     if (pauseIcon) pauseIcon.classList.add('view-hidden');
   });
@@ -9050,7 +9084,11 @@ function playSonglessFullPreview(previewUrl) {
     return;
   }
 
-  songlessFullAudio.src = previewUrl;
+  const targetUrl = previewUrl.startsWith('/api/')
+    ? previewUrl
+    : `/api/songless/audio?songId=${encodeURIComponent(songlessState.songId || '')}&url=${encodeURIComponent(previewUrl)}`;
+
+  songlessFullAudio.src = targetUrl;
   songlessFullAudio.currentTime = 0;
   songlessFullAudio.volume = songlessAudio.volume;
 
@@ -9500,7 +9538,8 @@ function handleSonglessSSEState(state) {
       // NEW ROUND / NEW SONG: Stop previous audio and load new song preview
       stopAllSonglessAudio();
       songlessState.songId = newSongId;
-      songlessState.previewUrl = state.currentSong ? state.currentSong.previewUrl : '';
+      const rawPreview = state.currentSong ? state.currentSong.previewUrl : '';
+      songlessState.previewUrl = rawPreview || (newSongId ? `/api/songless/audio?songId=${encodeURIComponent(newSongId)}` : '');
       songlessState.attemptIndex = 0;
       songlessState.guesses = [];
       songlessState.isOver = false;
