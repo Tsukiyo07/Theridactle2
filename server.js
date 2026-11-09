@@ -6371,6 +6371,118 @@ function advanceTurnAndCheckRoundEnd(room) {
     }
   }
 
+  // ==========================================
+  // FEEDBACK & BUG REPORTING ENDPOINT
+  // ==========================================
+  if (parsedUrl.pathname === '/api/feedback' && req.method === 'POST') {
+    const rawIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+    const now = Date.now();
+    
+    if (!global._feedbackRateLimits) global._feedbackRateLimits = new Map();
+    const timestamps = (global._feedbackRateLimits.get(rawIp) || []).filter(t => now - t < 5 * 60 * 1000);
+    if (timestamps.length >= 6) {
+      res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+      return res.end(JSON.stringify({ error: 'Trop de retours envoyés récemment. Merci de patienter quelques minutes.' }));
+    }
+
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk;
+      if (body.length > 50000) {
+        req.destroy();
+      }
+    });
+
+    req.on('end', async () => {
+      try {
+        const data = JSON.parse(body || '{}');
+        const type = String(data.type || 'bug').trim().slice(0, 30);
+        const author = String(data.author || 'Anonyme').trim().slice(0, 50);
+        const game = String(data.game || 'Général').trim().slice(0, 50);
+        const message = String(data.message || '').trim().slice(0, 3000);
+        const contact = String(data.contact || '').trim().slice(0, 100);
+        const userAgent = String(req.headers['user-agent'] || '').slice(0, 200);
+
+        if (!message || message.length < 3) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          return res.end(JSON.stringify({ error: 'Le message est trop court (minimum 3 caractères).' }));
+        }
+
+        timestamps.push(now);
+        global._feedbackRateLimits.set(rawIp, timestamps);
+
+        const feedbackEntry = {
+          id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+          timestamp: new Date().toISOString(),
+          type,
+          author,
+          game,
+          message,
+          contact,
+          userAgent,
+          clientIp: rawIp
+        };
+
+        const feedbacksFile = path.join(__dirname, 'feedbacks.json');
+        try {
+          let list = [];
+          if (fs.existsSync(feedbacksFile)) {
+            list = JSON.parse(fs.readFileSync(feedbacksFile, 'utf8') || '[]');
+          }
+          list.unshift(feedbackEntry);
+          if (list.length > 300) list = list.slice(0, 300);
+          fs.writeFileSync(feedbacksFile, JSON.stringify(list, null, 2), 'utf8');
+        } catch (err) {
+          console.warn('[Feedback] Could not write feedbacks.json:', err);
+        }
+
+        const typeLabels = {
+          bug: '🐛 Bug',
+          improvement: '💡 Amélioration',
+          feature: '✨ Idée de Jeu / Feature',
+          other: '💬 Autre avis'
+        };
+        const typeLabel = typeLabels[type] || '💬 ' + type;
+
+        const emailHtml =
+          '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+          '<style>' +
+          'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 24px; }' +
+          '.card { max-width: 580px; margin: 0 auto; background: #1e293b; border-radius: 16px; border: 1px solid #334155; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }' +
+          '.badge { display: inline-block; padding: 6px 14px; border-radius: 9999px; font-weight: 700; font-size: 13px; background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); margin-bottom: 16px; }' +
+          'h2 { margin: 0 0 16px 0; font-size: 22px; color: #ffffff; }' +
+          '.field { margin-bottom: 14px; }' +
+          '.label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 4px; }' +
+          '.val { font-size: 15px; color: #f1f5f9; background: #0f172a; padding: 10px 14px; border-radius: 8px; border: 1px solid #334155; }' +
+          '.message-box { font-size: 15px; line-height: 1.6; color: #f8fafc; background: #0f172a; padding: 14px 16px; border-radius: 10px; border: 1px solid #475569; white-space: pre-wrap; }' +
+          '.meta { margin-top: 20px; padding-top: 16px; border-top: 1px solid #334155; font-size: 12px; color: #64748b; }' +
+          '</style></head><body>' +
+          '<div class="card">' +
+          '<div class="badge">' + typeLabel + '</div>' +
+          '<h2>Nouveau retour sur SuperCaraQuiz !</h2>' +
+          '<div class="field"><div class="label">Auteur</div><div class="val">' + (author || 'Anonyme') + '</div></div>' +
+          '<div class="field"><div class="label">Jeu / Rubrique</div><div class="val">' + (game || 'Général') + '</div></div>' +
+          (contact ? '<div class="field"><div class="label">Contact</div><div class="val">' + contact + '</div></div>' : '') +
+          '<div class="field"><div class="label">Message</div><div class="message-box">' + message.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div></div>' +
+          '<div class="meta">Date : ' + new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) + '<br>User Agent : ' + userAgent + '</div>' +
+          '</div></body></html>';
+
+        sendResendEmail({
+          subject: '[Feedback SuperCaraQuiz] ' + typeLabel + ' — ' + (author || 'Anonyme'),
+          html: emailHtml
+        }).catch(err => console.error('[Feedback] Resend error:', err));
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({ success: true, message: 'Retour envoyé avec succès !' }));
+      } catch (e) {
+        console.error('[Feedback] Handler error:', e);
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({ error: 'Erreur interne lors de l\'envoi du retour.' }));
+      }
+    });
+    return;
+  }
+
   if (parsedUrl.pathname === '/api/events') {
     const roomId = parsedUrl.query.roomId;
     const nickname = parsedUrl.query.nickname;

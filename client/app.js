@@ -512,7 +512,11 @@ function updateRoomDisplay(visible, code = '', gameType = '') {
     if (topNav) topNav.classList.add('in-room');
     if (code && code !== 'SOLO') {
       setPartyUrl(code, gameType);
-      if (dom.btnCopyInvite) dom.btnCopyInvite.style.display = 'inline-flex';
+      if (dom.btnCopyInvite) {
+        dom.btnCopyInvite.style.display = 'inline-flex';
+        dom.btnCopyInvite.setAttribute('data-room-code', code);
+        dom.btnCopyInvite.title = `Salon ${code} — Copier le lien d'invitation`;
+      }
     }
   } else {
     dom.roomDisplay.style.display = 'none';
@@ -526,6 +530,7 @@ function updateRoomDisplay(visible, code = '', gameType = '') {
 // --- View Router ---
 function showView(viewName) {
   window.showView = showView;
+  window.currentViewName = viewName;
   Object.keys(views).forEach(key => {
     if (views[key]) {
       if (key === viewName) {
@@ -5227,7 +5232,7 @@ function showToast(msg, type = 'success') {
 }
 
 function copyInvitationLink() {
-  const roomId = (dom.roomCodeSpan ? dom.roomCodeSpan.textContent.trim() : '') || currentRoomId || '';
+  const roomId = (dom.roomCodeSpan ? dom.roomCodeSpan.textContent.trim() : '') || (dom.btnCopyInvite ? dom.btnCopyInvite.getAttribute('data-room-code') : '') || currentRoomId || '';
   if (!roomId) return;
   const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
   
@@ -5245,7 +5250,7 @@ function copyInvitationLink() {
     try {
       const successful = document.execCommand('copy');
       if (successful) {
-        showToast('Lien d\'invitation copié !');
+        showToast('Lien d\'invitation copié ! (Salon : ' + roomId + ')');
       } else {
         window.prompt('Copiez le lien d\'invitation :', text);
       }
@@ -5258,7 +5263,7 @@ function copyInvitationLink() {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(inviteUrl)
       .then(() => {
-        showToast('Lien d\'invitation copié !');
+        showToast('Lien d\'invitation copié ! (Salon : ' + roomId + ')');
       })
       .catch(() => {
         fallbackCopy(inviteUrl);
@@ -11080,3 +11085,172 @@ syncAllNicknameInputs();
 
 
 
+
+
+// ==========================================
+// FEEDBACK & BUG REPORT MODAL LOGIC
+// ==========================================
+function openFeedbackModal() {
+  const modal = document.getElementById('feedback-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+
+  // Auto-fill author nickname from current profile or storage if empty
+  const authorInput = document.getElementById('feedback-author-input');
+  if (authorInput && !authorInput.value.trim()) {
+    const defaultNick = (typeof currentProfile !== 'undefined' && currentProfile ? currentProfile.nickname : '') || localStorage.getItem('last_user_nickname') || '';
+    if (defaultNick) authorInput.value = defaultNick;
+  }
+
+  // Auto-detect current active game to pre-select dropdown
+  const gameSelect = document.getElementById('feedback-game-select');
+  if (gameSelect) {
+    const currentView = window.currentViewName || '';
+    const search = window.location.search || '';
+    const creasupdleView = document.getElementById('creasupdle-game-view');
+    if (search.includes('creasupdle') || (creasupdleView && !creasupdleView.classList.contains('hidden') && !creasupdleView.classList.contains('view-hidden'))) {
+      gameSelect.value = 'Creasupdle';
+    } else if (search.includes('songless') || currentView.includes('songless')) {
+      gameSelect.value = 'Songless';
+    } else if (search.includes('imposteur') || currentView.includes('imp')) {
+      gameSelect.value = 'Imposteur';
+    } else if (search.includes('pokedactle') || currentView.includes('pokedactle')) {
+      gameSelect.value = 'Pokédactle';
+    } else if (search.includes('theridactle') || currentView.includes('theri')) {
+      gameSelect.value = 'Theridactle';
+    } else if (search.includes('merrydactle') || currentView.includes('merry')) {
+      gameSelect.value = 'Merrydactle';
+    } else if (search.includes('pokecries') || currentView.includes('pokecries')) {
+      gameSelect.value = 'PokéCries';
+    } else if (search.includes('loup-garou') || currentView.includes('lg')) {
+      gameSelect.value = 'Loup-Garou';
+    } else if (search.includes('geographie') || currentView.includes('geo')) {
+      gameSelect.value = 'Géo';
+    } else {
+      gameSelect.value = 'Général';
+    }
+  }
+
+  // Reset status msg
+  const statusMsg = document.getElementById('feedback-status-msg');
+  if (statusMsg) {
+    statusMsg.style.display = 'none';
+    statusMsg.textContent = '';
+  }
+
+  // Focus message
+  setTimeout(() => {
+    const msgInput = document.getElementById('feedback-message-input');
+    if (msgInput) msgInput.focus();
+  }, 100);
+}
+
+function closeFeedbackModal() {
+  const modal = document.getElementById('feedback-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function selectFeedbackType(chipEl, type) {
+  const allChips = document.querySelectorAll('.feedback-chip');
+  allChips.forEach(c => c.classList.remove('active'));
+  if (chipEl) chipEl.classList.add('active');
+
+  const typeInput = document.getElementById('feedback-type-input');
+  if (typeInput) typeInput.value = type;
+
+  const msgInput = document.getElementById('feedback-message-input');
+  if (msgInput) {
+    const placeholders = {
+      bug: "Décris le problème rencontré (ce qui s'est affiché, le jeu, sur quel appareil...)",
+      improvement: "Quelle amélioration souhaites-tu apporter à ce jeu ou au site ?",
+      feature: "Quelle nouvelle idée de jeu ou fonctionnalité aimerais-tu voir ?",
+      other: "Partage ton avis ou ta remarque sur le site..."
+    };
+    msgInput.placeholder = placeholders[type] || placeholders.bug;
+  }
+}
+
+async function submitFeedback() {
+  const typeInput = document.getElementById('feedback-type-input');
+  const authorInput = document.getElementById('feedback-author-input');
+  const gameSelect = document.getElementById('feedback-game-select');
+  const messageInput = document.getElementById('feedback-message-input');
+  const contactInput = document.getElementById('feedback-contact-input');
+  const statusMsg = document.getElementById('feedback-status-msg');
+  const submitBtn = document.getElementById('feedback-submit-btn');
+
+  const type = typeInput ? typeInput.value : 'bug';
+  const author = authorInput ? authorInput.value.trim() : '';
+  const game = gameSelect ? gameSelect.value : 'Général';
+  const message = messageInput ? messageInput.value.trim() : '';
+  const contact = contactInput ? contactInput.value.trim() : '';
+
+  if (!message || message.length < 3) {
+    if (statusMsg) {
+      statusMsg.className = 'feedback-status-msg error';
+      statusMsg.textContent = 'Merci de détailler un peu ton message (au moins 3 caractères).';
+      statusMsg.style.display = 'flex';
+    }
+    if (messageInput) messageInput.focus();
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="inline-svg animate-spin" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg> <span>Envoi en cours...</span>';
+  }
+
+  try {
+    const res = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type,
+        author: author || 'Anonyme',
+        game,
+        message,
+        contact
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Erreur lors de l\'envoi');
+    }
+
+    // Success!
+    if (messageInput) messageInput.value = '';
+    if (contactInput) contactInput.value = '';
+    closeFeedbackModal();
+    if (typeof showToast === 'function') {
+      showToast('Merci pour ton retour ! Il a bien été envoyé 🚀');
+    }
+  } catch (err) {
+    if (statusMsg) {
+      statusMsg.className = 'feedback-status-msg error';
+      statusMsg.textContent = err.message || 'Une erreur est survenue lors de l\'envoi. Réessaie un peu plus tard.';
+      statusMsg.style.display = 'flex';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<svg class="inline-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> <span>Envoyer le retour</span>';
+    }
+  }
+}
+
+// Make them globally available
+window.openFeedbackModal = openFeedbackModal;
+window.closeFeedbackModal = closeFeedbackModal;
+window.selectFeedbackType = selectFeedbackType;
+window.submitFeedback = submitFeedback;
+
+// Escape key to close feedback modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const feedbackModal = document.getElementById('feedback-modal');
+    if (feedbackModal && feedbackModal.style.display !== 'none') {
+      closeFeedbackModal();
+    }
+  }
+});
