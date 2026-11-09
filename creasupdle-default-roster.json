@@ -54,7 +54,7 @@
     "id": "theo",
     "nom": "Théo",
     "nomComplet": "Théo",
-    "surnom": "L'Ancien Polyvalent",
+    "surnom": "L'Eleve Perdu",
     "genre": "Homme",
     "situation": "Célibataire",
     "orientation": "Polyvalent",
@@ -63,9 +63,9 @@
     "role": "Ancien",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "TH",
-    "avatarColor": "#10b981",
-    "punchline": "« Un vrai ancien sait toujours s'adapter. »"
+    "initiales": "T",
+    "avatarColor": "#6366f1",
+    "punchline": "« J’avais oublié que j’étais dyslexique, c’est ma mère qui me l’a rappelé »"
   },
   {
     "id": "ethan",
@@ -207,7 +207,7 @@
     "id": "mikael",
     "nom": "Mikaël",
     "nomComplet": "Mikaël",
-    "surnom": "Le Dev Roux",
+    "surnom": "Le Bucheron",
     "genre": "Homme",
     "situation": "Célibataire",
     "orientation": "Suspicieux",
@@ -216,26 +216,26 @@
     "role": "Dev",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "MK",
-    "avatarColor": "#ea580c",
-    "punchline": "« Toujours en train de concevoir le prochain move... »"
+    "initiales": "M",
+    "avatarColor": "#8b5cf6",
+    "punchline": "« Chat »"
   },
   {
     "id": "enzo",
     "nom": "Enzo",
     "nomComplet": "Enzo",
-    "surnom": "L'Ancien Dev",
+    "surnom": "Le Dev Suspect",
     "genre": "Homme",
     "situation": "Couple",
     "orientation": "Hétéro",
     "cheveux": "Noir",
     "taille": "1m75",
-    "role": "Ancien, Dev",
+    "role": "Dev, Ancien",
     "promo": "Alfred Grévin",
     "age": 21,
-    "initiales": "EZ",
-    "avatarColor": "#0ea5e9",
-    "punchline": "« Conception validée, ancienneté certifiée ! »"
+    "initiales": "E",
+    "avatarColor": "#06b6d4",
+    "punchline": "« Les gars je vous jure elle faisait plus vieille »"
   },
   {
     "id": "paul",
