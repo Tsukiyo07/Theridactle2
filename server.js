@@ -313,7 +313,7 @@ function saveCreasupdleResolved(data) {
   }
 }
 
-async function sendResendEmail({ subject, html }) {
+async function sendResendEmail({ subject, html, attachments }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('RESEND_API_KEY non configuree, email non envoye.');
@@ -325,12 +325,16 @@ async function sendResendEmail({ subject, html }) {
 
   const sendTo = (toAddress) => {
     return new Promise((resolve) => {
-      const payload = JSON.stringify({
+      const emailBody = {
         from: 'CaraQuiz Moderation <onboarding@resend.dev>',
         to: [toAddress],
         subject: subject,
         html: html
-      });
+      };
+      if (Array.isArray(attachments) && attachments.length > 0) {
+        emailBody.attachments = attachments;
+      }
+      const payload = JSON.stringify(emailBody);
       const req = https.request('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -6249,6 +6253,66 @@ function advanceTurnAndCheckRoundEnd(room) {
     }));
   }
 
+
+  // GET /api/creasupdle/photo?id=...&memberId=...
+  if (parsedUrl.pathname === '/api/creasupdle/photo' && req.method === 'GET') {
+    const id = parsedUrl.query.id;
+    const memberId = parsedUrl.query.memberId;
+    let targetPhotoUrl = null;
+
+    if (id) {
+      const pending = loadCreasupdlePending();
+      if (pending && pending[id] && pending[id].member && pending[id].member.photoUrl) {
+        targetPhotoUrl = pending[id].member.photoUrl;
+      }
+      if (!targetPhotoUrl) {
+        const resolved = loadCreasupdleResolved();
+        if (resolved && resolved[id] && resolved[id].photoUrl) {
+          targetPhotoUrl = resolved[id].photoUrl;
+        }
+      }
+    }
+
+    if (!targetPhotoUrl && (id || memberId)) {
+      const searchKey = (memberId || id || '').toLowerCase().trim();
+      const roster = loadCreasupdleRoster();
+      const m = roster.find(item => 
+        (item.id && item.id.toLowerCase() === searchKey) || 
+        (item.nom && item.nom.toLowerCase().trim() === searchKey) ||
+        (item.nomComplet && item.nomComplet.toLowerCase().trim() === searchKey)
+      );
+      if (m && m.photoUrl) {
+        targetPhotoUrl = m.photoUrl;
+      }
+    }
+
+    if (!targetPhotoUrl) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+      return res.end('Photo non trouvée');
+    }
+
+    if (targetPhotoUrl.startsWith('http://') || targetPhotoUrl.startsWith('https://')) {
+      res.writeHead(302, { 'Location': targetPhotoUrl, 'Access-Control-Allow-Origin': '*' });
+      return res.end();
+    }
+
+    const match = targetPhotoUrl.match(/^data:([^;]+);base64,(.+)$/);
+    if (!match) {
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+      return res.end('Format photo invalide');
+    }
+
+    const mime = match[1];
+    const imgBuffer = Buffer.from(match[2], 'base64');
+    res.writeHead(200, {
+      'Content-Type': mime,
+      'Content-Length': imgBuffer.length,
+      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+      'Access-Control-Allow-Origin': '*'
+    });
+    return res.end(imgBuffer);
+  }
+
   // 2. POST /api/creasupdle/request
   if (parsedUrl.pathname === '/api/creasupdle/request' && req.method === 'POST') {
     let body = '';
@@ -6294,6 +6358,22 @@ function advanceTurnAndCheckRoundEnd(room) {
         const actionBadge = isUpdate ? '#f59e0b' : '#10b981';
         const memberName = member.nomComplet || member.nom;
 
+        const photoHttpUrl = member.photoUrl ? ('https://supercaraquiz.duckdns.org/api/creasupdle/photo?id=' + encodeURIComponent(reqId)) : null;
+        const emailAttachments = [];
+        const cid = 'avatar_' + reqId;
+        if (member.photoUrl) {
+          const mExt = member.photoUrl.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+          if (mExt) {
+            const ext = mExt[1] === 'jpeg' ? 'jpg' : mExt[1];
+            emailAttachments.push({
+              filename: 'photo_de_profil.' + ext,
+              content: mExt[2],
+              content_type: 'image/' + mExt[1],
+              content_id: cid
+            });
+          }
+        }
+
         const emailHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
           '<style>' +
           'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;background-color:#0b0f19;color:#f3f4f6;margin:0;padding:24px;}' +
@@ -6316,10 +6396,13 @@ function advanceTurnAndCheckRoundEnd(room) {
           '<span class="badge">' + (isUpdate ? '✏️ MODIFICATION' : '✨ NOUVEL AJOUT') + '</span>' +
           '<h1>' + actionTitle + ' : ' + memberName + '</h1>' +
           '<p class="author">Demande soumise par : <strong>' + (authorNickname || 'Un membre de Creasup') + '</strong></p>' +
-          (member.photoUrl ? (
+          (photoHttpUrl ? (
             '<div style="text-align:center;margin-bottom:22px;padding:16px;background:rgba(255,255,255,0.03);border-radius:14px;border:1px solid rgba(255,255,255,0.08);">' +
-            '<img src="' + member.photoUrl + '" width="96" height="96" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #6366f1;box-shadow:0 8px 25px rgba(0,0,0,0.5);display:inline-block;" alt="PP">' +
-            '<div style="font-size:13px;color:#a5b4fc;margin-top:8px;font-weight:700;">📷 Photo de Profil (PP) Proposée</div>' +
+            '<a href="' + photoHttpUrl + '" target="_blank" style="text-decoration:none;display:inline-block;">' +
+            '<img src="' + photoHttpUrl + '" width="96" height="96" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #6366f1;box-shadow:0 8px 25px rgba(0,0,0,0.5);display:inline-block;" alt="PP">' +
+            '</a>' +
+            '<div style="font-size:13px;color:#a5b4fc;margin-top:10px;font-weight:700;">📷 Photo de Profil (PP) Proposée</div>' +
+            '<div style="margin-top:6px;"><a href="' + photoHttpUrl + '" target="_blank" style="font-size:12px;color:#818cf8;text-decoration:underline;">🔍 Voir en plein écran</a></div>' +
             '</div>'
           ) : (
             '<div style="text-align:center;margin-bottom:16px;">' +
@@ -6351,7 +6434,8 @@ function advanceTurnAndCheckRoundEnd(room) {
 
         await sendResendEmail({
           subject: (isUpdate ? '✏️' : '🎓') + ' Creasupdle : ' + actionTitle + ' (' + memberName + ')',
-          html: emailHtml
+          html: emailHtml,
+          attachments: emailAttachments
         });
 
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -6418,7 +6502,10 @@ function advanceTurnAndCheckRoundEnd(room) {
     const roster = loadCreasupdleRoster();
 
     if (action === 'approve') {
-      resolved[tokenKey] = { action: 'approve', resolvedAt: Date.now() };
+      resolved[tokenKey] = { action: 'approve', resolvedAt: Date.now(), photoUrl: (m && m.photoUrl) || '' };
+      if (reqData._reqId) {
+        resolved[reqData._reqId] = { action: 'approve', resolvedAt: Date.now(), photoUrl: (m && m.photoUrl) || '' };
+      }
       saveCreasupdleResolved(resolved);
 
       if (reqData.type === 'update' && m.id) {
@@ -6478,7 +6565,10 @@ function advanceTurnAndCheckRoundEnd(room) {
         '</div></body></html>'
       );
     } else {
-      resolved[tokenKey] = { action: 'reject', resolvedAt: Date.now() };
+      resolved[tokenKey] = { action: 'reject', resolvedAt: Date.now(), photoUrl: (m && m.photoUrl) || '' };
+      if (reqData._reqId) {
+        resolved[reqData._reqId] = { action: 'reject', resolvedAt: Date.now(), photoUrl: (m && m.photoUrl) || '' };
+      }
       saveCreasupdleResolved(resolved);
 
       return res.end(
