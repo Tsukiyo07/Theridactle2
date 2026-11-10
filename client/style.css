@@ -10528,3 +10528,137 @@ body.desktop-sidebar-collapsed .songless-main-section {
     overflow: visible !important;
   }
 }
+
+
+/* ==========================================================================
+   CREASUPDLE & PROFILE COMPACT AVATAR / PP STYLES (Impeccable Style System)
+   ========================================================================== */
+
+.member-avatar-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  transition: border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.member-avatar-upload-row:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.member-avatar-preview-box {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.member-avatar-preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.member-avatar-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.member-avatar-btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-avatar-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #c7d2fe;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btn-avatar-upload:hover {
+  background: rgba(99, 102, 241, 0.25);
+  color: #fff;
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-avatar-upload:active {
+  transform: scale(0.97);
+}
+
+.btn-avatar-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btn-avatar-remove:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fff;
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.btn-avatar-remove:active {
+  transform: scale(0.97);
+}
+
+.member-avatar-hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* Image inside avatars across Créasupdle */
+.creasupdle-avatar-img,
+.creasupdle-mini-avatar-img,
+.creasupdle-win-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+#creasupdle-win-avatar {
+  overflow: hidden;
+}

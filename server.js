@@ -223,13 +223,35 @@ function saveCreasupdlePending(data) {
   } catch (e) {
     console.error('Erreur ecriture creasupdle-pending.json:', e);
   }
+
+  const key = process.env.JSONBIN_KEY;
+  const bin = process.env.JSONBIN_PENDING_BIN;
+  if (key && bin) {
+    fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': key
+      },
+      body: JSON.stringify({ pending: data })
+    }).then(r => r.json()).then(resData => {
+      if (resData.record) console.log("Creasupdle pending synced to cloud successfully!");
+      else console.error("Failed to sync Creasupdle pending to cloud:", resData);
+    }).catch(e => {
+      console.error("Failed to sync Creasupdle pending to cloud:", e);
+    });
+  }
 }
 
 const CREASUPDLE_RESOLVED_FILE = path.join(__dirname, 'creasupdle-resolved.json');
 const MODERATION_SECRET = process.env.RESEND_API_KEY || process.env.SESSION_SECRET || 'supercaraquiz-creasupdle-mod-secret-2026';
 
-function generateModerationToken(data) {
-  const jsonStr = JSON.stringify(data);
+function generateModerationToken(idOrPayload) {
+  if (typeof idOrPayload === 'string') {
+    const hmac = crypto.createHmac('sha256', MODERATION_SECRET).update(idOrPayload).digest('base64url');
+    return `${idOrPayload}.${hmac}`;
+  }
+  const jsonStr = JSON.stringify(idOrPayload);
   const b64 = Buffer.from(jsonStr, 'utf8').toString('base64url');
   const hmac = crypto.createHmac('sha256', MODERATION_SECRET).update(b64).digest('base64url');
   return `${b64}.${hmac}`;
@@ -237,29 +259,36 @@ function generateModerationToken(data) {
 
 function verifyModerationToken(token) {
   if (!token || typeof token !== 'string') return null;
+  const pending = loadCreasupdlePending();
+
   if (token.includes('.')) {
     const parts = token.split('.');
-    if (parts.length !== 2) return null;
-    const [b64, sig] = parts;
-    const expectedHmac = crypto.createHmac('sha256', MODERATION_SECRET).update(b64).digest('base64url');
-    if (sig.length !== expectedHmac.length) return null;
-    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedHmac))) {
-      return null;
-    }
-    try {
-      const data = JSON.parse(Buffer.from(b64, 'base64url').toString('utf8'));
-      data._sig = sig;
-      return data;
-    } catch (e) {
-      return null;
+    if (parts.length === 2) {
+      const [idOrB64, sig] = parts;
+      const expectedHmac = crypto.createHmac('sha256', MODERATION_SECRET).update(idOrB64).digest('base64url');
+      if (sig.length === expectedHmac.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedHmac))) {
+        // 1. Check if idOrB64 matches a pending request in storage
+        if (pending && pending[idOrB64]) {
+          const item = pending[idOrB64];
+          item._sig = token;
+          item._reqId = idOrB64;
+          return item;
+        }
+        // 2. Fallback: try parsing as full base64 json payload
+        try {
+          const data = JSON.parse(Buffer.from(idOrB64, 'base64url').toString('utf8'));
+          data._sig = sig;
+          return data;
+        } catch (e) {}
+      }
     }
   }
 
   // Fallback for legacy random hex tokens stored in pending file
-  const pending = loadCreasupdlePending();
   if (pending && pending[token]) {
     const item = pending[token];
     item._sig = token;
+    item._reqId = token;
     return item;
   }
   return null;
@@ -6240,21 +6269,21 @@ function advanceTurnAndCheckRoundEnd(room) {
           oldMember = roster.find(m => m.id === member.id) || null;
         }
 
+        const reqId = 'mod_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
         const proposalPayload = {
-          v: 1,
+          v: 2,
           type: type === 'update' ? 'update' : 'create',
           member,
-          oldMember: oldMember ? { id: oldMember.id, nom: oldMember.nom, role: oldMember.role } : null,
+          oldMember: oldMember ? { id: oldMember.id, nom: oldMember.nom, role: oldMember.role, photoUrl: oldMember.photoUrl || '' } : null,
           authorNickname: authorNickname || 'Un membre de Creasup',
           createdAt: Date.now()
         };
 
-        const token = generateModerationToken(proposalPayload);
-
-        // Also save to pending cache for immediate in-memory reference
         const pending = loadCreasupdlePending();
-        pending[token] = proposalPayload;
+        pending[reqId] = proposalPayload;
         saveCreasupdlePending(pending);
+
+        const token = generateModerationToken(reqId);
 
         // Build Email Template
         const approveUrl = 'https://supercaraquiz.duckdns.org/api/creasupdle/moderate?token=' + encodeURIComponent(token) + '&action=approve';
@@ -6287,7 +6316,20 @@ function advanceTurnAndCheckRoundEnd(room) {
           '<span class="badge">' + (isUpdate ? '✏️ MODIFICATION' : '✨ NOUVEL AJOUT') + '</span>' +
           '<h1>' + actionTitle + ' : ' + memberName + '</h1>' +
           '<p class="author">Demande soumise par : <strong>' + (authorNickname || 'Un membre de Creasup') + '</strong></p>' +
+          (member.photoUrl ? (
+            '<div style="text-align:center;margin-bottom:22px;padding:16px;background:rgba(255,255,255,0.03);border-radius:14px;border:1px solid rgba(255,255,255,0.08);">' +
+            '<img src="' + member.photoUrl + '" width="96" height="96" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #6366f1;box-shadow:0 8px 25px rgba(0,0,0,0.5);display:inline-block;" alt="PP">' +
+            '<div style="font-size:13px;color:#a5b4fc;margin-top:8px;font-weight:700;">📷 Photo de Profil (PP) Proposée</div>' +
+            '</div>'
+          ) : (
+            '<div style="text-align:center;margin-bottom:16px;">' +
+            '<div style="display:inline-block;width:64px;height:64px;line-height:64px;border-radius:50%;background:' + (member.avatarColor || '#6366f1') + ';color:#fff;font-size:22px;font-weight:800;text-align:center;">' +
+            (member.initiales || (member.nom ? member.nom.charAt(0) : '?')) +
+            '</div>' +
+            '</div>'
+          )) +
           '<div class="info-grid">' +
+          '<div class="info-row"><span class="label">Photo de profil (PP)</span><span class="val">' + (member.photoUrl ? '<span style="color:#34d399;font-weight:700;">✅ Présente (format ultra-léger)</span>' : '<span style="color:#9ca3af;">— Aucune</span>') + '</span></div>' +
           '<div class="info-row"><span class="label">Nom complet</span><span class="val">' + memberName + '</span></div>' +
           '<div class="info-row"><span class="label">Surnom</span><span class="val">' + (member.surnom || '—') + '</span></div>' +
           '<div class="info-row"><span class="label">Genre</span><span class="val">' + member.genre + '</span></div>' +
@@ -6398,6 +6440,11 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
       }
 
+      if (reqData._reqId && pending[reqData._reqId]) {
+        delete pending[reqData._reqId];
+        saveCreasupdlePending(pending);
+      }
+
       saveCreasupdleRoster(roster);
 
       return res.end(
@@ -6412,7 +6459,11 @@ function advanceTurnAndCheckRoundEnd(room) {
         '.btn{display:inline-block;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;text-decoration:none;font-weight:700;font-size:15px;box-shadow:0 4px 15px rgba(99,102,241,0.4);}' +
         '</style>' +
         '</head><body><div class="card">' +
-        '<div class="icon">🎉</div>' +
+        (m.photoUrl ? (
+          '<div style="margin:0 auto 16px auto;width:88px;height:88px;">' +
+          '<img src="' + m.photoUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #34d399;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:block;" alt="PP">' +
+          '</div>'
+        ) : '<div class="icon">🎉</div>') +
         '<h2>Profil Validé & En Ligne !</h2>' +
         '<p>Le profil de <strong>' + memberName + '</strong> a été validé avec succès. Il est désormais immédiatement accessible dans le jeu pour tous les joueurs !</p>' +
         '<div class="profile-summary">' +
@@ -6917,7 +6968,19 @@ if (process.env.JSONBIN_KEY) {
         cachedCreasupdleRoster = data.record;
         console.log("Loaded Creasupdle roster from JSONBin successfully (" + data.record.length + " members).");
       }
-    }).catch(e => console.error("Failed to preload Creasupdle roster from cloud:", e)) : Promise.resolve()
+    }).catch(e => console.error("Failed to preload Creasupdle roster from cloud:", e)) : Promise.resolve(),
+
+    // Preload Creasupdle pending requests
+    process.env.JSONBIN_PENDING_BIN ? fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_PENDING_BIN}/latest`, {
+      headers: { 'X-Master-Key': process.env.JSONBIN_KEY }
+    }).then(r => r.json()).then(data => {
+      if (data.record && data.record.pending) {
+        try {
+          fs.writeFileSync(CREASUPDLE_PENDING_FILE, JSON.stringify(data.record.pending, null, 2), 'utf8');
+          console.log("Loaded Creasupdle pending requests from JSONBin successfully.");
+        } catch(e){}
+      }
+    }).catch(e => console.error("Failed to preload Creasupdle pending from cloud:", e)) : Promise.resolve()
   ]).then(() => {
     startServer();
   });

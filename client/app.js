@@ -201,6 +201,49 @@ const EMOJI_TO_FLAT_KEY = {
   '⚔️': 'knight'
 };
 
+// High-efficiency avatar compression (96x96 WebP 0.72, ~1.5 - 2.5 KB)
+function compressAvatarFile(file, size = 96, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject(new Error('Aucun fichier fourni'));
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+
+          // Center crop square (1:1 aspect ratio)
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+          // WebP format for minimal size
+          let dataUrl = canvas.toDataURL('image/webp', quality);
+          if (!dataUrl || !dataUrl.startsWith('data:image/webp')) {
+            // Fallback to JPEG 0.70
+            dataUrl = canvas.toDataURL('image/jpeg', 0.70);
+          }
+          resolve(dataUrl);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+window.compressAvatarFile = compressAvatarFile;
+
 function renderAvatarHTML(avatar, isPhoto = false) {
   if (!avatar) {
     return FLAT_AVATARS.dino.svg;
@@ -2371,50 +2414,26 @@ function initProfileModal() {
 
   const photoInput = document.getElementById('profile-photo-upload');
   if (photoInput) {
-    photoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
+    photoInput.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxDim = 160;
-          let width = img.width;
-          let height = img.height;
-          
-          if (width > height) {
-            if (width > maxDim) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            }
-          } else {
-            if (height > maxDim) {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          // High quality compressed JPEG to avoid network bloat
-          tempProfileAvatar = canvas.toDataURL('image/jpeg', 0.85);
-          tempProfileAvatarIsPhoto = true;
-          
-          const preview = document.getElementById('profile-avatar-preview');
-          if (preview) preview.innerHTML = renderAvatarHTML(tempProfileAvatar, true);
-          
-          // Deselect all avatar buttons
-          if (avatarGrid) {
-            avatarGrid.querySelectorAll('.profile-avatar-btn').forEach(b => b.classList.remove('selected'));
-          }
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Ultra-compact 96x96 WebP 0.72 avatar (~1.8 KB)
+        const compressed = await compressAvatarFile(file, 96, 0.72);
+        tempProfileAvatar = compressed;
+        tempProfileAvatarIsPhoto = true;
+
+        const preview = document.getElementById('profile-avatar-preview');
+        if (preview) preview.innerHTML = renderAvatarHTML(tempProfileAvatar, true);
+
+        // Deselect all flat design avatar buttons
+        if (avatarGrid) {
+          avatarGrid.querySelectorAll('.profile-avatar-btn').forEach(b => b.classList.remove('selected'));
+        }
+      } catch (err) {
+        console.error('Failed to compress profile photo:', err);
+        showToast('Erreur lors du traitement de la photo.');
+      }
     });
   }
 

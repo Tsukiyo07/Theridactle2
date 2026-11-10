@@ -578,7 +578,7 @@
       return `
         <div class="creasupdle-dropdown-item ${isSelected ? 'selected' : ''}" data-id="${m.id}" data-index="${idx}">
           <div class="creasupdle-mini-avatar" style="background-color: ${m.avatarColor || '#6366f1'};">
-            ${m.initiales || m.nom.charAt(0)}
+            ${m.photoUrl ? `<img src="${m.photoUrl}" alt="${m.nom}" class="creasupdle-mini-avatar-img">` : (m.initiales || m.nom.charAt(0))}
           </div>
           <div class="creasupdle-dropdown-info">
             <div class="creasupdle-dropdown-name">${m.nomComplet || m.nom} ${m.surnom ? `<span class="creasupdle-dropdown-surnom">(${m.surnom})</span>` : ''}</div>
@@ -693,7 +693,8 @@
         sub: p.surnom || p.role,
         status: isMatch ? 'correct' : 'person-tile',
         initiales: p.initiales || p.nom.charAt(0),
-        color: p.avatarColor || '#6366f1'
+        color: p.avatarColor || '#6366f1',
+        photoUrl: p.photoUrl || ''
       },
       {
         type: 'genre',
@@ -754,7 +755,7 @@
           <div class="creasupdle-tile creasupdle-tile-person ${animClass}" ${animStyle}>
             <div class="creasupdle-tile-inner">
               <div class="creasupdle-mini-avatar" style="background-color: ${tile.color};">
-                ${tile.initiales}
+                ${tile.photoUrl ? `<img src="${tile.photoUrl}" alt="${tile.label}" class="creasupdle-mini-avatar-img">` : tile.initiales}
               </div>
               <div class="creasupdle-tile-name-wrap">
                 <span class="creasupdle-tile-name">${tile.label}</span>
@@ -827,8 +828,13 @@
     const quoteEl = document.getElementById('creasupdle-win-quote');
 
     if (avatarEl) {
-      avatarEl.textContent = t.initiales || t.nom.charAt(0);
-      avatarEl.style.backgroundColor = t.avatarColor || '#6366f1';
+      if (t.photoUrl) {
+        avatarEl.innerHTML = `<img src="${t.photoUrl}" alt="${t.nom}" class="creasupdle-win-avatar-img">`;
+        avatarEl.style.backgroundColor = 'transparent';
+      } else {
+        avatarEl.textContent = t.initiales || t.nom.charAt(0);
+        avatarEl.style.backgroundColor = t.avatarColor || '#6366f1';
+      }
     }
     if (nameEl) nameEl.textContent = t.nomComplet || t.nom;
     if (bioEl) bioEl.textContent = `${t.role} • Promo ${t.promo || 'Alfred Grévin'} • ${t.age} ans • ${t.taille} • Cheveux ${t.cheveux}`;
@@ -919,7 +925,7 @@
       return `
         <div class="creasupdle-roster-card">
           <div class="creasupdle-roster-avatar" style="background-color: ${m.avatarColor || '#6366f1'};">
-            ${m.initiales || m.nom.charAt(0)}
+            ${m.photoUrl ? `<img src="${m.photoUrl}" alt="${m.nom}" class="creasupdle-avatar-img">` : (m.initiales || m.nom.charAt(0))}
           </div>
           <div class="creasupdle-roster-details">
             <div class="creasupdle-roster-header">
@@ -1057,6 +1063,25 @@
     const quoteInput = dom.memberForm.querySelector('#member-punchline');
     if (quoteInput) quoteInput.value = member.punchline ? member.punchline.replace(/^[«"'\s]+|[»"'\s]+$/g, '').trim() : '';
 
+    // Handle Photo de profil (PP)
+    const photoDataInput = dom.memberForm.querySelector('#member-photo-data');
+    if (photoDataInput) photoDataInput.value = member.photoUrl || '';
+    const avatarPreview = document.getElementById('member-avatar-preview');
+    const removePhotoBtn = document.getElementById('btn-member-photo-remove');
+    const photoBtnText = document.getElementById('member-photo-btn-text');
+
+    if (avatarPreview) {
+      if (member.photoUrl) {
+        avatarPreview.innerHTML = `<img src="${member.photoUrl}" alt="${member.nom}" class="creasupdle-avatar-img">`;
+        avatarPreview.style.background = 'transparent';
+      } else {
+        avatarPreview.innerHTML = `<span id="member-avatar-initials">${member.initiales || member.nom.charAt(0)}</span>`;
+        avatarPreview.style.background = member.avatarColor || '#6366f1';
+      }
+    }
+    if (removePhotoBtn) removePhotoBtn.style.display = member.photoUrl ? 'inline-flex' : 'none';
+    if (photoBtnText) photoBtnText.textContent = member.photoUrl ? 'Changer la photo' : 'Ajouter une photo (PP)';
+
     dom.memberFormModal.classList.remove('hidden');
   }
 
@@ -1081,6 +1106,22 @@
 
     const quoteInput = dom.memberForm.querySelector('#member-punchline');
     if (quoteInput) quoteInput.value = '';
+
+    // Reset Photo de profil (PP)
+    const photoDataInput = dom.memberForm.querySelector('#member-photo-data');
+    if (photoDataInput) photoDataInput.value = '';
+    const photoUploadInput = document.getElementById('member-photo-upload');
+    if (photoUploadInput) photoUploadInput.value = '';
+    const avatarPreview = document.getElementById('member-avatar-preview');
+    const removePhotoBtn = document.getElementById('btn-member-photo-remove');
+    const photoBtnText = document.getElementById('member-photo-btn-text');
+
+    if (avatarPreview) {
+      avatarPreview.innerHTML = '<span id="member-avatar-initials">?</span>';
+      avatarPreview.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+    }
+    if (removePhotoBtn) removePhotoBtn.style.display = 'none';
+    if (photoBtnText) photoBtnText.textContent = 'Ajouter une photo (PP)';
 
     dom.memberFormModal.classList.remove('hidden');
   }
@@ -1140,7 +1181,8 @@
       age: parseInt(form.querySelector('#member-age') ? form.querySelector('#member-age').value : '21', 10) || 21,
       punchline: punchline,
       initiales: initials,
-      avatarColor: randomColor
+      avatarColor: randomColor,
+      photoUrl: form.querySelector('#member-photo-data') ? form.querySelector('#member-photo-data').value.trim() : ''
     };
 
     // Store for Step 2

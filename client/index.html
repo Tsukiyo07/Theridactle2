@@ -3393,6 +3393,28 @@
      </div>
      <form id="creasupdle-member-form" class="creasupdle-form">
       <input type="hidden" id="member-edit-id" value="">
+      <input type="hidden" id="member-photo-data" value="">
+
+      <!-- Photo de profil (PP) Section -->
+      <div class="member-avatar-upload-row">
+       <div class="member-avatar-preview-box" id="member-avatar-preview">
+        <span id="member-avatar-initials">?</span>
+       </div>
+       <div class="member-avatar-actions">
+        <div class="member-avatar-btn-group">
+         <label for="member-photo-upload" class="btn-avatar-upload" title="Importer une photo de profil">
+          <svg class="inline-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <span id="member-photo-btn-text">Ajouter une photo (PP)</span>
+          <input type="file" id="member-photo-upload" accept="image/*" style="display:none;">
+         </label>
+         <button type="button" id="btn-member-photo-remove" class="btn-avatar-remove" style="display:none;" title="Supprimer la photo">
+          <svg class="inline-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          Supprimer
+         </button>
+        </div>
+        <p class="member-avatar-hint">Optionnelle • Format WebP ultra-léger (96×96) pour préserver la sauvegarde cloud.</p>
+       </div>
+      </div>
       <div class="form-row">
        <div class="form-group flex-2">
         <label for="member-nom">Prénom ou Nom *</label>
