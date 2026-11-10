@@ -1,6 +1,45 @@
 // client/creasupdle.js - Creasupdle Game Engine (OnePieceDle style for Creasup)
 (function(window) {
   'use strict';
+  // Ultra-lightweight avatar compression (96x96 WebP 0.72)
+  function compressAvatarFile(file, size = 96, quality = 0.72) {
+    return new Promise((resolve, reject) => {
+      if (!file) return reject(new Error('Aucun fichier fourni'));
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+            let dataUrl = canvas.toDataURL('image/webp', quality);
+            if (!dataUrl || !dataUrl.startsWith('data:image/webp')) {
+              dataUrl = canvas.toDataURL('image/jpeg', 0.70);
+            }
+            resolve(dataUrl);
+          } catch (err) {
+            reject(err);
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
 
   // --- Sound Effects Synthesizer (Web Audio API, zero dependencies) ---
   const CreasupdleAudio = {
@@ -1500,6 +1539,53 @@
         }
       });
       dom.memberForm.addEventListener('submit', handleSaveMember);
+    }
+
+    // Photo de profil (PP) Upload & Remove listeners
+    const memberPhotoUpload = document.getElementById('member-photo-upload');
+    if (memberPhotoUpload) {
+      memberPhotoUpload.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        try {
+          const compressed = await compressAvatarFile(file, 96, 0.72);
+          const dataInput = document.getElementById('member-photo-data');
+          if (dataInput) dataInput.value = compressed;
+          const preview = document.getElementById('member-avatar-preview');
+          if (preview) {
+            preview.innerHTML = `<img src="${compressed}" alt="Preview" class="creasupdle-avatar-img">`;
+            preview.style.background = 'transparent';
+          }
+          const removeBtn = document.getElementById('btn-member-photo-remove');
+          if (removeBtn) removeBtn.style.display = 'inline-flex';
+          const btnText = document.getElementById('member-photo-btn-text');
+          if (btnText) btnText.textContent = 'Changer la photo';
+        } catch (err) {
+          console.error('Failed to compress member photo:', err);
+          showToast('Erreur lors de la compression de la photo.');
+        }
+      });
+    }
+
+    const memberPhotoRemove = document.getElementById('btn-member-photo-remove');
+    if (memberPhotoRemove) {
+      memberPhotoRemove.addEventListener('click', () => {
+        const dataInput = document.getElementById('member-photo-data');
+        if (dataInput) dataInput.value = '';
+        const uploadInput = document.getElementById('member-photo-upload');
+        if (uploadInput) uploadInput.value = '';
+        const preview = document.getElementById('member-avatar-preview');
+        const nomInput = dom.memberForm ? dom.memberForm.querySelector('#member-nom') : null;
+        const nom = nomInput ? nomInput.value.trim() : '?';
+        const init = nom.charAt(0).toUpperCase() || '?';
+        if (preview) {
+          preview.innerHTML = `<span id="member-avatar-initials">${init}</span>`;
+          preview.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+        }
+        memberPhotoRemove.style.display = 'none';
+        const btnText = document.getElementById('member-photo-btn-text');
+        if (btnText) btnText.textContent = 'Ajouter une photo (PP)';
+      });
     }
 
     // Step 2 & 3: Author Form & Success Screen
