@@ -6454,7 +6454,8 @@ function advanceTurnAndCheckRoundEnd(room) {
 
   // 3. GET /api/creasupdle/moderate?token=...&action=approve|reject
   if (parsedUrl.pathname === '/api/creasupdle/moderate' && req.method === 'GET') {
-    const token = parsedUrl.query.token;
+    try {
+      const token = parsedUrl.query.token;
     const action = parsedUrl.query.action;
     const reqData = verifyModerationToken(token);
 
@@ -6527,6 +6528,7 @@ function advanceTurnAndCheckRoundEnd(room) {
         }
       }
 
+      const pending = loadCreasupdlePending();
       if (reqData._reqId && pending[reqData._reqId]) {
         delete pending[reqData._reqId];
         saveCreasupdlePending(pending);
@@ -6588,6 +6590,12 @@ function advanceTurnAndCheckRoundEnd(room) {
         '<a href="/?game=creasupdle" class="btn">Retour au jeu</a>' +
         '</div></body></html>'
       );
+    }
+    return;
+    } catch (err) {
+      console.error('Erreur /api/creasupdle/moderate:', err);
+      res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end('<!DOCTYPE html><html><body style="background:#0b0f19;color:#fff;font-family:sans-serif;padding:40px;text-align:center;"><h2>Une erreur est survenue</h2><p>' + err.message + '</p></body></html>');
     }
   }
 
