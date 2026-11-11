@@ -445,10 +445,10 @@
     "id": "philemon",
     "nom": "Philémon",
     "nomComplet": "Philémon",
-    "surnom": "Le Dev Fury",
+    "surnom": "Le Dev Furry",
     "genre": "Homme",
     "situation": "Inconnu",
-    "orientation": "Fury",
+    "orientation": "Furry",
     "cheveux": "Roux",
     "taille": "1m75",
     "role": "Dev",
@@ -456,7 +456,7 @@
     "age": 21,
     "initiales": "PH",
     "avatarColor": "#f97316",
-    "punchline": "« Une touche de roux et une énergie fury incontrôlable ! »"
+    "punchline": "« Une touche de roux et une énergie furry incontrôlable ! »"
   },
   {
     "id": "ines",
@@ -686,7 +686,7 @@
     "surnom": "Le Dev Bourgogne",
     "genre": "Homme",
     "situation": "Célibataire",
-    "orientation": "Gay",
+    "orientation": "Heureux",
     "cheveux": "Blond",
     "taille": "1m75",
     "role": "Dev",

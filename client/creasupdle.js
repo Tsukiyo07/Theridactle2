@@ -183,11 +183,20 @@
       .replace(/[\u0300-\u036f]/g, '');
   }
 
-  // Normalize situation (handles "couple", "en couple", "celibataire", "celib")
+  // Normalize situation (handles "couple", "en couple", "celibataire", "celib", "heureux", "gay")
   function normSituation(s) {
     const n = norm(s);
     if (n.includes('couple')) return 'couple';
     if (n.includes('celib')) return 'celibataire';
+    if (n.includes('heureux') || n.includes('gay')) return 'heureux';
+    return n;
+  }
+
+  // Normalize orientation (handles "fury"/"furry", "gay"/"heureux")
+  function normOrientation(o) {
+    const n = norm(o);
+    if (n === 'gay' || n === 'heureux') return 'heureux';
+    if (n === 'fury' || n === 'furry') return 'furry';
     return n;
   }
 
@@ -281,8 +290,8 @@
     // 2. Situation (Célibataire / Couple)
     const situationMatch = normSituation(guess.situation) === normSituation(target.situation);
 
-    // 3. Orientation (Hétéro / Suspicieux / Polyvalent / Inconnu)
-    const orientationMatch = norm(guess.orientation) === norm(target.orientation);
+    // 3. Orientation (Hétéro / Suspicieux / Polyvalent / Furry / Heureux / Inconnu)
+    const orientationMatch = normOrientation(guess.orientation) === normOrientation(target.orientation);
 
     // 4. Cheveux (Noir / Marron / Châtain / Blond / Roux / Brun / Bonnet)
     const cheveuxMatch = isHairExact(guess.cheveux, target.cheveux);
@@ -542,29 +551,42 @@
 
   function updateCluesUI() {
     const tries = state.guesses.length;
-    // Clue 1: Initiales (unlocks after 2 tries)
-    if (dom.clueInitiales) {
-      if (tries >= 2 || state.isWon) {
-        dom.clueInitiales.classList.remove('locked');
-        dom.clueInitiales.innerHTML = `<span class="clue-tag">Indice 1</span> <strong>Initiales :</strong> ${state.target.initiales || state.target.nom.charAt(0)}`;
-      } else {
-        dom.clueInitiales.classList.add('locked');
-        dom.clueInitiales.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 2 essais (${tries}/2)`;
-      }
-    }
 
-    // Clue 2: Rôle & Orientation (unlocks after 3 tries)
+    // Clue 1: Rôle (Dev, Graph ou Aucun) (débloqué après 2 essais)
     if (dom.clueRole) {
-      if (tries >= 3 || state.isWon) {
+      if (tries >= 2 || state.isWon) {
         dom.clueRole.classList.remove('locked');
-        dom.clueRole.innerHTML = `<span class="clue-tag">Indice 2</span> <strong>Rôle &amp; Orientation :</strong> ${state.target.role} • ${state.target.orientation}`;
+        let roleHint = 'Aucun';
+        const normRole = (state.target.role || '').toLowerCase();
+        const hasDev = normRole.includes('dev');
+        const hasGraph = normRole.includes('graph');
+        if (hasDev && hasGraph) {
+          roleHint = normRole.indexOf('dev') < normRole.indexOf('graph') ? 'Dev' : 'Graph';
+        } else if (hasDev) {
+          roleHint = 'Dev';
+        } else if (hasGraph) {
+          roleHint = 'Graph';
+        }
+        dom.clueRole.innerHTML = `<span class="clue-tag">Indice 1</span> <strong>Rôle :</strong> ${roleHint}`;
       } else {
         dom.clueRole.classList.add('locked');
-        dom.clueRole.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 3 essais (${tries}/3)`;
+        dom.clueRole.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 2 essais (${tries}/2)`;
       }
     }
 
-    // Clue 3: Citation culte (unlocks after 4 tries)
+    // Clue 2: Initiale (débloqué après 3 essais)
+    if (dom.clueInitiales) {
+      if (tries >= 3 || state.isWon) {
+        dom.clueInitiales.classList.remove('locked');
+        const init = (state.target.initiales || state.target.nom.charAt(0) || '?').trim();
+        dom.clueInitiales.innerHTML = `<span class="clue-tag">Indice 2</span> <strong>Initiale :</strong> ${init}`;
+      } else {
+        dom.clueInitiales.classList.add('locked');
+        dom.clueInitiales.innerHTML = `<span class="clue-tag">Verrouillé</span> Débloqué après 3 essais (${tries}/3)`;
+      }
+    }
+
+    // Clue 3: Citation culte (débloqué après 4 essais)
     if (dom.cluePunchline) {
       if (tries >= 4 || state.isWon) {
         dom.cluePunchline.classList.remove('locked');
