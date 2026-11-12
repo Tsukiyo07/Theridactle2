@@ -574,11 +574,11 @@
       }
     }
 
-    // Clue 2: Initiale (débloqué après 3 essais)
+    // Clue 2: Initiale (débloqué après 3 essais - uniquement la 1ère lettre du prénom)
     if (dom.clueInitiales) {
       if (tries >= 3 || state.isWon) {
         dom.clueInitiales.classList.remove('locked');
-        const init = (state.target.initiales || state.target.nom.charAt(0) || '?').trim();
+        const init = (state.target.nom || state.target.nomComplet || '?').trim().charAt(0).toUpperCase();
         dom.clueInitiales.innerHTML = `<span class="clue-tag">Indice 2</span> <strong>Initiale :</strong> ${init}`;
       } else {
         dom.clueInitiales.classList.add('locked');

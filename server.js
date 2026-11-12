@@ -127,6 +127,24 @@ function saveStats(stats) {
 const CREASUPDLE_ROSTER_FILE = path.join(__dirname, 'creasupdle-roster.json');
 const CREASUPDLE_PENDING_FILE = path.join(__dirname, 'creasupdle-pending.json');
 const CREASUPDLE_DEFAULT_FILE = path.join(__dirname, 'creasupdle-default-roster.json');
+const CREASUPDLE_BACKUP_FILE = path.join(__dirname, 'creasupdle-roster-backup.json');
+
+function mergeCreasupdleRosters(baseList, incomingList) {
+  const map = new Map();
+  const add = (item) => {
+    if (!item) return;
+    const key = (item.id || item.nomComplet || item.nom || '').toLowerCase().trim();
+    if (!key) return;
+    if (map.has(key)) {
+      map.set(key, { ...map.get(key), ...item });
+    } else {
+      map.set(key, { ...item });
+    }
+  };
+  if (Array.isArray(baseList)) baseList.forEach(add);
+  if (Array.isArray(incomingList)) incomingList.forEach(add);
+  return Array.from(map.values());
+}
 
 let cachedCreasupdleRoster = null;
 
@@ -175,17 +193,29 @@ function loadCreasupdleRoster() {
 }
 
 function saveCreasupdleRoster(roster) {
-  cachedCreasupdleRoster = roster;
+  const current = cachedCreasupdleRoster || [];
+  let diskRoster = [];
   try {
-    fs.writeFileSync(CREASUPDLE_ROSTER_FILE, JSON.stringify(roster, null, 2), 'utf8');
+    if (fs.existsSync(CREASUPDLE_ROSTER_FILE)) {
+      diskRoster = JSON.parse(fs.readFileSync(CREASUPDLE_ROSTER_FILE, 'utf8'));
+    }
+  } catch(e) {}
+  const safeMerged = mergeCreasupdleRosters(diskRoster, mergeCreasupdleRosters(current, roster));
+  cachedCreasupdleRoster = safeMerged;
+
+  try {
+    fs.writeFileSync(CREASUPDLE_ROSTER_FILE, JSON.stringify(safeMerged, null, 2), 'utf8');
   } catch (e) {
     console.error('Erreur ecriture creasupdle-roster.json:', e);
   }
   try {
-    fs.writeFileSync(CREASUPDLE_DEFAULT_FILE, JSON.stringify(roster, null, 2), 'utf8');
+    fs.writeFileSync(CREASUPDLE_DEFAULT_FILE, JSON.stringify(safeMerged, null, 2), 'utf8');
   } catch (e) {
     console.error('Erreur ecriture creasupdle-default-roster.json:', e);
   }
+  try {
+    fs.writeFileSync(CREASUPDLE_BACKUP_FILE, JSON.stringify(safeMerged, null, 2), 'utf8');
+  } catch (e) {}
 
   const key = process.env.JSONBIN_KEY;
   const bin = process.env.JSONBIN_CREASUPDLE_BIN;
@@ -196,9 +226,9 @@ function saveCreasupdleRoster(roster) {
         'Content-Type': 'application/json',
         'X-Master-Key': key
       },
-      body: JSON.stringify(roster)
+      body: JSON.stringify(safeMerged)
     }).then(r => r.json()).then(data => {
-      if (data.record) console.log("Creasupdle roster synced to cloud successfully!");
+      if (data.record) console.log(`Creasupdle roster synced to cloud successfully (${safeMerged.length} members)!`);
       else console.error("Failed to sync Creasupdle roster to cloud:", data);
     }).catch(e => {
       console.error("Failed to sync Creasupdle roster to cloud:", e);
@@ -7058,13 +7088,20 @@ if (process.env.JSONBIN_KEY) {
       }
     }).catch(e => console.error("Failed to preload stats from cloud:", e)) : Promise.resolve(),
 
-    // Preload Creasupdle roster
+    // Preload Creasupdle roster (with merge protection)
     process.env.JSONBIN_CREASUPDLE_BIN ? fetch(`https://api.jsonbin.io/v3/b/${process.env.JSONBIN_CREASUPDLE_BIN}/latest`, {
       headers: { 'X-Master-Key': process.env.JSONBIN_KEY }
     }).then(r => r.json()).then(data => {
       if (data.record && Array.isArray(data.record) && data.record.length > 0) {
-        cachedCreasupdleRoster = data.record;
-        console.log("Loaded Creasupdle roster from JSONBin successfully (" + data.record.length + " members).");
+        const local = loadCreasupdleRoster();
+        const merged = mergeCreasupdleRosters(local, data.record);
+        cachedCreasupdleRoster = merged;
+        try {
+          fs.writeFileSync(CREASUPDLE_ROSTER_FILE, JSON.stringify(merged, null, 2), 'utf8');
+          fs.writeFileSync(CREASUPDLE_DEFAULT_FILE, JSON.stringify(merged, null, 2), 'utf8');
+          fs.writeFileSync(CREASUPDLE_BACKUP_FILE, JSON.stringify(merged, null, 2), 'utf8');
+        } catch(e) {}
+        console.log("Loaded & merged Creasupdle roster from JSONBin successfully (" + merged.length + " members).");
       }
     }).catch(e => console.error("Failed to preload Creasupdle roster from cloud:", e)) : Promise.resolve(),
 
